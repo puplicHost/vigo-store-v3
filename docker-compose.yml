@@ -1,0 +1,22 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: vigo_store_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: vigo_user
+      POSTGRES_PASSWORD: vigo_password
+      POSTGRES_DB: vigo_store
+    ports:
+      - "5432:5432"
+    volumes:
+      - vigo_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vigo_user -d vigo_store"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  vigo_postgres_data:
+    driver: local
