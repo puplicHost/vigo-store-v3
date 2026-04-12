@@ -14,7 +14,11 @@ export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',
     '@pinia/nuxt',
+    '@nuxtjs/tailwindcss',
   ],
+
+  // Global CSS
+  css: ['~/assets/css/main.css'],
 
   // إعدادات Pinia لضمان التعرف على الـ Stores في بنية Nuxt 4
   pinia: {
@@ -32,6 +36,17 @@ export default defineNuxtConfig({
   eslint: {
     config: {
       stylistic: true // تفعيل التنسيق الجمالي للكود
+    }
+  },
+
+  // Vite optimization for DevTools
+  vite: {
+    optimizeDeps: {
+      include: [
+        'shiki',
+        '@vue/devtools-core',
+        '@vue/devtools-kit'
+      ]
     }
   }
 })
