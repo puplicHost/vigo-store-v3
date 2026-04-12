@@ -175,6 +175,40 @@
               class="w-full bg-transparent border border-outline-variant/30 rounded-lg py-3 px-4 focus:outline-none focus:border-primary transition-colors font-body resize-none"
             ></textarea>
           </div>
+          <div>
+            <label class="block font-label text-[10px] uppercase tracking-[0.15em] text-on-surface-variant mb-2">Images</label>
+            <div class="border-2 border-dashed border-outline-variant/30 rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
+              <input
+                ref="fileInput"
+                type="file"
+                accept="image/*"
+                multiple
+                @change="handleImageUpload"
+                class="hidden"
+              />
+              <button
+                type="button"
+                @click="() => fileInput?.click?.()"
+                class="flex flex-col items-center gap-2 text-on-surface-variant hover:text-primary transition-colors"
+              >
+                <span class="material-symbols-outlined text-4xl">cloud_upload</span>
+                <span class="font-label text-sm uppercase tracking-widest">Upload Images</span>
+              </button>
+              <div v-if="imagePreviews.length" class="mt-4 flex flex-wrap gap-2">
+                <div v-for="(preview, index) in imagePreviews" :key="index" class="relative w-20 h-20 rounded-lg overflow-hidden">
+                  <img :src="preview" class="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    @click="removeImage(index)"
+                    class="absolute top-1 right-1 bg-error text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                  >
+                    ×
+                  </button>
+                </div>
+              </div>
+              <p v-else class="text-xs text-on-surface-variant/60 mt-2">Click to upload product images</p>
+            </div>
+          </div>
           <div class="grid grid-cols-3 gap-6">
             <div>
               <label class="block font-label text-[10px] uppercase tracking-[0.15em] text-on-surface-variant mb-2">Price ($)</label>
@@ -271,6 +305,8 @@ const { data: categories } = await useApiFetch('/api/admin/categories', {
 const selectedCategory = ref('')
 const showCreateModal = ref(false)
 const creating = ref(false)
+const fileInput = ref(null)
+const imagePreviews = ref([])
 
 const newProduct = ref({
   name: '',
@@ -314,6 +350,7 @@ const createProduct = async () => {
       sizes: [],
       colors: []
     }
+    imagePreviews.value = []
     showCreateModal.value = false
     await refreshProducts()
   } catch (err) {
@@ -354,5 +391,27 @@ const deleteProduct = async () => {
 
 const editProduct = (product) => {
   alert('Edit functionality coming soon!')
+}
+
+const handleImageUpload = (event) => {
+  const files = event.target.files
+  if (!files || files.length === 0) return
+
+  Array.from(files).forEach(file => {
+    if (!file.type.startsWith('image/')) return
+
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      imagePreviews.value.push(e.target.result)
+      // Convert to base64 for storage (in production, upload to server)
+      newProduct.value.images.push(e.target.result)
+    }
+    reader.readAsDataURL(file)
+  })
+}
+
+const removeImage = (index) => {
+  imagePreviews.value.splice(index, 1)
+  newProduct.value.images.splice(index, 1)
 }
 </script>

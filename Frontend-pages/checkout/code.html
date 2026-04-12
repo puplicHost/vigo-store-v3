@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ELIXIR | Checkout</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;family=Manrope:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed": "#261900",
+                        "on-surface-variant": "#4e4639",
+                        "surface": "#fcf9f8",
+                        "error-container": "#ffdad6",
+                        "primary": "#775a19",
+                        "on-primary-container": "#4e3700",
+                        "secondary-fixed": "#e5e2e1",
+                        "on-secondary": "#ffffff",
+                        "inverse-primary": "#e9c176",
+                        "surface-container-high": "#ebe7e7",
+                        "on-tertiary-fixed": "#1b1c1c",
+                        "primary-fixed-dim": "#e9c176",
+                        "surface-dim": "#dcd9d9",
+                        "on-primary-fixed-variant": "#5d4201",
+                        "on-tertiary-fixed-variant": "#474747",
+                        "inverse-surface": "#313030",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "on-secondary-container": "#636262",
+                        "error": "#ba1a1a",
+                        "primary-fixed": "#ffdea5",
+                        "surface-bright": "#fcf9f8",
+                        "secondary": "#5f5e5e",
+                        "outline-variant": "#d1c5b4",
+                        "surface-container-highest": "#e5e2e1",
+                        "on-background": "#1c1b1b",
+                        "on-surface": "#1c1b1b",
+                        "inverse-on-surface": "#f3f0ef",
+                        "on-secondary-fixed-variant": "#474746",
+                        "surface-tint": "#775a19",
+                        "tertiary-container": "#a6a5a5",
+                        "on-error-container": "#93000a",
+                        "on-tertiary": "#ffffff",
+                        "surface-container": "#f0edec",
+                        "outline": "#7f7667",
+                        "tertiary-fixed-dim": "#c8c6c6",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-container": "#3b3b3b",
+                        "secondary-container": "#e2dfde",
+                        "primary-container": "#c5a059",
+                        "on-primary": "#ffffff",
+                        "tertiary": "#5f5e5e",
+                        "on-secondary-fixed": "#1c1b1b",
+                        "on-error": "#ffffff",
+                        "background": "#fcf9f8",
+                        "surface-container-low": "#f6f3f2",
+                        "tertiary-fixed": "#e4e2e1",
+                        "surface-variant": "#e5e2e1"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Noto Serif"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; background-color: #fcf9f8; color: #1c1b1b; }
+        .font-serif { font-family: 'Noto Serif', serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+        .input-minimal {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid rgba(209, 197, 180, 0.5);
+            border-radius: 0;
+            padding: 0.75rem 0;
+            transition: border-color 0.3s ease;
+        }
+        .input-minimal:focus {
+            outline: none;
+            box-shadow: none;
+            border-bottom: 2px solid #775a19;
+        }
+        .checkout-gradient {
+            background: linear-gradient(135deg, #775a19 0%, #c5a059 100%);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- TopNavBar - Brand Anchor -->
+<header class="fixed top-0 w-full z-50 bg-white/80 dark:bg-stone-900/80 backdrop-blur-xl shadow-[0_20px_40px_rgba(28,27,27,0.04)]">
+<div class="flex justify-between items-center px-12 py-6 w-full max-w-screen-2xl mx-auto">
+<div class="flex items-center gap-12">
+<a class="text-2xl font-serif italic text-stone-900 dark:text-stone-50" href="#">ELIXIR</a>
+<nav class="hidden md:flex gap-8 font-['Noto_Serif'] tracking-tight">
+<a class="text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition-colors" href="#">Collections</a>
+<a class="text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition-colors" href="#">New Arrivals</a>
+<a class="text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition-colors" href="#">Lookbook</a>
+<a class="text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition-colors" href="#">Our Story</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<button class="material-symbols-outlined text-stone-600 hover:opacity-80 transition-all duration-300" data-icon="person">person</button>
+<button class="material-symbols-outlined text-stone-600 hover:opacity-80 transition-all duration-300" data-icon="shopping_bag">shopping_bag</button>
+</div>
+</div>
+</header>
+<main class="pt-32 pb-24 px-12 max-w-screen-2xl mx-auto min-h-screen">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+<!-- Left Column: Checkout Flow -->
+<div class="lg:col-span-7 space-y-16">
+<!-- Header -->
+<header class="space-y-4">
+<h1 class="text-4xl font-serif text-on-surface tracking-tight">Complete your order</h1>
+<p class="text-secondary font-body">Review your items and provide delivery details below.</p>
+</header>
+<!-- Steps Navigation (Minimalist) -->
+<div class="flex gap-8 border-b border-outline-variant/20 pb-4">
+<div class="flex items-center gap-2 text-primary font-semibold">
+<span class="text-xs uppercase tracking-widest px-2 py-1 bg-primary/10 rounded">01</span>
+<span class="text-sm">Shipping</span>
+</div>
+<div class="flex items-center gap-2 text-secondary/50 font-medium">
+<span class="text-xs uppercase tracking-widest px-2 py-1 bg-surface-container rounded">02</span>
+<span class="text-sm">Payment</span>
+</div>
+<div class="flex items-center gap-2 text-secondary/50 font-medium">
+<span class="text-xs uppercase tracking-widest px-2 py-1 bg-surface-container rounded">03</span>
+<span class="text-sm">Review</span>
+</div>
+</div>
+<!-- Shipping Form Section -->
+<section class="space-y-10">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-10">
+<div class="flex flex-col">
+<label class="text-[10px] uppercase tracking-[0.2em] font-semibold text-secondary mb-1">First Name</label>
+<input class="input-minimal" placeholder="Julian" type="text"/>
+</div>
+<div class="flex flex-col">
+<label class="text-[10px] uppercase tracking-[0.2em] font-semibold text-secondary mb-1">Last Name</label>
+<input class="input-minimal" placeholder="Vandervalt" type="text"/>
+</div>
+<div class="md:col-span-2 flex flex-col">
+<label class="text-[10px] uppercase tracking-[0.2em] font-semibold text-secondary mb-1">Address line 1</label>
+<input class="input-minimal" placeholder="1242 Rue de l'Atelier" type="text"/>
+</div>
+<div class="flex flex-col">
+<label class="text-[10px] uppercase tracking-[0.2em] font-semibold text-secondary mb-1">City</label>
+<input class="input-minimal" placeholder="Paris" type="text"/>
+</div>
+<div class="flex flex-col">
+<label class="text-[10px] uppercase tracking-[0.2em] font-semibold text-secondary mb-1">Postal Code</label>
+<input class="input-minimal" placeholder="75001" type="text"/>
+</div>
+<div class="md:col-span-2 flex flex-col">
+<label class="text-[10px] uppercase tracking-[0.2em] font-semibold text-secondary mb-1">Country / Region</label>
+<select class="input-minimal appearance-none bg-none">
+<option>France</option>
+<option>United Kingdom</option>
+<option>United States</option>
+<option>Japan</option>
+</select>
+</div>
+</div>
+<!-- Shipping Method Selection (Tonal Nesting) -->
+<div class="space-y-4">
+<h3 class="text-sm uppercase tracking-widest font-semibold text-on-surface">Shipping Method</h3>
+<div class="space-y-3">
+<label class="flex items-center justify-between p-5 bg-surface-container-low rounded-xl cursor-pointer border border-transparent hover:border-primary/20 transition-all">
+<div class="flex items-center gap-4">
+<input checked="" class="text-primary focus:ring-primary border-outline-variant" name="shipping" type="radio"/>
+<div>
+<span class="block text-sm font-semibold">Standard Atelier Delivery</span>
+<span class="block text-xs text-secondary mt-1">3-5 business days</span>
+</div>
+</div>
+<span class="text-sm font-medium">Free</span>
+</label>
+<label class="flex items-center justify-between p-5 bg-surface-container-lowest rounded-xl cursor-pointer border border-transparent hover:border-primary/20 transition-all shadow-sm">
+<div class="flex items-center gap-4">
+<input class="text-primary focus:ring-primary border-outline-variant" name="shipping" type="radio"/>
+<div>
+<span class="block text-sm font-semibold">Express Maison Courier</span>
+<span class="block text-xs text-secondary mt-1">Next day delivery</span>
+</div>
+</div>
+<span class="text-sm font-medium">€24.00</span>
+</label>
+</div>
+</div>
+</section>
+<div class="pt-8 flex justify-between items-center border-t border-outline-variant/10">
+<button class="text-sm font-medium text-secondary hover:text-on-surface transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-base">arrow_back</span>
+                        Return to Shop
+                    </button>
+<button class="checkout-gradient text-on-primary px-10 py-4 rounded-xl text-sm font-bold uppercase tracking-widest hover:opacity-90 transition-all shadow-lg">
+                        Continue to Payment
+                    </button>
+</div>
+</div>
+<!-- Right Column: Order Summary & Cart Items -->
+<aside class="lg:col-span-5 bg-surface-container-low rounded-[2rem] p-8 lg:p-12 sticky top-32">
+<h2 class="text-2xl font-serif mb-10">Order Summary</h2>
+<div class="space-y-8 mb-10 max-h-[400px] overflow-y-auto pr-4 custom-scrollbar">
+<!-- Cart Item 1 -->
+<div class="flex gap-6 group">
+<div class="relative w-24 h-32 flex-shrink-0 bg-stone-200 rounded-lg overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="Close-up of a luxury silk blouse in ivory color with soft studio lighting and elegant drapery" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDK0JZ8UJRsL-65mUVJrPtIeERaxC7ZhuNs_zlfvHYdW_KrvLhn-SqyJGZZQQr5Ee0QKnjxAl-ZcV5N-G9fKnSyHEk37-_EavtZ1Rz-dSg7tN72HeqWGfT7LYDrlZkLiwDcQJa9CLraqd56PcfkYOOfE46fDhwwiPzziR_IYgS3FqUch88FfqyLug2abL32DwhdBDeKxox8zwgt5UCYXzrEvR400XSa7hUhb3VJT8qkz0_FEKK7j62GBltxjGDlG18KN6z75e6XDck"/>
+<div class="absolute top-2 right-2 flex items-center justify-center bg-white/60 backdrop-blur-md rounded-full w-6 h-6 text-[10px] font-bold">1</div>
+</div>
+<div class="flex flex-col justify-between py-1 flex-grow">
+<div>
+<div class="flex justify-between items-start">
+<h3 class="text-sm font-semibold text-on-surface">Atelier Silk Blouse</h3>
+<span class="text-sm font-medium">€285.00</span>
+</div>
+<p class="text-xs text-secondary mt-1">Ivory / Size M</p>
+</div>
+<button class="text-xs text-secondary hover:text-error transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">close</span>
+                                Remove
+                            </button>
+</div>
+</div>
+<!-- Cart Item 2 -->
+<div class="flex gap-6 group">
+<div class="relative w-24 h-32 flex-shrink-0 bg-stone-200 rounded-lg overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="Premium leather minimalist handbag in tan brown with golden hardware details against a neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYbTMEG8kcTQAIeYkzVO_7cqEcXypuA7f8ciwRy_FSauP75l9LZ5lKv5IAoIK_58vUs0sOLEsRTm0iTGXu_w4piZS40iIkYp63_y1_Db725WMheuQu0OEx7wZ0dtNPLeOs623BJbmu87V8xQeFKBttKEeXahqBiDz1I0jmabPQqePFhyMvsR416TgMnbTsKd-IfkzzHZiVGn88PHlKe8SY1esRM_lYrWqAD3jG-4R7m-tcnQGyG6kn8j_XPeXS18R1tRzv50zccx0"/>
+<div class="absolute top-2 right-2 flex items-center justify-center bg-white/60 backdrop-blur-md rounded-full w-6 h-6 text-[10px] font-bold">1</div>
+</div>
+<div class="flex flex-col justify-between py-1 flex-grow">
+<div>
+<div class="flex justify-between items-start">
+<h3 class="text-sm font-semibold text-on-surface">Nappa Leather Tote</h3>
+<span class="text-sm font-medium">€640.00</span>
+</div>
+<p class="text-xs text-secondary mt-1">Saddle Tan / Standard</p>
+</div>
+<button class="text-xs text-secondary hover:text-error transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">close</span>
+                                Remove
+                            </button>
+</div>
+</div>
+</div>
+<!-- Breakdown -->
+<div class="space-y-4 pt-8 border-t border-outline-variant/20">
+<div class="flex justify-between text-sm">
+<span class="text-secondary">Subtotal</span>
+<span class="font-medium">€925.00</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-secondary">Shipping</span>
+<span class="text-primary font-medium">Calculated in next step</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-secondary">Estimated Tax</span>
+<span class="font-medium">€185.00</span>
+</div>
+<div class="flex justify-between text-lg font-bold pt-4 border-t border-outline-variant/20">
+<span class="font-serif">Total</span>
+<span class="font-serif">€1,110.00</span>
+</div>
+</div>
+<!-- Promo Code -->
+<div class="mt-10 flex gap-4">
+<input class="input-minimal flex-grow py-2" placeholder="Promo Code" type="text"/>
+<button class="text-xs font-bold uppercase tracking-widest py-2 px-4 border-b border-on-surface">Apply</button>
+</div>
+<!-- Security Badge -->
+<div class="mt-12 flex items-center justify-center gap-6 opacity-40">
+<div class="flex items-center gap-1.5 grayscale">
+<span class="material-symbols-outlined text-lg">verified_user</span>
+<span class="text-[10px] uppercase font-bold tracking-tighter">Secure Checkout</span>
+</div>
+<div class="flex items-center gap-1.5 grayscale">
+<span class="material-symbols-outlined text-lg">local_shipping</span>
+<span class="text-[10px] uppercase font-bold tracking-tighter">Tracked Delivery</span>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<!-- Footer - Brand Anchor -->
+<footer class="bg-stone-100 dark:bg-stone-950 w-full pt-20 pb-10">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-12 px-12 max-w-screen-2xl mx-auto font-['Manrope'] text-sm leading-relaxed tracking-wide">
+<div class="col-span-1">
+<span class="font-serif text-xl mb-4 block">ELIXIR ATELIER</span>
+<p class="text-stone-500 dark:text-stone-500">Crafting timeless garments for the modern visionary since 2024.</p>
+</div>
+<div>
+<h4 class="text-stone-900 dark:text-white font-semibold mb-6">Explore</h4>
+<ul class="space-y-3">
+<li><a class="text-stone-500 dark:text-stone-500 hover:underline decoration-amber-700/50 underline-offset-4 transition-all" href="#">Collections</a></li>
+<li><a class="text-stone-500 dark:text-stone-500 hover:underline decoration-amber-700/50 underline-offset-4 transition-all" href="#">Sourcing</a></li>
+<li><a class="text-stone-500 dark:text-stone-500 hover:underline decoration-amber-700/50 underline-offset-4 transition-all" href="#">Lookbook</a></li>
+</ul>
+</div>
+<div>
+<h4 class="text-stone-900 dark:text-white font-semibold mb-6">Assistance</h4>
+<ul class="space-y-3">
+<li><a class="text-stone-500 dark:text-stone-500 hover:underline decoration-amber-700/50 underline-offset-4 transition-all" href="#">Shipping &amp; Returns</a></li>
+<li><a class="text-stone-500 dark:text-stone-500 hover:underline decoration-amber-700/50 underline-offset-4 transition-all" href="#">Sustainability</a></li>
+<li><a class="text-stone-500 dark:text-stone-500 hover:underline decoration-amber-700/50 underline-offset-4 transition-all" href="#">Contact Us</a></li>
+</ul>
+</div>
+<div>
+<h4 class="text-stone-900 dark:text-white font-semibold mb-6">Newsletter</h4>
+<div class="flex border-b border-stone-300 dark:border-stone-800 pb-2">
+<input class="bg-transparent border-none focus:ring-0 text-sm w-full" placeholder="Your email address" type="email"/>
+<button class="material-symbols-outlined text-amber-700">arrow_forward</button>
+</div>
+</div>
+</div>
+<div class="mt-20 px-12 max-w-screen-2xl mx-auto border-t border-stone-200 dark:border-stone-900 pt-8 flex flex-col md:flex-row justify-between gap-4">
+<span class="text-stone-400 text-xs">© 2024 ELIXIR ATELIER. ALL RIGHTS RESERVED.</span>
+<div class="flex gap-6 text-xs text-stone-400">
+<a class="hover:text-stone-900 transition-colors" href="#">Privacy Policy</a>
+<a class="hover:text-stone-900 transition-colors" href="#">Wholesale</a>
+</div>
+</div>
+</footer>
+</body></html>
