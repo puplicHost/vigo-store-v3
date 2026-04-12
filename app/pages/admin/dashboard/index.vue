@@ -161,15 +161,9 @@ definePageMeta({
   layout: 'admin'
 })
 
-const { token } = useAuth()
-
-const headers = computed(() => ({
-  Authorization: token.value ? `Bearer ${token.value}` : ''
-}))
-
-const { data: products } = await useFetch('/api/admin/products', { headers })
-const { data: categories } = await useFetch('/api/admin/categories', { headers })
-const { data: orders, pending } = await useFetch('/api/admin/orders', { headers })
+const { data: products } = await useApiFetch('/api/admin/products')
+const { data: categories } = await useApiFetch('/api/admin/categories')
+const { data: orders, pending } = await useApiFetch('/api/admin/orders')
 
 const stats = computed(() => ({
   products: products.value?.length || 0,

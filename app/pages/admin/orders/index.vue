@@ -100,13 +100,7 @@ definePageMeta({
   layout: 'admin'
 })
 
-const { token } = useAuth()
-
-const headers = computed(() => ({
-  Authorization: token.value ? `Bearer ${token.value}` : ''
-}))
-
-const { data: orders, pending, error } = await useFetch('/api/admin/orders', { headers })
+const { data: orders, pending, error } = await useApiFetch('/api/admin/orders')
 
 const statusFilter = ref('')
 

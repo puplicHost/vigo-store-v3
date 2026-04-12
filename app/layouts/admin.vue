@@ -92,8 +92,10 @@ const { user, logout } = useAuth()
 const route = useRoute()
 
 const menuItems = [
+  { name: 'Dashboard', path: '/admin/dashboard', icon: 'dashboard' },
   { name: 'Inventory', path: '/admin', icon: 'inventory_2' },
-  { name: 'Categories', path: '/categories', icon: 'folder' }
+  { name: 'Categories', path: '/categories', icon: 'folder' },
+  { name: 'Orders', path: '/admin/orders', icon: 'shopping_bag' }
 ]
 
 const isActive = (path) => {
@@ -101,13 +103,43 @@ const isActive = (path) => {
   return route.path.startsWith(path)
 }
 
-// Protect admin routes
+// Protect admin routes - only run on client side
 onMounted(async () => {
-  if (!user.value) {
-    await useAuth().fetchUser()
-  }
-  if (!user.value || (user.value.role !== 'ADMIN' && user.value.role !== 'SUPER_ADMIN')) {
+  const auth = useAuth()
+
+  // Wait a tick for auth state to hydrate
+  await nextTick()
+
+  // If no token at all, redirect immediately
+  if (!auth.token.value) {
+    console.warn('[Admin Layout] No token found - redirecting to login')
     navigateTo('/auth/login')
+    return
   }
+
+  // Try to fetch user if not loaded
+  if (!auth.user.value) {
+    try {
+      await auth.fetchUser()
+    } catch (err) {
+      console.warn('[Admin Layout] Failed to fetch user:', err)
+      auth.logout()
+      navigateTo('/auth/login')
+      return
+    }
+  }
+
+  // Check authentication and role
+  const isAuthenticated = auth.isAuthenticated.value
+  const isAdmin = auth.user.value?.role === 'ADMIN' || auth.user.value?.role === 'SUPER_ADMIN'
+
+  if (!isAuthenticated || !isAdmin) {
+    console.warn('[Admin Layout] Access denied - not admin')
+    auth.logout()
+    navigateTo('/auth/login')
+    return
+  }
+
+  console.log('[Admin Layout] Access granted for:', auth.user.value?.email)
 })
 </script>

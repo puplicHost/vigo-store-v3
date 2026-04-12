@@ -60,12 +60,12 @@
             </td>
             <td class="px-6 py-4 text-right">
               <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button
-                  @click="editCategory(category)"
+                <NuxtLink
+                  :to="`/admin/categories/${category.id}/edit`"
                   class="p-2 rounded-lg hover:bg-surface-container-low text-on-surface-variant hover:text-primary transition-colors"
                 >
                   <span class="material-symbols-outlined text-lg">edit</span>
-                </button>
+                </NuxtLink>
                 <button
                   @click="confirmDelete(category)"
                   class="p-2 rounded-lg hover:bg-error/10 text-on-surface-variant hover:text-error transition-colors"
@@ -151,7 +151,7 @@ definePageMeta({
   layout: 'admin'
 })
 
-const { data: categories, pending, error, refresh } = await useFetch('/api/admin/categories')
+const { data: categories, pending, error, refresh } = await useApiFetch('/api/admin/categories')
 const showCreateModal = ref(false)
 const newCategoryName = ref('')
 const creating = ref(false)
@@ -164,7 +164,7 @@ const deleteModal = ref({
 const createCategory = async () => {
   creating.value = true
   try {
-    await $fetch('/api/admin/categories', {
+    const response = await useApiFetch('/api/admin/categories', {
       method: 'POST',
       body: { name: newCategoryName.value }
     })
@@ -186,7 +186,7 @@ const deleting = ref(false)
 const deleteCategory = async () => {
   deleting.value = true
   try {
-    await $fetch(`/api/admin/categories/${deleteModal.value.category.id}`, {
+    const response = await useApiFetch(`/api/admin/categories/${deleteModal.value.category.id}`, {
       method: 'DELETE'
     })
     deleteModal.value.show = false
