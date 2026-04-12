@@ -46,13 +46,13 @@
             </td>
           </tr>
           <tr v-else-if="error" class="hover:bg-surface-container-low/50 transition-colors">
-            <td colspan="6" class="px-6 py-12 text-center text-error">
-              Failed to load orders
+            <td colspan="6" class="px-6 py-12 text-center">
+              <span class="text-error font-body">Failed to load orders</span>
             </td>
           </tr>
           <tr v-else-if="!filteredOrders?.length" class="hover:bg-surface-container-low/50 transition-colors">
-            <td colspan="6" class="px-6 py-12 text-center text-on-surface-variant font-body">
-              No orders found.
+            <td colspan="6" class="px-6 py-12 text-center">
+              <span class="text-on-surface-variant font-body">No orders found.</span>
             </td>
           </tr>
           <tr
@@ -100,12 +100,14 @@ definePageMeta({
   layout: 'admin'
 })
 
-const { data: orders, pending, error } = await useApiFetch('/api/admin/orders')
+const { data: orders, pending, error } = await useApiFetch('/api/admin/orders', {
+  default: () => []
+})
 
 const statusFilter = ref('')
 
 const filteredOrders = computed(() => {
-  if (!orders.value) return []
+  if (!orders.value || !Array.isArray(orders.value)) return []
   if (!statusFilter.value) return orders.value
   return orders.value.filter(o => o.status === statusFilter.value)
 })

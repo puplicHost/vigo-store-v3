@@ -252,8 +252,12 @@ definePageMeta({
   layout: 'admin'
 })
 
-const { data: products, pending, error, refresh: refreshProducts } = await useApiFetch('/api/admin/products')
-const { data: categories } = await useApiFetch('/api/admin/categories')
+const { data: products, pending, error, refresh: refreshProducts } = await useApiFetch('/api/admin/products', {
+  default: () => []
+})
+const { data: categories } = await useApiFetch('/api/admin/categories', {
+  default: () => []
+})
 
 const selectedCategory = ref('')
 const showCreateModal = ref(false)
@@ -278,6 +282,12 @@ const filteredProducts = computed(() => {
 })
 
 const createProduct = async () => {
+  // Validate category is selected
+  if (!newProduct.value.categoryId) {
+    alert('Please select a category')
+    return
+  }
+
   creating.value = true
   try {
     await $apiFetch('/api/admin/products', {

@@ -161,19 +161,28 @@ definePageMeta({
   layout: 'admin'
 })
 
-const { data: products } = await useApiFetch('/api/admin/products')
-const { data: categories } = await useApiFetch('/api/admin/categories')
-const { data: orders, pending } = await useApiFetch('/api/admin/orders')
+const { data: products } = await useApiFetch('/api/admin/products', {
+  default: () => []
+})
+const { data: categories } = await useApiFetch('/api/admin/categories', {
+  default: () => []
+})
+const { data: orders, pending } = await useApiFetch('/api/admin/orders', {
+  default: () => []
+})
 
-const stats = computed(() => ({
-  products: products.value?.length || 0,
-  categories: categories.value?.length || 0,
-  orders: orders.value?.length || 0,
-  revenue: orders.value?.reduce((sum, o) => sum + (o.totalAmount || 0), 0) || 0
-}))
+const stats = computed(() => {
+  const ordersArray = Array.isArray(orders.value) ? orders.value : []
+  return {
+    products: products.value?.length || 0,
+    categories: categories.value?.length || 0,
+    orders: ordersArray.length || 0,
+    revenue: ordersArray.reduce((sum, o) => sum + (o.totalAmount || 0), 0) || 0
+  }
+})
 
 const recentOrders = computed(() => {
-  if (!orders.value) return []
-  return orders.value.slice(0, 5)
+  const ordersArray = Array.isArray(orders.value) ? orders.value : []
+  return ordersArray.slice(0, 5)
 })
 </script>

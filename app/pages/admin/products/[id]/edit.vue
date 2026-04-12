@@ -197,8 +197,13 @@ const route = useRoute()
 const router = useRouter()
 const productId = route.params.id
 
-const { data: product, pending, error, refresh } = await useApiFetch(`/api/admin/products/${productId}`)
-const { data: categories } = await useApiFetch('/api/admin/categories')
+const { data: product, pending, error, refresh } = await useApiFetch(
+  productId ? `/api/admin/products/${productId}` : null,
+  { default: () => null }
+)
+const { data: categories } = await useApiFetch('/api/admin/categories', {
+  default: () => []
+})
 
 // Form state
 const form = reactive({

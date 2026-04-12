@@ -37,7 +37,7 @@ const handleRegister = async () => {
   loading.value = true
   
   try {
-    const { data, error: fetchError } = await useFetch<RegisterResponse>('/api/auth/register', {
+    const data = await $fetch<RegisterResponse>('/api/auth/register', {
       method: 'POST',
       body: {
         name: name.value,
@@ -47,17 +47,12 @@ const handleRegister = async () => {
       }
     })
     
-    if (fetchError.value) {
-      error.value = fetchError.value.statusMessage || 'Registration failed'
-      return
-    }
-    
-    if (data.value?.success) {
+    if (data?.success) {
       // Redirect to login
       navigateTo('/auth/login')
     }
-  } catch (e) {
-    error.value = 'An unexpected error occurred'
+  } catch (e: any) {
+    error.value = e.data?.statusMessage || 'An unexpected error occurred'
   } finally {
     loading.value = false
   }

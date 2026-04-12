@@ -116,7 +116,9 @@ const router = useRouter()
 const categoryId = route.params.id
 
 // Fetch category - we need to get it from the list since there's no single category endpoint
-const { data: categories, pending, error, refresh } = await useApiFetch('/api/admin/categories')
+const { data: categories, pending, error, refresh } = await useApiFetch('/api/admin/categories', {
+  default: () => []
+})
 
 const category = computed(() => {
   return categories.value?.find(c => c.id === categoryId)

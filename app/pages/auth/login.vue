@@ -27,7 +27,7 @@ const handleLogin = async () => {
   loading.value = true
   
   try {
-    const { data, error: fetchError } = await useFetch<LoginResponse>('/api/auth/login', {
+    const data = await $fetch<LoginResponse>('/api/auth/login', {
       method: 'POST',
       body: {
         email: email.value,
@@ -35,26 +35,21 @@ const handleLogin = async () => {
       }
     })
     
-    if (fetchError.value) {
-      error.value = fetchError.value.statusMessage || 'Invalid credentials'
-      return
-    }
-    
-    if (data.value?.success && data.value.token) {
+    if (data?.success && data.token) {
       // Save token and user data
-      setAuth(data.value.token, {
-        id: data.value.user.id,
-        name: data.value.user.name,
-        email: data.value.user.email,
-        role: data.value.user.role
+      setAuth(data.token, {
+        id: data.user.id,
+        name: data.user.name,
+        email: data.user.email,
+        role: data.user.role
       })
 
       // Redirect based on role
-      const isAdmin = data.value.user.role === 'ADMIN' || data.value.user.role === 'SUPER_ADMIN'
+      const isAdmin = data.user.role === 'ADMIN' || data.user.role === 'SUPER_ADMIN'
       navigateTo(isAdmin ? '/admin' : '/')
     }
-  } catch (e) {
-    error.value = 'An unexpected error occurred'
+  } catch (e: any) {
+    error.value = e.data?.statusMessage || 'An unexpected error occurred'
   } finally {
     loading.value = false
   }

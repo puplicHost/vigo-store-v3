@@ -151,7 +151,9 @@ definePageMeta({
   layout: 'admin'
 })
 
-const { data: categories, pending, error, refresh } = await useApiFetch('/api/admin/categories')
+const { data: categories, pending, error, refresh } = await useApiFetch('/api/admin/categories', {
+  default: () => []
+})
 const showCreateModal = ref(false)
 const newCategoryName = ref('')
 const creating = ref(false)
@@ -164,7 +166,7 @@ const deleteModal = ref({
 const createCategory = async () => {
   creating.value = true
   try {
-    const response = await useApiFetch('/api/admin/categories', {
+    const response = await $apiFetch('/api/admin/categories', {
       method: 'POST',
       body: { name: newCategoryName.value }
     })
@@ -186,7 +188,7 @@ const deleting = ref(false)
 const deleteCategory = async () => {
   deleting.value = true
   try {
-    const response = await useApiFetch(`/api/admin/categories/${deleteModal.value.category.id}`, {
+    const response = await $apiFetch(`/api/admin/categories/${deleteModal.value.category.id}`, {
       method: 'DELETE'
     })
     deleteModal.value.show = false
