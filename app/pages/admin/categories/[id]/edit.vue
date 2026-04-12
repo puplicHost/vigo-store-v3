@@ -115,13 +115,26 @@ const route = useRoute()
 const router = useRouter()
 const categoryId = route.params.id
 
+// Redirect if no ID provided
+if (!categoryId) {
+  throw createError({ statusCode: 404, message: 'Category ID is required' })
+}
+
 // Fetch category - we need to get it from the list since there's no single category endpoint
 const { data: categories, pending, error, refresh } = await useApiFetch('/api/admin/categories', {
   default: () => []
 })
 
 const category = computed(() => {
-  return categories.value?.find(c => c.id === categoryId)
+  const categoriesArray = Array.isArray(categories.value) ? categories.value : []
+  return categoriesArray.find(c => c.id === categoryId)
+})
+
+// Redirect if category not found
+watchEffect(() => {
+  if (!pending.value && !error.value && !category.value) {
+    throw createError({ statusCode: 404, message: 'Category not found' })
+  }
 })
 
 // Form state

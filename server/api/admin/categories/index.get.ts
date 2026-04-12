@@ -6,15 +6,17 @@ export default defineEventHandler(async (event) => {
     // Verify admin access
     requireAdmin(event)
 
-    // Fetch all categories
+    // Fetch all categories with product count
     const categories = await prisma.category.findMany({
+      include: {
+        products: {
+          select: { id: true }
+        }
+      },
       orderBy: { name: 'asc' }
     })
 
-    return {
-      success: true,
-      data: categories
-    }
+    return categories
   } catch (error: any) {
     if (error.statusCode) {
       throw error

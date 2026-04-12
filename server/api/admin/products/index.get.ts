@@ -19,10 +19,7 @@ export default defineEventHandler(async (event) => {
       orderBy: { createdAt: 'desc' }
     })
 
-    return {
-      success: true,
-      data: products
-    }
+    return products
   } catch (error: any) {
     if (error.statusCode) {
       throw error

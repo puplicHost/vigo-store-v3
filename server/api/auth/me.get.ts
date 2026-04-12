@@ -1,3 +1,6 @@
+import prisma from '../../utils/prisma'
+import { requireAuth } from '../../utils/auth'
+
 /**
  * GET /api/auth/me
  * Get current authenticated user

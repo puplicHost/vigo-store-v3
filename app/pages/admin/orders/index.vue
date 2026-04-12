@@ -39,57 +39,68 @@
             <th class="text-left px-6 py-4 font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Date</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-outline-variant/10">
-          <tr v-if="pending" class="hover:bg-surface-container-low/50 transition-colors">
-            <td colspan="6" class="px-6 py-12 text-center text-on-surface-variant">
-              <span class="material-symbols-outlined text-3xl animate-spin">progress_activity</span>
-            </td>
-          </tr>
-          <tr v-else-if="error" class="hover:bg-surface-container-low/50 transition-colors">
-            <td colspan="6" class="px-6 py-12 text-center">
-              <span class="text-error font-body">Failed to load orders</span>
-            </td>
-          </tr>
-          <tr v-else-if="!filteredOrders?.length" class="hover:bg-surface-container-low/50 transition-colors">
-            <td colspan="6" class="px-6 py-12 text-center">
-              <span class="text-on-surface-variant font-body">No orders found.</span>
-            </td>
-          </tr>
-          <tr
-            v-for="(order, index) in filteredOrders"
-            :key="order.id || index"
-            class="hover:bg-surface-container-low/50 transition-colors"
-          >
-            <td class="px-6 py-4 font-mono text-sm text-on-surface">
-              #{{ order.id?.slice(-8).toUpperCase() || 'N/A' }}
-            </td>
-            <td class="px-6 py-4">
-              <div class="font-medium text-on-surface font-body">{{ order.user?.name || 'Guest' }}</div>
-              <div class="text-xs text-on-surface-variant">{{ order.user?.email }}</div>
-            </td>
-            <td class="px-6 py-4 text-sm text-on-surface-variant font-body">
-              {{ order.items?.length || 0 }} items
-            </td>
-            <td class="px-6 py-4 font-medium text-on-surface font-body">
-              ${{ order.totalAmount?.toFixed(2) || '0.00' }}
-            </td>
-            <td class="px-6 py-4">
-              <span :class="[
-                'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium',
-                order.status === 'DELIVERED' ? 'bg-success/10 text-success' :
-                order.status === 'PAID' ? 'bg-primary/10 text-primary' :
-                order.status === 'SHIPPED' ? 'bg-warning/10 text-warning' :
-                order.status === 'CANCELLED' ? 'bg-error/10 text-error' :
-                'bg-surface-container-high text-on-surface-variant'
-              ]">
-                {{ order.status || 'UNKNOWN' }}
-              </span>
-            </td>
-            <td class="px-6 py-4 text-sm text-on-surface-variant font-body">
-              {{ order.createdAt ? new Date(order.createdAt).toLocaleDateString() : '-' }}
-            </td>
-          </tr>
-        </tbody>
+        <ClientOnly>
+          <template #fallback>
+            <tbody class="divide-y divide-outline-variant/10">
+              <tr class="hover:bg-surface-container-low/50 transition-colors">
+                <td colspan="6" class="px-6 py-12 text-center">
+                  <span class="text-on-surface-variant font-body">Loading...</span>
+                </td>
+              </tr>
+            </tbody>
+          </template>
+          <tbody class="divide-y divide-outline-variant/10">
+            <tr v-if="pending" class="hover:bg-surface-container-low/50 transition-colors">
+              <td colspan="6" class="px-6 py-12 text-center text-on-surface-variant">
+                <span class="material-symbols-outlined text-3xl animate-spin">progress_activity</span>
+              </td>
+            </tr>
+            <tr v-else-if="error" class="hover:bg-surface-container-low/50 transition-colors">
+              <td colspan="6" class="px-6 py-12 text-center">
+                <span class="text-error font-body">Failed to load orders</span>
+              </td>
+            </tr>
+            <tr v-else-if="!filteredOrders?.length" class="hover:bg-surface-container-low/50 transition-colors">
+              <td colspan="6" class="px-6 py-12 text-center">
+                <span class="text-on-surface-variant font-body">No orders found.</span>
+              </td>
+            </tr>
+            <tr
+              v-for="(order, index) in filteredOrders"
+              :key="order.id || index"
+              class="hover:bg-surface-container-low/50 transition-colors"
+            >
+              <td class="px-6 py-4 font-mono text-sm text-on-surface">
+                #{{ order.id?.slice(-8).toUpperCase() || 'N/A' }}
+              </td>
+              <td class="px-6 py-4">
+                <div class="font-medium text-on-surface font-body">{{ order.user?.name || 'Guest' }}</div>
+                <div class="text-xs text-on-surface-variant">{{ order.user?.email }}</div>
+              </td>
+              <td class="px-6 py-4 text-sm text-on-surface-variant font-body">
+                {{ order.items?.length || 0 }} items
+              </td>
+              <td class="px-6 py-4 font-medium text-on-surface font-body">
+                ${{ order.totalAmount?.toFixed(2) || '0.00' }}
+              </td>
+              <td class="px-6 py-4">
+                <span :class="[
+                  'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium',
+                  order.status === 'DELIVERED' ? 'bg-success/10 text-success' :
+                  order.status === 'PAID' ? 'bg-primary/10 text-primary' :
+                  order.status === 'SHIPPED' ? 'bg-warning/10 text-warning' :
+                  order.status === 'CANCELLED' ? 'bg-error/10 text-error' :
+                  'bg-surface-container-high text-on-surface-variant'
+                ]">
+                  {{ order.status || 'UNKNOWN' }}
+                </span>
+              </td>
+              <td class="px-6 py-4 text-sm text-on-surface-variant font-body">
+                {{ order.createdAt ? new Date(order.createdAt).toLocaleDateString() : '-' }}
+              </td>
+            </tr>
+          </tbody>
+        </ClientOnly>
       </table>
     </div>
   </div>

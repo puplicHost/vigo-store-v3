@@ -43,6 +43,15 @@
           </tr>
         </thead>
         <ClientOnly>
+          <template #fallback>
+            <tbody class="divide-y divide-outline-variant/10">
+              <tr class="hover:bg-surface-container-low/50 transition-colors">
+                <td colspan="6" class="px-6 py-12 text-center">
+                  <span class="text-on-surface-variant font-body">Loading...</span>
+                </td>
+              </tr>
+            </tbody>
+          </template>
           <tbody class="divide-y divide-outline-variant/10">
             <tr v-if="pending" class="hover:bg-surface-container-low/50 transition-colors">
               <td colspan="6" class="px-6 py-12 text-center text-on-surface-variant">
@@ -325,6 +334,10 @@ const confirmDelete = (product) => {
 }
 
 const deleteProduct = async () => {
+  if (!deleteModal.value.product?.id) {
+    alert('Product ID is missing')
+    return
+  }
   deleting.value = true
   try {
     await $apiFetch(`/api/admin/products/${deleteModal.value.product.id}`, {

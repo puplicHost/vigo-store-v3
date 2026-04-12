@@ -26,58 +26,69 @@
             <th class="text-right px-6 py-4 font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Actions</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-outline-variant/10">
-          <tr v-if="pending" class="hover:bg-surface-container-low/50 transition-colors">
-            <td colspan="4" class="px-6 py-12 text-center text-on-surface-variant">
-              <span class="material-symbols-outlined text-3xl animate-spin">progress_activity</span>
-            </td>
-          </tr>
-          <tr v-else-if="error" class="hover:bg-surface-container-low/50 transition-colors">
-            <td colspan="4" class="px-6 py-12 text-center text-error">
-              Failed to load categories
-            </td>
-          </tr>
-          <tr v-else-if="!categories?.length" class="hover:bg-surface-container-low/50 transition-colors">
-            <td colspan="4" class="px-6 py-12 text-center text-on-surface-variant font-body">
-              No categories found. Create your first category to get started.
-            </td>
-          </tr>
-          <tr
-            v-for="category in categories"
-            :key="category.id"
-            class="hover:bg-surface-container-low/50 transition-colors group"
-          >
-            <td class="px-6 py-4">
-              <div class="font-medium text-on-surface font-body">{{ category.name }}</div>
-            </td>
-            <td class="px-6 py-4">
-              <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                {{ category.products?.length || 0 }} products
-              </span>
-            </td>
-            <td class="px-6 py-4 text-sm text-on-surface-variant font-body">
-              {{ new Date(category.createdAt).toLocaleDateString() }}
-            </td>
-            <td class="px-6 py-4 text-right">
-              <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <NuxtLink
-                  :to="`/admin/categories/${category.id}/edit`"
-                  class="p-2 rounded-lg hover:bg-surface-container-low text-on-surface-variant hover:text-primary transition-colors"
-                >
-                  <span class="material-symbols-outlined text-lg">edit</span>
-                </NuxtLink>
-                <button
-                  @click="confirmDelete(category)"
-                  class="p-2 rounded-lg hover:bg-error/10 text-on-surface-variant hover:text-error transition-colors"
-                  :disabled="category.products?.length > 0"
-                  :class="{ 'opacity-30 cursor-not-allowed': category.products?.length > 0 }"
-                >
-                  <span class="material-symbols-outlined text-lg">delete</span>
-                </button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
+        <ClientOnly>
+          <template #fallback>
+            <tbody class="divide-y divide-outline-variant/10">
+              <tr class="hover:bg-surface-container-low/50 transition-colors">
+                <td colspan="4" class="px-6 py-12 text-center">
+                  <span class="text-on-surface-variant font-body">Loading...</span>
+                </td>
+              </tr>
+            </tbody>
+          </template>
+          <tbody class="divide-y divide-outline-variant/10">
+            <tr v-if="pending" class="hover:bg-surface-container-low/50 transition-colors">
+              <td colspan="4" class="px-6 py-12 text-center">
+                <span class="text-on-surface-variant material-symbols-outlined text-3xl animate-spin">progress_activity</span>
+              </td>
+            </tr>
+            <tr v-else-if="error" class="hover:bg-surface-container-low/50 transition-colors">
+              <td colspan="4" class="px-6 py-12 text-center">
+                <span class="text-error font-body">Failed to load categories</span>
+              </td>
+            </tr>
+            <tr v-else-if="!categories?.length" class="hover:bg-surface-container-low/50 transition-colors">
+              <td colspan="4" class="px-6 py-12 text-center">
+                <span class="text-on-surface-variant font-body">No categories found. Create your first category to get started.</span>
+              </td>
+            </tr>
+            <tr
+              v-for="category in categories"
+              :key="category.id"
+              class="hover:bg-surface-container-low/50 transition-colors group"
+            >
+              <td class="px-6 py-4">
+                <div class="font-medium text-on-surface font-body">{{ category.name }}</div>
+              </td>
+              <td class="px-6 py-4">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                  {{ category.products?.length || 0 }} products
+                </span>
+              </td>
+              <td class="px-6 py-4 text-sm text-on-surface-variant font-body">
+                {{ new Date(category.createdAt).toLocaleDateString() }}
+              </td>
+              <td class="px-6 py-4 text-right">
+                <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <NuxtLink
+                    :to="`/admin/categories/${category.id}/edit`"
+                    class="p-2 rounded-lg hover:bg-surface-container-low text-on-surface-variant hover:text-primary transition-colors"
+                  >
+                    <span class="material-symbols-outlined text-lg">edit</span>
+                  </NuxtLink>
+                  <button
+                    @click="confirmDelete(category)"
+                    class="p-2 rounded-lg hover:bg-error/10 text-on-surface-variant hover:text-error transition-colors"
+                    :disabled="category.products?.length > 0"
+                    :class="{ 'opacity-30 cursor-not-allowed': category.products?.length > 0 }"
+                  >
+                    <span class="material-symbols-outlined text-lg">delete</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </ClientOnly>
       </table>
     </div>
 
@@ -152,7 +163,8 @@ definePageMeta({
 })
 
 const { data: categories, pending, error, refresh } = await useApiFetch('/api/admin/categories', {
-  default: () => []
+  default: () => [],
+  server: true
 })
 const showCreateModal = ref(false)
 const newCategoryName = ref('')

@@ -29,10 +29,7 @@ export default defineEventHandler(async (event) => {
       orderBy: { createdAt: 'desc' }
     })
 
-    return {
-      success: true,
-      data: orders
-    }
+    return orders
   } catch (error: any) {
     if (error.statusCode) throw error
     console.error('[Orders GET Error]', error)

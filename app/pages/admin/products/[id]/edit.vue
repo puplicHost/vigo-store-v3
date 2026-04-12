@@ -197,10 +197,22 @@ const route = useRoute()
 const router = useRouter()
 const productId = route.params.id
 
+// Redirect if no ID provided
+if (!productId) {
+  throw createError({ statusCode: 404, message: 'Product ID is required' })
+}
+
 const { data: product, pending, error, refresh } = await useApiFetch(
-  productId ? `/api/admin/products/${productId}` : null,
+  `/api/admin/products/${productId}`,
   { default: () => null }
 )
+
+// Redirect if product not found
+watchEffect(() => {
+  if (!pending.value && !error.value && !product.value) {
+    throw createError({ statusCode: 404, message: 'Product not found' })
+  }
+})
 const { data: categories } = await useApiFetch('/api/admin/categories', {
   default: () => []
 })
