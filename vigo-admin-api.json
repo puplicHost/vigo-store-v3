@@ -1,0 +1,136 @@
+{
+	"info": {
+		"_postman_id": "vigo-v2-automated",
+		"name": "Vigo Store V2 - Pro Automation",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Authentication",
+			"item": [
+				{
+					"name": "Super Admin Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.success && jsonData.token) {",
+									"    pm.collectionVariables.set(\"admin_jwt\", jsonData.token);",
+									"    console.log(\"Token has been saved automatically!\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@vigo.com\",\n    \"password\": \"password123\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": "http://localhost:3000/api/auth/login"
+					}
+				}
+			]
+		},
+		{
+			"name": "2. Categories Management",
+			"item": [
+				{
+					"name": "Create Category",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.success && jsonData.data.id) {",
+									"    pm.collectionVariables.set(\"last_category_id\", jsonData.data.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"New Summer Collection\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": "http://localhost:3000/api/admin/categories"
+					}
+				},
+				{
+					"name": "List All Categories",
+					"request": {
+						"method": "GET",
+						"url": "http://localhost:3000/api/admin/categories"
+					}
+				}
+			]
+		},
+		{
+			"name": "3. Products Management",
+			"item": [
+				{
+					"name": "Create Product",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Premium Editorial Shirt\",\n    \"description\": \"Minimalist luxury silk shirt\",\n    \"price\": 120.0,\n    \"stock\": 15,\n    \"categoryId\": \"{{last_category_id}}\",\n    \"images\": [\"https://vigo.com/image.jpg\"],\n    \"sizes\": [\"M\", \"L\"],\n    \"colors\": [\"Black\", \"White\"]\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": "http://localhost:3000/api/admin/products"
+					}
+				},
+				{
+					"name": "List All Products",
+					"request": {
+						"method": "GET",
+						"url": "http://localhost:3000/api/admin/products"
+					}
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{admin_jwt}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [""]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [""]
+			}
+		}
+	],
+	"variable": [
+		{ "key": "admin_jwt", "value": "" },
+		{ "key": "last_category_id", "value": "" }
+	]
+}
