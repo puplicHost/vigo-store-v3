@@ -14,10 +14,11 @@ export interface AuthState {
 export const useAuth = () => {
   const token = useCookie<string | null>('auth_token', {
     maxAge: 60 * 60 * 24 * 7, // 7 days
-    sameSite: 'strict',
+    sameSite: 'lax',
+    path: '/',
     secure: process.env.NODE_ENV === 'production'
   })
-  
+
   const user = useState<User | null>('auth_user', () => null)
   const isAuthenticated = computed(() => !!token.value && !!user.value)
   

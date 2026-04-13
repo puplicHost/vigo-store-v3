@@ -199,6 +199,76 @@
             </div>
           </div>
 
+          <!-- Payment Tab -->
+          <div v-if="activeTab === 'payment'" class="space-y-6">
+            <div class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg">
+              <div>
+                <div class="font-medium text-on-surface font-body">Cash on Delivery</div>
+                <div class="text-sm text-on-surface-variant">Pay when you receive your order</div>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input
+                  v-model="settings.isCodEnabled"
+                  type="checkbox"
+                  class="sr-only peer"
+                />
+                <div class="w-14 h-8 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-success/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-success"></div>
+              </label>
+            </div>
+
+            <div class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg">
+              <div>
+                <div class="font-medium text-on-surface font-body">Card Payments (Stripe)</div>
+                <div class="text-sm text-on-surface-variant">Accept credit/debit cards via Stripe</div>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input
+                  v-model="settings.isStripeEnabled"
+                  type="checkbox"
+                  class="sr-only peer"
+                />
+                <div class="w-14 h-8 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary"></div>
+              </label>
+            </div>
+
+            <div v-if="settings.isStripeEnabled" class="space-y-4 p-4 bg-surface-container-low rounded-lg">
+              <div>
+                <label class="block text-sm font-body text-on-surface-variant mb-1">Stripe Public Key</label>
+                <input
+                  v-model="settings.stripePublicKey"
+                  type="text"
+                  class="w-full border border-outline-variant/20 rounded-lg px-4 py-2.5 text-sm font-body focus:outline-none focus:border-primary/50"
+                  placeholder="pk_test_..."
+                />
+              </div>
+              
+              <div>
+                <label class="block text-sm font-body text-on-surface-variant mb-1">Stripe Secret Key</label>
+                <input
+                  v-model="settings.stripeSecretKey"
+                  type="password"
+                  class="w-full border border-outline-variant/20 rounded-lg px-4 py-2.5 text-sm font-body focus:outline-none focus:border-primary/50"
+                  placeholder="sk_test_..."
+                />
+              </div>
+
+              <div class="flex items-center justify-between p-4 bg-warning/10 rounded-lg">
+                <div>
+                  <div class="font-medium text-on-surface font-body">Test Mode</div>
+                  <div class="text-sm text-on-surface-variant">Use Stripe test keys for development</div>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input
+                    v-model="settings.isTestMode"
+                    type="checkbox"
+                    class="sr-only peer"
+                  />
+                  <div class="w-14 h-8 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-warning/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-warning"></div>
+                </label>
+              </div>
+            </div>
+          </div>
+
           <!-- Save Button -->
           <div class="flex justify-end gap-3 mt-8 pt-6 border-t border-outline-variant/10">
             <button
@@ -236,7 +306,8 @@ const tabs = [
   { id: 'general', label: 'General' },
   { id: 'shipping', label: 'Shipping' },
   { id: 'contact', label: 'Contact' },
-  { id: 'social', label: 'Social Media' }
+  { id: 'social', label: 'Social Media' },
+  { id: 'payment', label: 'Payment' }
 ]
 
 const settings = ref({
@@ -253,7 +324,12 @@ const settings = ref({
   siteKeywords: '',
   facebookUrl: '',
   instagramUrl: '',
-  twitterUrl: ''
+  twitterUrl: '',
+  isCodEnabled: true,
+  isStripeEnabled: false,
+  stripePublicKey: '',
+  stripeSecretKey: '',
+  isTestMode: true
 })
 
 const { data: fetchedSettings, pending, error, refresh } = await useApiFetch('/api/admin/settings', {

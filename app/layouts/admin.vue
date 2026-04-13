@@ -114,7 +114,6 @@ onMounted(async () => {
 
   // If no token at all, redirect immediately
   if (!auth.token.value) {
-    console.warn('[Admin Layout] No token found - redirecting to login')
     navigateTo('/auth/login')
     return
   }
@@ -124,7 +123,6 @@ onMounted(async () => {
     try {
       await auth.fetchUser()
     } catch (err) {
-      console.warn('[Admin Layout] Failed to fetch user:', err)
       auth.logout()
       navigateTo('/auth/login')
       return
@@ -133,15 +131,12 @@ onMounted(async () => {
 
   // Check authentication and role
   const isAuthenticated = auth.isAuthenticated.value
-  const isAdmin = auth.user.value?.role === 'ADMIN' || auth.user.value?.role === 'SUPER_ADMIN'
+  const isAdmin = auth.user.value?.role === 'ADMIN' || auth.user.value?.role === 'SUPER_ADMIN' || auth.user.value?.role === 'SALES' || auth.user.value?.role === 'MANAGER'
 
   if (!isAuthenticated || !isAdmin) {
-    console.warn('[Admin Layout] Access denied - not admin')
     auth.logout()
     navigateTo('/auth/login')
     return
   }
-
-  console.log('[Admin Layout] Access granted for:', auth.user.value?.email)
 })
 </script>

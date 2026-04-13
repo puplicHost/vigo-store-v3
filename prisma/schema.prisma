@@ -28,6 +28,14 @@ enum OrderStatus {
   CANCELLED
 }
 
+// 3.1 نظام حالات الدفع
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
 // 4. موديل المستخدم
 model User {
   id            String    @id @default(cuid())
@@ -72,15 +80,17 @@ model Category {
 
 // 7. الطلبات
 model Order {
-  id              String      @id @default(cuid())
+  id              String        @id @default(cuid())
   userId          String
-  user            User        @relation(fields: [userId], references: [id])
+  user            User          @relation(fields: [userId], references: [id])
   items           OrderItem[]
   totalAmount     Float
-  status          OrderStatus @default(PENDING)
-  paymentIntentId String?     @unique 
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  status          OrderStatus   @default(PENDING)
+  paymentStatus   PaymentStatus @default(PENDING)
+  paymentIntentId String?       @unique
+  transactionId   String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 }
 
 model OrderItem {
@@ -120,6 +130,13 @@ model Settings {
   facebookUrl       String?
   instagramUrl      String?
   twitterUrl        String?
+  
+  // Payment Configuration
+  isCodEnabled      Boolean  @default(true)
+  isStripeEnabled   Boolean  @default(false)
+  stripePublicKey   String?
+  stripeSecretKey   String?
+  isTestMode        Boolean  @default(true)
   
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt

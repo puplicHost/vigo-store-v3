@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken'
+import { getCookie } from 'h3'
 
 export default defineEventHandler(async (event) => {
   const path = event.node.req.url || ''
@@ -8,15 +9,17 @@ export default defineEventHandler(async (event) => {
     return
   }
 
-  // Get Authorization header
+  // Try to get token from Authorization header first
   const authHeader = getHeader(event, 'authorization')
+  let token: string | null = null
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.substring(7)
+  } else {
+    // Try to get token from cookie
+    const cookieToken = getCookie(event, 'auth_token')
+    token = cookieToken || null
   }
-
-  // Extract token
-  const token = authHeader.substring(7)
 
   if (!token) {
     return

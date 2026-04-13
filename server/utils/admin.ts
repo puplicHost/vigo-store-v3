@@ -14,10 +14,10 @@ export function requireAdmin(event: any) {
     })
   }
 
-  if (user.role !== 'ADMIN' && user.role !== 'SUPER_ADMIN') {
+  if (user.role !== 'ADMIN' && user.role !== 'SUPER_ADMIN' && user.role !== 'SALES' && user.role !== 'MANAGER') {
     throw createError({
       statusCode: 403,
-      statusMessage: 'Forbidden - Admin access required'
+      statusMessage: 'Forbidden - Admin or staff access required'
     })
   }
 

@@ -1,5 +1,4 @@
 import prisma from '../../utils/prisma'
-import { requireAuth } from '../../utils/auth'
 
 /**
  * GET /api/auth/me
@@ -7,12 +6,19 @@ import { requireAuth } from '../../utils/auth'
  */
 export default defineEventHandler(async (event) => {
   try {
-    // Verify JWT token and get user info
-    const decoded = requireAuth(event)
+    // Get user from auth middleware context
+    const user = event.context.user
+
+    if (!user) {
+      throw createError({
+        statusCode: 401,
+        message: 'Authentication required'
+      })
+    }
 
     // Fetch full user from database
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
+    const dbUser = await prisma.user.findUnique({
+      where: { id: user.userId },
       select: {
         id: true,
         email: true,
@@ -22,17 +28,17 @@ export default defineEventHandler(async (event) => {
       }
     })
 
-    if (!user) {
+    if (!dbUser) {
       throw createError({
         statusCode: 404,
         message: 'User not found'
       })
     }
 
-    return { user }
+    return { user: dbUser }
   } catch (error: any) {
     // If token is invalid, return 401
-    if (error.statusCode === 401) {
+    if (error.statusCode === 401 || error.statusCode === 404) {
       throw error
     }
 

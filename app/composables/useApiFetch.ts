@@ -24,8 +24,6 @@ export const useApiFetch = (url: string, options: any = {}) => {
   const fetchOptions = computed(() => ({
     ...options,
     headers: headers.value,
-    // Prevent SSR fetching for admin routes to avoid 401s
-    server: false,
     // Add default error handler
     onResponseError({ response }: { response: any }) {
       // Handle 401 - redirect to login
