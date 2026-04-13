@@ -25,6 +25,31 @@ export function requireAdmin(event: any) {
 }
 
 /**
+ * Helper to check if user has SUPER_ADMIN privileges
+ * Use in SUPER_ADMIN-only routes after the auth middleware has attached user to context
+ * This is for sensitive operations like user deletion, role changes, and settings updates
+ */
+export function requireSuperAdmin(event: any) {
+  const user = event.context.user
+
+  if (!user) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Unauthorized - Please login'
+    })
+  }
+
+  if (user.role !== 'SUPER_ADMIN') {
+    throw createError({
+      statusCode: 403,
+      statusMessage: 'Forbidden - Super Admin access required'
+    })
+  }
+
+  return user
+}
+
+/**
  * Simple slug generator (no external dependency needed)
  * Converts "Product Name" -> "product-name"
  */

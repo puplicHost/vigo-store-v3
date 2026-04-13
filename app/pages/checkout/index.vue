@@ -103,7 +103,7 @@
                       <span class="block text-xs text-secondary mt-1">Next day delivery</span>
                     </div>
                   </div>
-                  <span class="text-sm font-medium">$24.00</span>
+                  <span class="text-sm font-medium">{{ settings.currency }}{{ settings.shippingFee.toFixed(2) }}</span>
                 </label>
               </div>
             </div>
@@ -147,7 +147,7 @@
                 <div>
                   <div class="flex justify-between items-start">
                     <h3 class="text-sm font-semibold text-on-surface">{{ item.name }}</h3>
-                    <span class="text-sm font-medium">${{ (item.price * item.quantity).toFixed(2) }}</span>
+                    <span class="text-sm font-medium">{{ settings.currency }}{{ (item.price * item.quantity).toFixed(2) }}</span>
                   </div>
                   <p class="text-xs text-secondary mt-1">{{ item.size || 'Standard' }}</p>
                 </div>
@@ -163,19 +163,19 @@
           <div class="space-y-4 pt-8 border-t border-outline-variant/20">
             <div class="flex justify-between text-sm">
               <span class="text-secondary">Subtotal</span>
-              <span class="font-medium">${{ subtotal.toFixed(2) }}</span>
+              <span class="font-medium">{{ settings.currency }}{{ subtotal.toFixed(2) }}</span>
             </div>
             <div class="flex justify-between text-sm">
               <span class="text-secondary">Shipping</span>
-              <span class="text-primary font-medium">{{ shippingCost === 0 ? 'Free' : `$${shippingCost.toFixed(2)}` }}</span>
+              <span class="text-primary font-medium">{{ shippingCost === 0 ? 'Free' : `${settings.currency}${shippingCost.toFixed(2)}` }}</span>
             </div>
             <div class="flex justify-between text-sm">
               <span class="text-secondary">Estimated Tax</span>
-              <span class="font-medium">${{ tax.toFixed(2) }}</span>
+              <span class="font-medium">{{ settings.currency }}{{ tax.toFixed(2) }}</span>
             </div>
             <div class="flex justify-between text-lg font-bold pt-4 border-t border-outline-variant/20">
               <span class="font-serif">Total</span>
-              <span class="font-serif">${{ total.toFixed(2) }}</span>
+              <span class="font-serif">{{ settings.currency }}{{ total.toFixed(2) }}</span>
             </div>
           </div>
 
@@ -244,6 +244,7 @@
 
 <script setup>
 const { isAuthenticated } = useAuth()
+const { settings } = useSettings()
 
 // Cart state (simplified - in production, use cart composable)
 const cartItems = ref([
@@ -284,7 +285,7 @@ const subtotal = computed(() => {
 })
 
 const shippingCost = computed(() => {
-  return shippingMethod.value === 'express' ? 24 : 0
+  return shippingMethod.value === 'express' ? settings.value.shippingFee : 0
 })
 
 const tax = computed(() => {

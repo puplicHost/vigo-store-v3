@@ -13,6 +13,8 @@ datasource db {
 // 2. نظام الأدوار (Roles)
 enum Role {
   USER
+  SALES
+  MANAGER
   ADMIN
   SUPER_ADMIN
 }
@@ -89,4 +91,36 @@ model OrderItem {
   product   Product @relation(fields: [productId], references: [id])
   quantity  Int
   price     Float   
+}
+
+// 8. إعدادات المتجر (Settings) - Singleton model
+model Settings {
+  id                String   @id @default(cuid())
+  
+  // Shipping & Currency
+  shippingFee       Float    @default(0)
+  currency          String   @default("EGP")
+  
+  // Contact Info
+  contactEmail      String?
+  contactPhone      String?
+  contactAddress    String?
+  whatsappNumber    String?
+  
+  // Maintenance Mode
+  maintenanceMode   Boolean  @default(false)
+  maintenanceMessage String?
+  
+  // SEO
+  siteName          String?
+  siteDescription   String?
+  siteKeywords      String?
+  
+  // Social Media
+  facebookUrl       String?
+  instagramUrl      String?
+  twitterUrl        String?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }

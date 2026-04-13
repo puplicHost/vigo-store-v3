@@ -95,7 +95,9 @@ const menuItems = [
   { name: 'Dashboard', path: '/admin/dashboard', icon: 'dashboard' },
   { name: 'Inventory', path: '/admin', icon: 'inventory_2' },
   { name: 'Categories', path: '/categories', icon: 'folder' },
-  { name: 'Orders', path: '/admin/orders', icon: 'shopping_bag' }
+  { name: 'Orders', path: '/admin/orders', icon: 'shopping_bag' },
+  { name: 'Users', path: '/admin/users', icon: 'people' },
+  { name: 'Settings', path: '/admin/settings', icon: 'settings' }
 ]
 
 const isActive = (path) => {

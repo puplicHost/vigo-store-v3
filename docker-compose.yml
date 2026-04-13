@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres:15-alpine
-    container_name: vigo_store_db
+    container_name: vigo_store_db_v2
     restart: unless-stopped
     environment:
       POSTGRES_USER: vigo_user

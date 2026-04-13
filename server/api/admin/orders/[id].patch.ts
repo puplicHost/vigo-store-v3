@@ -1,6 +1,6 @@
 import prisma from '../../../utils/prisma'
 import { requireAdmin } from '../../../utils/admin'
-import { OrderStatus } from '@prisma/client'
+import { Prisma } from '@prisma/client'
 
 /**
  * PATCH /api/admin/orders/:id
@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Validate status is a valid OrderStatus enum value
-    const validStatuses = Object.values(OrderStatus)
+    const validStatuses = Object.values(Prisma.OrderStatus)
     if (!validStatuses.includes(status)) {
       throw createError({
         statusCode: 400,
