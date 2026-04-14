@@ -117,6 +117,70 @@
       </div>
     </div>
 
+    <!-- Revenue Chart -->
+    <div class="bg-gradient-to-br from-white to-surface-container-low rounded-2xl border border-outline-variant/10 shadow-lg shadow-primary/10 p-6 mb-8">
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-4">
+          <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg shadow-primary/20">
+            <span class="material-symbols-outlined text-white text-2xl">show_chart</span>
+          </div>
+          <div>
+            <p class="font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Revenue Trend</p>
+            <p class="text-sm text-on-surface-variant">Last 7 days</p>
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <button class="px-3 py-1.5 text-xs font-medium bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors">Weekly</button>
+          <button class="px-3 py-1.5 text-xs font-medium bg-surface-container-low text-on-surface-variant rounded-lg hover:bg-surface-container-high transition-colors">Monthly</button>
+        </div>
+      </div>
+      <ClientOnly>
+        <template #fallback>
+          <div class="h-64 flex items-center justify-center">
+            <span class="text-on-surface-variant">Loading chart...</span>
+          </div>
+        </template>
+        <div class="h-64">
+          <VueApexCharts
+            type="area"
+            :options="revenueChartOptions"
+            :series="revenueChartSeries"
+            height="256"
+          />
+        </div>
+      </ClientOnly>
+    </div>
+
+    <!-- Orders Chart -->
+    <div class="bg-gradient-to-br from-white to-surface-container-low rounded-2xl border border-outline-variant/10 shadow-lg shadow-primary/10 p-6 mb-8">
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-4">
+          <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-warning to-warning/80 flex items-center justify-center shadow-lg shadow-warning/20">
+            <span class="material-symbols-outlined text-white text-2xl">bar_chart</span>
+          </div>
+          <div>
+            <p class="font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Orders by Status</p>
+            <p class="text-sm text-on-surface-variant">Current distribution</p>
+          </div>
+        </div>
+      </div>
+      <ClientOnly>
+        <template #fallback>
+          <div class="h-64 flex items-center justify-center">
+            <span class="text-on-surface-variant">Loading chart...</span>
+          </div>
+        </template>
+        <div class="h-64">
+          <VueApexCharts
+            type="donut"
+            :options="ordersChartOptions"
+            :series="ordersChartSeries"
+            height="256"
+          />
+        </div>
+      </ClientOnly>
+    </div>
+
     <!-- Revenue & Quick Stats -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
       <!-- Revenue Card -->
@@ -361,6 +425,8 @@ definePageMeta({
   layout: 'admin'
 })
 
+import VueApexCharts from 'vue3-apexcharts'
+
 const { settings } = useSettings()
 const auth = useAuth()
 
@@ -434,4 +500,154 @@ const lowStockProducts = computed(() => {
   const productsArray = Array.isArray(products.value) ? products.value : []
   return productsArray.filter(p => p.stock < 10).sort((a, b) => a.stock - b.stock)
 })
+
+// Revenue Chart Data
+const revenueChartSeries = computed(() => {
+  const ordersArray = Array.isArray(orders.value) ? orders.value : []
+  const paidOrders = ordersArray.filter(o => o.paymentStatus === 'PAID')
+
+  // Group by last 7 days
+  const last7Days = []
+  const now = new Date()
+  for (let i = 6; i >= 0; i--) {
+    const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000)
+    last7Days.push({
+      date: date.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric' }),
+      timestamp: date
+    })
+  }
+
+  const revenueByDay = last7Days.map(day => {
+    const dayRevenue = paidOrders
+      .filter(order => {
+        const orderDate = new Date(order.createdAt)
+        return orderDate.toDateString() === day.timestamp.toDateString()
+      })
+      .reduce((sum, order) => sum + (order.totalAmount || 0), 0)
+    return dayRevenue
+  })
+
+  return [{
+    name: 'Revenue',
+    data: revenueByDay
+  }]
+})
+
+const revenueChartOptions = computed(() => ({
+  chart: {
+    type: 'area',
+    toolbar: { show: false },
+    fontFamily: 'Inter, sans-serif',
+    height: 256
+  },
+  series: revenueChartSeries.value,
+  xaxis: {
+    categories: (() => {
+      const last7Days = []
+      const now = new Date()
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000)
+        last7Days.push(date.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric' }))
+      }
+      return last7Days
+    })(),
+    labels: {
+      style: {
+        colors: '#64748b',
+        fontSize: '12px'
+      }
+    },
+    axisBorder: { show: false },
+    axisTicks: { show: false }
+  },
+  yaxis: {
+    labels: {
+      style: {
+        colors: '#64748b',
+        fontSize: '12px'
+      },
+      formatter: (value) => `${settings.value.currency}${value.toFixed(0)}`
+    }
+  },
+  colors: ['#6366f1'],
+  fill: {
+    type: 'gradient',
+    gradient: {
+      shadeIntensity: 1,
+      opacityFrom: 0.7,
+      opacityTo: 0.1,
+      stops: [0, 90, 100]
+    }
+  },
+  dataLabels: { enabled: false },
+  stroke: {
+    curve: 'smooth',
+    width: 2
+  },
+  grid: {
+    borderColor: '#f1f5f9',
+    strokeDashArray: 4,
+    yaxis: {
+      lines: { show: true }
+    },
+    xaxis: {
+      lines: { show: false }
+    }
+  },
+  tooltip: {
+    theme: 'light',
+    y: {
+      formatter: (value) => `${settings.value.currency}${value.toFixed(2)}`
+    }
+  }
+}))
+
+// Orders Chart Data
+const ordersChartSeries = computed(() => {
+  const ordersArray = Array.isArray(orders.value) ? orders.value : []
+
+  const pendingCount = ordersArray.filter(o => o.status === 'PENDING').length
+  const paidCount = ordersArray.filter(o => o.status === 'PAID').length
+  const shippedCount = ordersArray.filter(o => o.status === 'SHIPPED').length
+  const deliveredCount = ordersArray.filter(o => o.status === 'DELIVERED').length
+  const cancelledCount = ordersArray.filter(o => o.status === 'CANCELLED').length
+
+  return [pendingCount, paidCount, shippedCount, deliveredCount, cancelledCount]
+})
+
+const ordersChartOptions = computed(() => ({
+  chart: {
+    type: 'donut',
+    toolbar: { show: false },
+    fontFamily: 'Inter, sans-serif',
+    height: 256
+  },
+  series: ordersChartSeries.value,
+  labels: ['Pending', 'Paid', 'Shipped', 'Delivered', 'Cancelled'],
+  colors: ['#f59e0b', '#10b981', '#6366f1', '#3b82f6', '#ef4444'],
+  dataLabels: {
+    enabled: true,
+    formatter: (val) => val.toString()
+  },
+  plotOptions: {
+    pie: {
+      donut: {
+        size: '70%'
+      }
+    }
+  },
+  legend: {
+    position: 'bottom',
+    fontSize: '12px',
+    labels: {
+      colors: '#64748b'
+    }
+  },
+  tooltip: {
+    theme: 'light',
+    y: {
+      formatter: (value) => `${value} orders`
+    }
+  }
+}))
 </script>

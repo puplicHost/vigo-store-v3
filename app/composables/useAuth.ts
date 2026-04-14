@@ -61,13 +61,6 @@ export const useAuth = () => {
     }
   }
 
-  // Auto-fetch user on mount if token exists but user not loaded
-  onMounted(() => {
-    if (token.value && !user.value && process.client) {
-      fetchUser()
-    }
-  })
-
   return {
     user: readonly(user),
     token: readonly(token),
