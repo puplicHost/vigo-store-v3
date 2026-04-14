@@ -1,40 +1,34 @@
 import prisma from '../../utils/prisma'
 import { requireSuperAdmin } from '../../utils/admin'
 import bcrypt from 'bcrypt'
+import { Role, OrderStatus, PaymentStatus } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
   // Only SUPER_ADMIN can seed data
   requireSuperAdmin(event)
 
   try {
-    // Check if data already exists
+    // Check if data already exists (optional warning, but allow seeding)
     const existingUsers = await prisma.user.count()
     const existingProducts = await prisma.product.count()
-    
-    if (existingUsers > 1 || existingProducts > 0) {
-      return createError({
-        statusCode: 400,
-        statusMessage: 'Database already contains data. Clear it first if you want to reseed.'
-      })
-    }
 
     // Seed Users
     const usersData = [
-      { name: 'Ahmed Mohamed', email: 'ahmed.admin@vigo.com', password: 'admin123', role: 'ADMIN' },
-      { name: 'Sarah Ali', email: 'sarah.admin@vigo.com', password: 'admin123', role: 'ADMIN' },
-      { name: 'Omar Hassan', email: 'omar.manager@vigo.com', password: 'manager123', role: 'MANAGER' },
-      { name: 'Fatima Khalil', email: 'fatima.manager@vigo.com', password: 'manager123', role: 'MANAGER' },
-      { name: 'Mahmoud Ibrahim', email: 'mahmoud.sales@vigo.com', password: 'sales123', role: 'SALES' },
-      { name: 'Nour Ahmed', email: 'nour.sales@vigo.com', password: 'sales123', role: 'SALES' },
-      { name: 'Youssef Sayed', email: 'youssef.sales@vigo.com', password: 'sales123', role: 'SALES' },
-      { name: 'Ali Mahmoud', email: 'ali.customer@gmail.com', password: 'customer123', role: 'USER' },
-      { name: 'Mona Hassan', email: 'mona.customer@gmail.com', password: 'customer123', role: 'USER' },
-      { name: 'Karim Fathy', email: 'karim.customer@gmail.com', password: 'customer123', role: 'USER' },
-      { name: 'Laila Omar', email: 'laila.customer@gmail.com', password: 'customer123', role: 'USER' },
-      { name: 'Hassan Mohamed', email: 'hassan.customer@gmail.com', password: 'customer123', role: 'USER' },
-      { name: 'Amina Khalil', email: 'amina.customer@gmail.com', password: 'customer123', role: 'USER' },
-      { name: 'Tarek Ibrahim', email: 'tarek.customer@gmail.com', password: 'customer123', role: 'USER' },
-      { name: 'Salma Sayed', email: 'salma.customer@gmail.com', password: 'customer123', role: 'USER' },
+      { name: 'Ahmed Mohamed', email: 'ahmed.admin@vigo.com', password: 'admin123', role: Role.ADMIN },
+      { name: 'Sarah Ali', email: 'sarah.admin@vigo.com', password: 'admin123', role: Role.ADMIN },
+      { name: 'Omar Hassan', email: 'omar.manager@vigo.com', password: 'manager123', role: Role.MANAGER },
+      { name: 'Fatima Khalil', email: 'fatima.manager@vigo.com', password: 'manager123', role: Role.MANAGER },
+      { name: 'Mahmoud Ibrahim', email: 'mahmoud.sales@vigo.com', password: 'sales123', role: Role.SALES },
+      { name: 'Nour Ahmed', email: 'nour.sales@vigo.com', password: 'sales123', role: Role.SALES },
+      { name: 'Youssef Sayed', email: 'youssef.sales@vigo.com', password: 'sales123', role: Role.SALES },
+      { name: 'Ali Mahmoud', email: 'ali.customer@gmail.com', password: 'customer123', role: Role.USER },
+      { name: 'Mona Hassan', email: 'mona.customer@gmail.com', password: 'customer123', role: Role.USER },
+      { name: 'Karim Fathy', email: 'karim.customer@gmail.com', password: 'customer123', role: Role.USER },
+      { name: 'Laila Omar', email: 'laila.customer@gmail.com', password: 'customer123', role: Role.USER },
+      { name: 'Hassan Mohamed', email: 'hassan.customer@gmail.com', password: 'customer123', role: Role.USER },
+      { name: 'Amina Khalil', email: 'amina.customer@gmail.com', password: 'customer123', role: Role.USER },
+      { name: 'Tarek Ibrahim', email: 'tarek.customer@gmail.com', password: 'customer123', role: Role.USER },
+      { name: 'Salma Sayed', email: 'salma.customer@gmail.com', password: 'customer123', role: Role.USER },
     ]
 
     const users = await Promise.all(
@@ -116,28 +110,28 @@ export default defineEventHandler(async (event) => {
             images: productData.images,
             sizes: productData.sizes,
             colors: productData.colors,
-            categoryId: categoryMap[productData.category]
+            categoryId: categoryMap[productData.category]!
           }
         })
       )
     )
 
     // Seed Orders (30+ orders across last 30 days)
-    const orderStatuses: any[] = ['PENDING', 'PAID', 'SHIPPED', 'DELIVERED', 'CANCELLED']
-    const paymentStatuses: any[] = ['PENDING', 'PAID', 'FAILED', 'REFUNDED']
-    const customerUsers = users.filter(u => u.role === 'USER')
-    
+    const orderStatuses: OrderStatus[] = [OrderStatus.PENDING, OrderStatus.PAID, OrderStatus.SHIPPED, OrderStatus.DELIVERED, OrderStatus.CANCELLED]
+    const paymentStatuses: PaymentStatus[] = [PaymentStatus.PENDING, PaymentStatus.PAID, PaymentStatus.FAILED, PaymentStatus.REFUNDED]
+    const customerUsers = users.filter(u => u.role === Role.USER)
+
     const orders = []
     const now = new Date()
-    
+
     for (let i = 0; i < 35; i++) {
-      const customer = customerUsers[Math.floor(Math.random() * customerUsers.length)]
+      const customer = customerUsers[Math.floor(Math.random() * customerUsers.length)]!
       const numProducts = Math.floor(Math.random() * 3) + 1
       const selectedProducts = []
       let totalAmount = 0
-      
+
       for (let j = 0; j < numProducts; j++) {
-        const product = products[Math.floor(Math.random() * products.length)]
+        const product = products[Math.floor(Math.random() * products.length)]!
         const quantity = Math.floor(Math.random() * 3) + 1
         selectedProducts.push({
           product,
@@ -149,15 +143,15 @@ export default defineEventHandler(async (event) => {
 
       const daysAgo = Math.floor(Math.random() * 30)
       const createdAt = new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000)
-      
+
       const status = orderStatuses[Math.floor(Math.random() * orderStatuses.length)]
       let paymentStatus = paymentStatuses[Math.floor(Math.random() * paymentStatuses.length)]
-      
+
       // Ensure payment status matches order status
-      if (status === 'PAID' || status === 'SHIPPED' || status === 'DELIVERED') {
-        paymentStatus = 'PAID'
-      } else if (status === 'CANCELLED') {
-        paymentStatus = Math.random() > 0.5 ? 'FAILED' : 'REFUNDED'
+      if (status === OrderStatus.PAID || status === OrderStatus.SHIPPED || status === OrderStatus.DELIVERED) {
+        paymentStatus = PaymentStatus.PAID
+      } else if (status === OrderStatus.CANCELLED) {
+        paymentStatus = Math.random() > 0.5 ? PaymentStatus.FAILED : PaymentStatus.REFUNDED
       }
 
       const order = await prisma.order.create({
@@ -166,11 +160,11 @@ export default defineEventHandler(async (event) => {
           totalAmount,
           status,
           paymentStatus,
-          transactionId: paymentStatus === 'PAID' ? `txn_${Date.now()}_${i}` : null,
+          transactionId: paymentStatus === PaymentStatus.PAID ? `txn_${Date.now()}_${i}` : null,
           createdAt,
           items: {
             create: selectedProducts.map(item => ({
-              productId: item.product.id,
+              productId: item.product!.id,
               quantity: item.quantity,
               price: item.price
             }))
@@ -180,7 +174,7 @@ export default defineEventHandler(async (event) => {
           items: true
         }
       })
-      
+
       orders.push(order)
     }
 

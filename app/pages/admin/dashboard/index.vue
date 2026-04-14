@@ -7,9 +7,21 @@
           <h1 class="font-serif italic text-4xl text-on-surface mb-2">Dashboard</h1>
           <p class="text-on-surface-variant/70 text-sm font-body">Overview of your store performance</p>
         </div>
-        <div class="text-right">
-          <p class="text-xs text-on-surface-variant font-body">Last updated</p>
-          <p class="text-sm font-medium text-on-surface font-body">{{ new Date().toLocaleDateString() }}</p>
+        <div class="flex items-center gap-4">
+          <div class="text-right">
+            <p class="text-xs text-on-surface-variant font-body">Last updated</p>
+            <p class="text-sm font-medium text-on-surface font-body">{{ new Date().toLocaleDateString() }}</p>
+          </div>
+          <button
+            v-if="auth.user.value?.role === 'SUPER_ADMIN'"
+            @click="seedDatabase"
+            :disabled="seeding"
+            class="bg-primary text-white px-4 py-2 rounded-lg font-body text-sm hover:bg-primary/90 transition-colors flex items-center gap-2 disabled:opacity-50"
+          >
+            <span v-if="seeding" class="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+            <span v-else class="material-symbols-outlined text-sm">database</span>
+            {{ seeding ? 'Seeding...' : 'Seed Data' }}
+          </button>
         </div>
       </div>
     </div>
@@ -350,6 +362,26 @@ definePageMeta({
 })
 
 const { settings } = useSettings()
+const auth = useAuth()
+
+const seeding = ref(false)
+
+const seedDatabase = async () => {
+  seeding.value = true
+  try {
+    const response = await $fetch('/api/admin/seed', {
+      method: 'POST'
+    })
+    alert('Database seeded successfully!')
+    // Refresh the page to see new data
+    window.location.reload()
+  } catch (error) {
+    console.error('Seed error:', error)
+    alert('Failed to seed database: ' + (error.data?.statusMessage || error.message))
+  } finally {
+    seeding.value = false
+  }
+}
 
 const { data: products } = await useApiFetch('/api/admin/products', {
   default: () => []
