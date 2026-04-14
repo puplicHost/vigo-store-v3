@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import { setCookie } from 'h3'
 import prisma from '../../utils/prisma'
 
 export default defineEventHandler(async (event) => {
@@ -48,16 +49,24 @@ export default defineEventHandler(async (event) => {
     }
 
     const token = jwt.sign(
-      { 
-        userId: user.id, 
-        email: user.email, 
-        role: user.role 
+      {
+        userId: user.id,
+        email: user.email,
+        role: user.role
       },
       jwtSecret,
       { expiresIn: '7d' }
     )
 
-    // 6. Return success with token and user info
+    // 6. Set secure cookie (httpOnly removed for client-side access)
+    setCookie(event, 'auth_token', token, {
+      secure: process.env.NODE_ENV === 'production', // HTTPS only in production
+      sameSite: 'lax', // CSRF protection
+      path: '/', // Available on all paths
+      maxAge: 60 * 60 * 24 * 7 // 7 days
+    })
+
+    // 7. Return success with token and user info (token is also in httpOnly cookie)
     return {
       success: true,
       message: 'Login successful',

@@ -6,6 +6,7 @@
 export const useSettings = () => {
   const settings = useState('store-settings', () => ({
     shippingFee: 0,
+    freeShippingThreshold: 0,
     currency: 'EGP',
     contactEmail: '',
     contactPhone: '',

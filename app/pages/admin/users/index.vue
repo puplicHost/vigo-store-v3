@@ -90,13 +90,20 @@
               </td>
               <td class="px-6 py-4">
                 <span :class="[
-                  'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium',
-                  user.role === 'SUPER_ADMIN' ? 'bg-error/10 text-error' :
-                  user.role === 'ADMIN' ? 'bg-primary/10 text-primary' :
-                  user.role === 'MANAGER' ? 'bg-warning/10 text-warning' :
-                  user.role === 'SALES' ? 'bg-success/10 text-success' :
-                  'bg-surface-container-high text-on-surface-variant'
+                  'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium',
+                  user.role === 'SUPER_ADMIN' ? 'bg-purple-100 text-purple-700 border border-purple-200' :
+                  user.role === 'ADMIN' ? 'bg-blue-100 text-blue-700 border border-blue-200' :
+                  user.role === 'MANAGER' ? 'bg-amber-100 text-amber-700 border border-amber-200' :
+                  user.role === 'SALES' ? 'bg-green-100 text-green-700 border border-green-200' :
+                  'bg-gray-100 text-gray-700 border border-gray-200'
                 ]">
+                  <span class="w-1.5 h-1.5 rounded-full" :class="[
+                    user.role === 'SUPER_ADMIN' ? 'bg-purple-500' :
+                    user.role === 'ADMIN' ? 'bg-blue-500' :
+                    user.role === 'MANAGER' ? 'bg-amber-500' :
+                    user.role === 'SALES' ? 'bg-green-500' :
+                    'bg-gray-500'
+                  ]"></span>
                   {{ user.role }}
                 </span>
               </td>

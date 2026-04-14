@@ -285,15 +285,19 @@ const subtotal = computed(() => {
 })
 
 const shippingCost = computed(() => {
+  // Apply free shipping threshold logic
+  if (settings.value.freeShippingThreshold > 0 && subtotal.value >= settings.value.freeShippingThreshold) {
+    return 0
+  }
   return shippingMethod.value === 'express' ? settings.value.shippingFee : 0
 })
 
 const tax = computed(() => {
-  return subtotal.value * 0.2 // 20% tax
+  return Math.round((subtotal.value * 0.2) * 100) / 100 // 20% tax with proper rounding
 })
 
 const total = computed(() => {
-  return subtotal.value + shippingCost.value + tax.value
+  return Math.round((subtotal.value + shippingCost.value + tax.value) * 100) / 100 // Proper rounding
 })
 
 const removeFromCart = (id) => {

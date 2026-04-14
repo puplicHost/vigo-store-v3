@@ -54,6 +54,14 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // Prevent changing SUPER_ADMIN role to another role (security)
+    if (existingUser.role === 'SUPER_ADMIN' && role && role !== 'SUPER_ADMIN') {
+      throw createError({
+        statusCode: 403,
+        statusMessage: 'Cannot change SUPER_ADMIN role to another role'
+      })
+    }
+
     // Build update data
     const updateData: any = {}
 

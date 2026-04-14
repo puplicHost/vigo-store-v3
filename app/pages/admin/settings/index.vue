@@ -126,6 +126,22 @@
                 </span>
               </div>
             </div>
+            <div>
+              <label class="block text-sm font-body text-on-surface-variant mb-1">Free Shipping Threshold</label>
+              <div class="relative">
+                <input
+                  v-model="settings.freeShippingThreshold"
+                  type="number"
+                  step="0.01"
+                  class="w-full border border-outline-variant/20 rounded-lg px-4 py-2.5 text-sm font-body focus:outline-none focus:border-primary/50"
+                  placeholder="0.00"
+                />
+                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant font-body text-sm">
+                  {{ settings.currency }}
+                </span>
+              </div>
+              <p class="text-xs text-on-surface-variant mt-1">Orders above this amount get free shipping (0 to disable)</p>
+            </div>
           </div>
 
           <!-- Contact Tab -->

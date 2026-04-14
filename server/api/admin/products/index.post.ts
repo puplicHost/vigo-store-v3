@@ -36,6 +36,13 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    if (discount !== undefined && discount !== null && (isNaN(parseFloat(discount)) || parseFloat(discount) < 0 || parseFloat(discount) > 100)) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Discount must be between 0 and 100'
+      })
+    }
+
     if (!categoryId) {
       throw createError({
         statusCode: 400,

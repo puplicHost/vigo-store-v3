@@ -367,16 +367,17 @@ const { data: users } = await useApiFetch('/api/admin/users', {
 const stats = computed(() => {
   const ordersArray = Array.isArray(orders.value) ? orders.value : []
   const usersArray = Array.isArray(users.value) ? users.value : []
-  
-  const paidOrders = ordersArray.filter(o => o.paymentStatus === 'PAID').length
-  const pendingOrders = ordersArray.filter(o => o.paymentStatus === 'PENDING').length
+
+  // Only count paid orders for revenue calculation
+  const paidOrdersArray = ordersArray.filter(o => o.paymentStatus === 'PAID')
+  const pendingOrdersArray = ordersArray.filter(o => o.paymentStatus === 'PENDING')
+
+  const paidOrders = paidOrdersArray.length
+  const pendingOrders = pendingOrdersArray.length
   const adminUsers = usersArray.filter(u => u.role === 'ADMIN' || u.role === 'SUPER_ADMIN').length
   const customerUsers = usersArray.filter(u => u.role === 'USER').length
   const staffUsers = usersArray.filter(u => u.role === 'SALES' || u.role === 'MANAGER').length
-  
-  // Only sum revenue from paid orders
-  const paidOrdersArray = ordersArray.filter(o => o.paymentStatus === 'PAID')
-  
+
   return {
     products: products.value?.length || 0,
     categories: categories.value?.length || 0,

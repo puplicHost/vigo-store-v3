@@ -41,6 +41,14 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // Prevent deleting SUPER_ADMIN users (security)
+    if (existingUser.role === 'SUPER_ADMIN') {
+      throw createError({
+        statusCode: 403,
+        statusMessage: 'Cannot delete SUPER_ADMIN users'
+      })
+    }
+
     // Delete user (cascade will delete associated orders)
     await prisma.user.delete({
       where: { id }

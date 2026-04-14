@@ -109,6 +109,7 @@ model Settings {
   
   // Shipping & Currency
   shippingFee       Float    @default(0)
+  freeShippingThreshold Float @default(0)
   currency          String   @default("EGP")
   
   // Contact Info

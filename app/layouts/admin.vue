@@ -105,38 +105,6 @@ const isActive = (path) => {
   return route.path.startsWith(path)
 }
 
-// Protect admin routes - only run on client side
-onMounted(async () => {
-  const auth = useAuth()
-
-  // Wait a tick for auth state to hydrate
-  await nextTick()
-
-  // If no token at all, redirect immediately
-  if (!auth.token.value) {
-    navigateTo('/auth/login')
-    return
-  }
-
-  // Try to fetch user if not loaded
-  if (!auth.user.value) {
-    try {
-      await auth.fetchUser()
-    } catch (err) {
-      auth.logout()
-      navigateTo('/auth/login')
-      return
-    }
-  }
-
-  // Check authentication and role
-  const isAuthenticated = auth.isAuthenticated.value
-  const isAdmin = auth.user.value?.role === 'ADMIN' || auth.user.value?.role === 'SUPER_ADMIN' || auth.user.value?.role === 'SALES' || auth.user.value?.role === 'MANAGER'
-
-  if (!isAuthenticated || !isAdmin) {
-    auth.logout()
-    navigateTo('/auth/login')
-    return
-  }
-})
+// Note: Route protection is now handled by middleware/admin-guard.global.ts
+// This prevents UI flickering by checking permissions before the route loads
 </script>

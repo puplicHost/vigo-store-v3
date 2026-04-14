@@ -1,11 +1,14 @@
 import jwt from 'jsonwebtoken'
-import { getCookie } from 'h3'
+import { getCookie, setCookie, deleteCookie } from 'h3'
 
 export default defineEventHandler(async (event) => {
   const path = event.node.req.url || ''
 
-  // Only check auth for /api/ routes (exclude auth endpoints)
-  if (!path.startsWith('/api/') || path.startsWith('/api/auth/')) {
+  // Skip auth for public routes
+  if (!path.startsWith('/api/') ||
+      path.startsWith('/api/auth/login') ||
+      path.startsWith('/api/auth/register') ||
+      path.startsWith('/api/auth/me')) {
     return
   }
 
@@ -47,8 +50,13 @@ export default defineEventHandler(async (event) => {
     }
 
   } catch (error) {
-    // Token invalid - just don't attach user
-    // Protected routes will handle 403 if needed
+    // Token is expired or invalid - clear cookie and set user to null
+    // This prevents server crashes and ensures clean state
+    event.context.user = null
+    deleteCookie(event, 'auth_token', {
+      path: '/',
+      sameSite: 'lax'
+    })
     return
   }
 })

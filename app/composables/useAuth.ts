@@ -16,10 +16,13 @@ export const useAuth = () => {
     maxAge: 60 * 60 * 24 * 7, // 7 days
     sameSite: 'lax',
     path: '/',
-    secure: process.env.NODE_ENV === 'production'
+    secure: process.env.NODE_ENV === 'production',
+    // Note: httpOnly cannot be set from client-side composable
+    // It must be set from server-side (login API)
   })
 
   const user = useState<User | null>('auth_user', () => null)
+  const isLoading = useState<boolean>('auth_loading', () => false)
   const isAuthenticated = computed(() => !!token.value && !!user.value)
   
   // Set auth data after login
@@ -43,31 +46,33 @@ export const useAuth = () => {
   // Fetch current user (useful on app init)
   const fetchUser = async () => {
     if (!token.value) return
-    
+
+    isLoading.value = true
+
     try {
-      const { data, error } = await useFetch('/api/auth/me', {
-        headers: {
-          Authorization: `Bearer ${token.value}`
-        }
-      })
-      
-      if (error.value) {
-        clearAuth()
-        return
-      }
-      
-      if (data.value?.user) {
-        user.value = data.value.user
-      }
-    } catch {
+      const response = await $apiFetch('/api/auth/me') as any
+      user.value = response.data.value.user
+    } catch (error) {
+      console.error('Failed to fetch user:', error)
+      // If 401, clear auth
       clearAuth()
+    } finally {
+      isLoading.value = false
     }
   }
-  
+
+  // Auto-fetch user on mount if token exists but user not loaded
+  onMounted(() => {
+    if (token.value && !user.value && process.client) {
+      fetchUser()
+    }
+  })
+
   return {
     user: readonly(user),
     token: readonly(token),
     isAuthenticated,
+    isLoading: readonly(isLoading),
     setAuth,
     clearAuth,
     logout,

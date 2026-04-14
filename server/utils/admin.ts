@@ -1,8 +1,9 @@
 import prisma from './prisma'
 
 /**
- * Helper to check if user has admin privileges
+ * Helper to check if user has admin or staff privileges
  * Use in admin-only routes after the auth middleware has attached user to context
+ * Allowed roles: ADMIN, SUPER_ADMIN, SALES, MANAGER
  */
 export function requireAdmin(event: any) {
   const user = event.context.user
@@ -10,14 +11,15 @@ export function requireAdmin(event: any) {
   if (!user) {
     throw createError({
       statusCode: 401,
-      statusMessage: 'Unauthorized - Please login'
+      statusMessage: 'Unauthorized - Please login to access this resource'
     })
   }
 
-  if (user.role !== 'ADMIN' && user.role !== 'SUPER_ADMIN' && user.role !== 'SALES' && user.role !== 'MANAGER') {
+  const allowedRoles = ['ADMIN', 'SUPER_ADMIN', 'SALES', 'MANAGER']
+  if (!allowedRoles.includes(user.role)) {
     throw createError({
       statusCode: 403,
-      statusMessage: 'Forbidden - Admin or staff access required'
+      statusMessage: `Forbidden - This resource requires admin or staff access. Your role: ${user.role}`
     })
   }
 
@@ -35,18 +37,35 @@ export function requireSuperAdmin(event: any) {
   if (!user) {
     throw createError({
       statusCode: 401,
-      statusMessage: 'Unauthorized - Please login'
+      statusMessage: 'Unauthorized - Please login to access this resource'
     })
   }
 
   if (user.role !== 'SUPER_ADMIN') {
     throw createError({
       statusCode: 403,
-      statusMessage: 'Forbidden - Super Admin access required'
+      statusMessage: `Forbidden - This resource requires Super Admin access. Your role: ${user.role}`
     })
   }
 
   return user
+}
+
+/**
+ * Helper to check if user has specific role(s)
+ * Use for flexible permission checks
+ * @param event - H3 event object
+ * @param roles - Array of allowed roles
+ * @returns true if user has one of the allowed roles
+ */
+export function isRole(event: any, roles: string[]): boolean {
+  const user = event.context.user
+
+  if (!user) {
+    return false
+  }
+
+  return roles.includes(user.role)
 }
 
 /**
