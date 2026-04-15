@@ -6,13 +6,22 @@
         <h1 class="font-serif italic text-3xl text-on-surface mb-2">Inventory</h1>
         <p class="text-on-surface-variant/70 text-sm font-body">Manage your product catalog</p>
       </div>
-      <button
-        @click="showCreateModal = true"
-        class="btn-gradient px-6 py-3 rounded-lg text-on-primary font-label text-[11px] uppercase tracking-[0.2em] flex items-center gap-2 hover:opacity-90 transition-opacity"
-      >
-        <span class="material-symbols-outlined text-lg">add</span>
-        Add Product
-      </button>
+      <div class="flex items-center gap-4">
+        <button
+          @click="showArchived = !showArchived"
+          class="px-4 py-3 rounded-lg border border-outline-variant/30 text-on-surface-variant font-label text-[11px] uppercase tracking-[0.15em] hover:bg-surface-container-low transition-colors flex items-center gap-2"
+        >
+          <span class="material-symbols-outlined text-lg">{{ showArchived ? 'inventory' : 'archive' }}</span>
+          {{ showArchived ? 'Active' : 'Archived' }}
+        </button>
+        <button
+          @click="showCreateModal = true"
+          class="btn-gradient px-6 py-3 rounded-lg text-on-primary font-label text-[11px] uppercase tracking-[0.2em] flex items-center gap-2 hover:opacity-90 transition-opacity"
+        >
+          <span class="material-symbols-outlined text-lg">add</span>
+          Add Product
+        </button>
+      </div>
     </div>
 
     <!-- Filters -->
@@ -125,10 +134,18 @@
                     <span class="material-symbols-outlined text-lg">edit</span>
                   </NuxtLink>
                   <button
-                    @click="confirmDelete(product)"
-                    class="p-2 rounded-lg hover:bg-error/10 text-on-surface-variant hover:text-error transition-colors"
+                    v-if="!product.isDeleted"
+                    @click="confirmArchive(product)"
+                    class="p-2 rounded-lg hover:bg-warning/10 text-on-surface-variant hover:text-warning transition-colors"
                   >
-                    <span class="material-symbols-outlined text-lg">delete</span>
+                    <span class="material-symbols-outlined text-lg">archive</span>
+                  </button>
+                  <button
+                    v-else
+                    @click="restoreProduct(product)"
+                    class="p-2 rounded-lg hover:bg-success/10 text-on-surface-variant hover:text-success transition-colors"
+                  >
+                    <span class="material-symbols-outlined text-lg">restore_from_trash</span>
                   </button>
                 </div>
               </td>
@@ -262,13 +279,13 @@
       </div>
     </div>
 
-    <!-- Delete Confirmation -->
+    <!-- Archive Confirmation -->
     <div v-if="deleteModal.show" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 text-center">
-        <span class="material-symbols-outlined text-5xl text-error mb-4">warning</span>
-        <h2 class="font-serif italic text-2xl text-on-surface mb-2">Delete Product?</h2>
+        <span class="material-symbols-outlined text-5xl text-warning mb-4">archive</span>
+        <h2 class="font-serif italic text-2xl text-on-surface mb-2">Archive Product?</h2>
         <p class="text-on-surface-variant mb-6 font-body">
-          Are you sure you want to delete "{{ deleteModal.product?.name }}"? This action cannot be undone.
+          Are you sure you want to archive "{{ deleteModal.product?.name }}"? It will be hidden from the store but can be restored later.
         </p>
         <div class="flex gap-3">
           <button
@@ -278,11 +295,11 @@
             Cancel
           </button>
           <button
-            @click="deleteProduct"
+            @click="archiveProduct"
             :disabled="deleting"
-            class="flex-1 bg-error text-white py-3 rounded-lg font-label text-[11px] uppercase tracking-[0.15em] hover:opacity-90 transition-opacity disabled:opacity-50"
+            class="flex-1 bg-warning text-white py-3 rounded-lg font-label text-[11px] uppercase tracking-[0.15em] hover:opacity-90 transition-opacity disabled:opacity-50"
           >
-            {{ deleting ? 'Deleting...' : 'Delete' }}
+            {{ deleting ? 'Archiving...' : 'Archive' }}
           </button>
         </div>
       </div>
@@ -297,13 +314,17 @@ definePageMeta({
   permission: 'VIEW_PRODUCTS'
 })
 
+const showArchived = ref(false)
+
 const { data: products, pending, error, refresh: refreshProducts } = await useApiFetch('/api/admin/products', {
-  default: () => []
+  default: () => [],
+  query: computed(() => ({ showArchived: showArchived.value ? 'true' : undefined }))
 })
 const { data: categories } = await useApiFetch('/api/admin/categories', {
   default: () => []
 })
 
+const { searchQuery, filterProducts } = useSearch()
 const selectedCategory = ref('')
 const showCreateModal = ref(false)
 const creating = ref(false)
@@ -324,8 +345,20 @@ const newProduct = ref({
 
 const filteredProducts = computed(() => {
   if (!products.value) return []
-  if (!selectedCategory.value) return products.value
-  return products.value.filter(p => p.categoryId === selectedCategory.value)
+
+  let filtered = products.value
+
+  // Apply category filter
+  if (selectedCategory.value) {
+    filtered = filtered.filter(p => p.categoryId === selectedCategory.value)
+  }
+
+  // Apply search filter
+  if (searchQuery.value) {
+    filtered = filterProducts(filtered, searchQuery.value)
+  }
+
+  return filtered
 })
 
 const createProduct = async () => {
@@ -368,11 +401,11 @@ const deleteModal = ref({
 })
 const deleting = ref(false)
 
-const confirmDelete = (product) => {
+const confirmArchive = (product) => {
   deleteModal.value = { show: true, product }
 }
 
-const deleteProduct = async () => {
+const archiveProduct = async () => {
   if (!deleteModal.value.product?.id) {
     alert('Product ID is missing')
     return
@@ -385,9 +418,24 @@ const deleteProduct = async () => {
     deleteModal.value.show = false
     await refreshProducts()
   } catch (err) {
-    alert(err.message || 'Failed to delete product')
+    alert(err.message || 'Failed to archive product')
   } finally {
     deleting.value = false
+  }
+}
+
+const restoreProduct = async (product) => {
+  if (!product?.id) {
+    alert('Product ID is missing')
+    return
+  }
+  try {
+    await $apiFetch(`/api/admin/products/${product.id}/restore`, {
+      method: 'PATCH'
+    })
+    await refreshProducts()
+  } catch (err) {
+    alert(err.message || 'Failed to restore product')
   }
 }
 

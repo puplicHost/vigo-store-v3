@@ -126,12 +126,28 @@
           </div>
           <div>
             <p class="font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Revenue Trend</p>
-            <p class="text-sm text-on-surface-variant">Last 7 days</p>
+            <p class="text-sm text-on-surface-variant">{{ selectedPeriod === 'weekly' ? 'Last 7 days' : 'Last 30 days' }}</p>
           </div>
         </div>
         <div class="flex gap-2">
-          <button class="px-3 py-1.5 text-xs font-medium bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors">Weekly</button>
-          <button class="px-3 py-1.5 text-xs font-medium bg-surface-container-low text-on-surface-variant rounded-lg hover:bg-surface-container-high transition-colors">Monthly</button>
+          <button
+            @click="selectedPeriod = 'weekly'"
+            :class="[
+              'px-3 py-1.5 text-xs font-medium rounded-lg transition-colors',
+              selectedPeriod === 'weekly' ? 'bg-primary/10 text-primary' : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high'
+            ]"
+          >
+            Weekly
+          </button>
+          <button
+            @click="selectedPeriod = 'monthly'"
+            :class="[
+              'px-3 py-1.5 text-xs font-medium rounded-lg transition-colors',
+              selectedPeriod === 'monthly' ? 'bg-primary/10 text-primary' : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high'
+            ]"
+          >
+            Monthly
+          </button>
         </div>
       </div>
       <ClientOnly>
@@ -441,8 +457,11 @@ const seedDatabase = async () => {
       method: 'POST'
     })
     alert('Database seeded successfully!')
-    // Refresh the page to see new data
-    window.location.reload()
+    // Refresh data instead of reloading the page
+    await refreshProducts()
+    await refreshCategories()
+    await refreshOrders()
+    await refreshUsers()
   } catch (error) {
     console.error('Seed error:', error)
     alert('Failed to seed database: ' + (error.data?.statusMessage || error.message))
@@ -451,18 +470,29 @@ const seedDatabase = async () => {
   }
 }
 
-const { data: products } = await useApiFetch('/api/admin/products', {
+const { data: products, refresh: refreshProducts } = await useApiFetch('/api/admin/products', {
   default: () => []
 })
-const { data: categories } = await useApiFetch('/api/admin/categories', {
+const { data: categories, refresh: refreshCategories } = await useApiFetch('/api/admin/categories', {
   default: () => []
 })
-const { data: orders, pending } = await useApiFetch('/api/admin/orders', {
+const { data: orders, pending, refresh: refreshOrders } = await useApiFetch('/api/admin/orders', {
   default: () => []
 })
-const { data: users } = await useApiFetch('/api/admin/users', {
+const { data: users, refresh: refreshUsers } = await useApiFetch('/api/admin/users', {
   default: () => []
 })
+
+// Refresh all data function
+const refreshAllData = () => {
+  refreshProducts()
+  refreshCategories()
+  refreshOrders()
+  refreshUsers()
+}
+
+// Revenue chart period state
+const selectedPeriod = ref<'weekly' | 'monthly'>('weekly')
 
 const stats = computed(() => {
   const ordersArray = Array.isArray(orders.value) ? orders.value : []
@@ -508,18 +538,21 @@ const revenueChartSeries = computed(() => {
   const ordersArray = Array.isArray(orders.value) ? orders.value : []
   const paidOrders = ordersArray.filter(o => o.paymentStatus === 'PAID')
 
-  // Group by last 7 days
-  const last7Days = []
+  // Determine period
+  const days = selectedPeriod.value === 'weekly' ? 7 : 30
+
+  // Group by selected period
+  const periodDays = []
   const now = new Date()
-  for (let i = 6; i >= 0; i--) {
+  for (let i = days - 1; i >= 0; i--) {
     const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000)
-    last7Days.push({
+    periodDays.push({
       date: date.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric' }),
       timestamp: date
     })
   }
 
-  const revenueByDay = last7Days.map(day => {
+  const revenueByDay = periodDays.map(day => {
     const dayRevenue = paidOrders
       .filter(order => {
         const orderDate = new Date(order.createdAt)
@@ -545,13 +578,14 @@ const revenueChartOptions = computed(() => ({
   series: revenueChartSeries.value,
   xaxis: {
     categories: (() => {
-      const last7Days = []
+      const days = selectedPeriod.value === 'weekly' ? 7 : 30
+      const periodDays = []
       const now = new Date()
-      for (let i = 6; i >= 0; i--) {
+      for (let i = days - 1; i >= 0; i--) {
         const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000)
-        last7Days.push(date.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric' }))
+        periodDays.push(date.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric' }))
       }
-      return last7Days
+      return periodDays
     })(),
     labels: {
       style: {

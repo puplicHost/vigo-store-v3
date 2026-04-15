@@ -85,9 +85,12 @@ model Product {
   colors      String[] 
   stock       Int      @default(0)
   isFeatured  Boolean  @default(false)
+  isDeleted   Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  deletedAt   DateTime?
   
   categoryId  String
-  category    Category @relation(fields: [categoryId], references: [id])
+  category    Category @relation("CategoryProducts", fields: [categoryId], references: [id], onDelete: Cascade)
   orderItems  OrderItem[]
   
   createdAt   DateTime @default(now())
@@ -98,7 +101,7 @@ model Product {
 model Category {
   id       String    @id @default(cuid())
   name     String    @unique
-  products Product[]
+  products Product[] @relation("CategoryProducts")
 }
 
 // 7. الطلبات
@@ -121,7 +124,7 @@ model OrderItem {
   orderId   String
   order     Order   @relation(fields: [orderId], references: [id])
   productId String
-  product   Product @relation(fields: [productId], references: [id])
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   quantity  Int
   price     Float   
 }

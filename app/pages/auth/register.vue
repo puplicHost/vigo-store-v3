@@ -49,7 +49,7 @@ const handleRegister = async () => {
     
     if (data?.success) {
       // Redirect to login
-      navigateTo('/auth/login')
+      navigateTo('/auth/login', { replace: true })
     }
   } catch (e: any) {
     error.value = e.data?.statusMessage || 'An unexpected error occurred'

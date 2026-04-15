@@ -1,6 +1,6 @@
 /**
  * Composable for managing store settings
- * Provides reactive access to store-wide settings like shipping fee and currency
+ * Provides reactive access to store-wide settings like shipping fee, currency, and payment methods
  */
 
 export const useSettings = () => {
@@ -19,7 +19,12 @@ export const useSettings = () => {
     siteKeywords: '',
     facebookUrl: '',
     instagramUrl: '',
-    twitterUrl: ''
+    twitterUrl: '',
+    isCodEnabled: true,
+    isStripeEnabled: false,
+    stripePublicKey: '',
+    stripeSecretKey: '',
+    isTestMode: true
   }))
 
   const pending = ref(false)
@@ -42,6 +47,28 @@ export const useSettings = () => {
     }
   }
 
+  const updateSettings = async (newSettings: any) => {
+    if (process.client) {
+      pending.value = true
+      try {
+        const response = await $fetch('/api/admin/settings', {
+          method: 'PATCH',
+          body: newSettings
+        }) as { success: boolean; settings: any }
+        if (response?.settings) {
+          settings.value = { ...settings.value, ...response.settings }
+        }
+        return response
+      } catch (err: any) {
+        console.error('Failed to update settings:', err)
+        error.value = err
+        throw err
+      } finally {
+        pending.value = false
+      }
+    }
+  }
+
   // Fetch settings on client-side
   onMounted(() => {
     fetchSettings()
@@ -51,6 +78,7 @@ export const useSettings = () => {
     settings,
     pending,
     error,
-    fetchSettings
+    fetchSettings,
+    updateSettings
   }
 }

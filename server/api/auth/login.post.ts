@@ -58,9 +58,10 @@ export default defineEventHandler(async (event) => {
       { expiresIn: '7d' }
     )
 
-    // 6. Set secure cookie (httpOnly removed for client-side access)
+    // 6. Set secure cookie (accessible from client-side for auth persistence)
     setCookie(event, 'auth_token', token, {
-      secure: process.env.NODE_ENV === 'production', // HTTPS only in production
+      httpOnly: false, // Allow client-side access
+      secure: false, // Set to false for development
       sameSite: 'lax', // CSRF protection
       path: '/', // Available on all paths
       maxAge: 60 * 60 * 24 * 7 // 7 days

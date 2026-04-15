@@ -1,5 +1,5 @@
-import prisma from '../../../utils/prisma'
-import { requireAdmin } from '../../../utils/admin'
+import prisma from '../../../../utils/prisma'
+import { requireAdmin } from '../../../../utils/admin'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -27,20 +27,19 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Soft delete (archive) the product
+    // Restore the product
     await prisma.product.update({
       where: { id },
       data: {
-        isDeleted: true,
-        isActive: false,
-        stock: 0,
-        deletedAt: new Date()
+        isDeleted: false,
+        isActive: true,
+        deletedAt: null
       }
     })
 
     return {
       success: true,
-      message: 'Product archived successfully'
+      message: 'Product restored successfully'
     }
   } catch (error: any) {
     if (error.statusCode) {
@@ -52,10 +51,10 @@ export default defineEventHandler(async (event) => {
         statusMessage: 'Product not found'
       })
     }
-    console.error('[Product DELETE Error]', error)
+    console.error('[Product RESTORE Error]', error)
     throw createError({
       statusCode: 500,
-      statusMessage: 'Failed to archive product'
+      statusMessage: 'Failed to restore product'
     })
   }
 })

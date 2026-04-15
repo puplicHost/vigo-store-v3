@@ -46,6 +46,50 @@
             </div>
           </div>
 
+          <!-- Payment Method Selection -->
+          <section class="space-y-6">
+            <h3 class="text-sm uppercase tracking-widest font-semibold text-on-surface">Payment Method</h3>
+            <div class="space-y-3">
+              <!-- Cash on Delivery -->
+              <label
+                v-if="settings.isCodEnabled"
+                class="flex items-center justify-between p-5 bg-surface-container-low rounded-xl cursor-pointer border border-transparent hover:border-primary/20 transition-all"
+              >
+                <div class="flex items-center gap-4">
+                  <input v-model="paymentMethod" value="cod" class="text-primary focus:ring-primary border-outline-variant" name="payment" type="radio"/>
+                  <div>
+                    <span class="block text-sm font-semibold">Cash on Delivery</span>
+                    <span class="block text-xs text-secondary mt-1">Pay when you receive your order</span>
+                  </div>
+                </div>
+                <span class="material-symbols-outlined text-2xl text-secondary">payments</span>
+              </label>
+
+              <!-- Stripe Card Payment -->
+              <label
+                v-if="settings.isStripeEnabled"
+                class="flex items-center justify-between p-5 bg-surface-container-low rounded-xl cursor-pointer border border-transparent hover:border-primary/20 transition-all"
+              >
+                <div class="flex items-center gap-4">
+                  <input v-model="paymentMethod" value="stripe" class="text-primary focus:ring-primary border-outline-variant" name="payment" type="radio"/>
+                  <div>
+                    <span class="block text-sm font-semibold">Credit/Debit Card</span>
+                    <span class="block text-xs text-secondary mt-1">Secure payment via Stripe</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-2xl text-secondary">credit_card</span>
+                  <span v-if="settings.isTestMode" class="text-[10px] uppercase tracking-wider bg-warning/10 text-warning px-2 py-0.5 rounded">Test Mode</span>
+                </div>
+              </label>
+
+              <!-- No payment methods available -->
+              <div v-if="!settings.isCodEnabled && !settings.isStripeEnabled" class="p-5 bg-warning/10 rounded-xl text-center">
+                <span class="text-warning text-sm">No payment methods are currently available. Please contact support.</span>
+              </div>
+            </div>
+          </section>
+
           <!-- Shipping Form Section -->
           <section class="space-y-10">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-10">
@@ -277,6 +321,7 @@ const shipping = ref({
 })
 
 const shippingMethod = ref('standard')
+const paymentMethod = ref('cod')
 const promoCode = ref('')
 
 // Computed totals
@@ -305,7 +350,71 @@ const removeFromCart = (id) => {
 }
 
 const proceedToPayment = () => {
-  alert('Proceeding to payment...')
+  // Validate shipping form
+  if (!shipping.value.firstName || !shipping.value.lastName || !shipping.value.address || !shipping.value.city || !shipping.value.postalCode) {
+    alert('Please complete all shipping information')
+    return
+  }
+
+  // Validate payment method selection
+  if (!paymentMethod.value) {
+    alert('Please select a payment method')
+    return
+  }
+
+  // Validate cart
+  if (!cartItems.value.length) {
+    alert('Your cart is empty')
+    return
+  }
+
+  // Process payment based on selected method
+  if (paymentMethod.value === 'cod') {
+    // Cash on Delivery - create order with pending payment status
+    createOrder('PENDING')
+  } else if (paymentMethod.value === 'stripe') {
+    // Stripe payment - redirect to Stripe checkout or show Stripe elements
+    if (settings.value.isStripeEnabled) {
+      alert('Stripe payment integration coming soon! For now, please use Cash on Delivery.')
+    } else {
+      alert('Card payments are currently disabled')
+    }
+  }
+}
+
+const createOrder = async (paymentStatus) => {
+  try {
+    const orderData = {
+      items: cartItems.value.map(item => ({
+        productId: item.id,
+        quantity: item.quantity,
+        price: item.price
+      })),
+      shippingAddress: {
+        firstName: shipping.value.firstName,
+        lastName: shipping.value.lastName,
+        address: shipping.value.address,
+        city: shipping.value.city,
+        postalCode: shipping.value.postalCode,
+        country: shipping.value.country
+      },
+      totalAmount: total.value,
+      paymentMethod: paymentMethod.value.toUpperCase(),
+      paymentStatus
+    }
+
+    const response = await $fetch('/api/orders', {
+      method: 'POST',
+      body: orderData
+    })
+
+    alert('Order placed successfully!')
+    // Clear cart and redirect
+    cartItems.value = []
+    navigateTo('/orders', { replace: true })
+  } catch (error) {
+    alert(error.message || 'Failed to place order')
+  }
 }
 </script>
 

@@ -6,6 +6,13 @@
         <h1 class="font-serif italic text-3xl text-on-surface mb-2">Orders</h1>
         <p class="text-on-surface-variant/70 text-sm font-body">Manage customer orders</p>
       </div>
+      <button
+        @click="exportToExcel"
+        class="btn-gradient px-6 py-3 rounded-lg text-on-primary font-label text-[11px] uppercase tracking-[0.2em] flex items-center gap-2 hover:opacity-90 transition-opacity"
+      >
+        <span class="material-symbols-outlined text-lg">download</span>
+        Export to Excel
+      </button>
     </div>
 
     <!-- Filters -->
@@ -117,11 +124,63 @@ const { data: orders, pending, error } = await useApiFetch('/api/admin/orders', 
   default: () => []
 })
 
+const { searchQuery, filterOrders } = useSearch()
 const statusFilter = ref('')
 
 const filteredOrders = computed(() => {
   if (!orders.value || !Array.isArray(orders.value)) return []
-  if (!statusFilter.value) return orders.value
-  return orders.value.filter(o => o.status === statusFilter.value)
+
+  let filtered = orders.value
+
+  // Apply status filter
+  if (statusFilter.value) {
+    filtered = filtered.filter(o => o.status === statusFilter.value)
+  }
+
+  // Apply search filter
+  if (searchQuery.value) {
+    filtered = filterOrders(filtered, searchQuery.value)
+  }
+
+  return filtered
 })
+
+// Export to Excel function
+const exportToExcel = () => {
+  if (!filteredOrders.value || !Array.isArray(filteredOrders.value)) {
+    alert('No orders to export')
+    return
+  }
+
+  // Import xlsx library dynamically
+  import('xlsx').then((XLSX) => {
+    // Prepare data for export
+    const exportData = filteredOrders.value.map((order) => ({
+      'Order ID': order.id ? `#${order.id.slice(-8).toUpperCase()}` : 'N/A',
+      'Customer': order.user?.name || 'Guest',
+      'Customer Email': order.user?.email || 'N/A',
+      'Total': order.totalAmount ? `$${order.totalAmount.toFixed(2)}` : '$0.00',
+      'Status': order.status || 'UNKNOWN',
+      'Payment Status': order.paymentStatus || 'UNKNOWN',
+      'Items Count': order.items?.length || 0,
+      'Date': order.createdAt ? new Date(order.createdAt).toLocaleDateString() : '-'
+    }))
+
+    // Create worksheet
+    const worksheet = XLSX.utils.json_to_sheet(exportData)
+
+    // Create workbook
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Orders')
+
+    // Generate filename with date
+    const fileName = `orders_export_${new Date().toISOString().split('T')[0]}.xlsx`
+
+    // Download file
+    XLSX.writeFile(workbook, fileName)
+  }).catch((error) => {
+    console.error('Failed to export:', error)
+    alert('Failed to export orders. Please try again.')
+  })
+}
 </script>

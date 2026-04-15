@@ -302,7 +302,12 @@ definePageMeta({
   permission: 'VIEW_USERS'
 })
 
+const { data: usersResponse, pending, error, refresh: refreshUsers } = await useApiFetch('/api/admin/users', {
+  default: () => ({ users: [] })
+})
+
 const auth = useAuth()
+const { searchQuery, filterUsers } = useSearch()
 const roleFilter = ref('ALL')
 const showCreateModal = ref(false)
 const showEditModal = ref(false)
@@ -324,14 +329,24 @@ const editingUser = ref({
   role: 'USER'
 })
 
-const { data: users, pending, error, refresh } = await useApiFetch('/api/admin/users', {
-  default: () => []
-})
+const users = computed(() => usersResponse.value?.users || [])
 
 const filteredUsers = computed(() => {
   if (!users.value || !Array.isArray(users.value)) return []
-  if (roleFilter.value === 'ALL') return users.value
-  return users.value.filter(u => u.role === roleFilter.value)
+
+  let filtered = users.value
+
+  // Apply role filter
+  if (roleFilter.value !== 'ALL') {
+    filtered = filtered.filter(u => u.role === roleFilter.value)
+  }
+
+  // Apply search filter
+  if (searchQuery.value) {
+    filtered = filterUsers(filtered, searchQuery.value)
+  }
+
+  return filtered
 })
 
 const createUser = async () => {
@@ -342,7 +357,7 @@ const createUser = async () => {
     })
     showCreateModal.value = false
     newUser.value = { name: '', email: '', password: '', role: 'USER' }
-    refresh()
+    refreshUsers()
   } catch (err) {
     alert('Failed to create user')
   }
@@ -371,7 +386,7 @@ const updateUser = async () => {
       }
     })
     showEditModal.value = false
-    refresh()
+    refreshUsers()
   } catch (err) {
     alert('Failed to update user')
   }
@@ -389,7 +404,7 @@ const deleteUser = async () => {
     })
     showDeleteModal.value = false
     userToDelete.value = null
-    refresh()
+    refreshUsers()
   } catch (err) {
     alert('Failed to delete user')
   }

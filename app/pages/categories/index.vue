@@ -47,13 +47,13 @@
                 <span class="text-error font-body">Failed to load categories</span>
               </td>
             </tr>
-            <tr v-else-if="!categories?.length" class="hover:bg-surface-container-low/50 transition-colors">
+            <tr v-else-if="!filteredCategories?.length" class="hover:bg-surface-container-low/50 transition-colors">
               <td colspan="4" class="px-6 py-12 text-center">
                 <span class="text-on-surface-variant font-body">No categories found. Create your first category to get started.</span>
               </td>
             </tr>
             <tr
-              v-for="category in categories"
+              v-for="category in filteredCategories"
               :key="category.id"
               class="hover:bg-surface-container-low/50 transition-colors group"
             >
@@ -79,8 +79,6 @@
                   <button
                     @click="confirmDelete(category)"
                     class="p-2 rounded-lg hover:bg-error/10 text-on-surface-variant hover:text-error transition-colors"
-                    :disabled="category.products?.length > 0"
-                    :class="{ 'opacity-30 cursor-not-allowed': category.products?.length > 0 }"
                   >
                     <span class="material-symbols-outlined text-lg">delete</span>
                   </button>
@@ -168,7 +166,15 @@ const { data: categories, pending, error, refresh } = await useApiFetch('/api/ad
   default: () => [],
   server: true
 })
-// ...
+
+const { searchQuery, filterCategories } = useSearch()
+
+const filteredCategories = computed(() => {
+  const filtered = filterCategories(categories.value, searchQuery.value)
+  return filtered?.filter(c => c) || []
+})
+
+const showCreateModal = ref(false)
 const newCategoryName = ref('')
 const creating = ref(false)
 

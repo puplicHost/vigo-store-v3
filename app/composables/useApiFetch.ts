@@ -23,16 +23,7 @@ export const useApiFetch = (url: string, options: any = {}) => {
   // Merge options with auth headers
   const fetchOptions = computed(() => ({
     ...options,
-    headers: headers.value,
-    // Add default error handler
-    onResponseError({ response }: { response: any }) {
-      // Handle 401 - redirect to login
-      if (response.status === 401) {
-        const { logout } = useAuth()
-        logout()
-        navigateTo('/auth/login')
-      }
-    }
+    headers: headers.value
   }))
 
   return useFetch(url, fetchOptions.value)
@@ -60,12 +51,7 @@ export const $apiFetch = async (url: string, options: any = {}) => {
       headers
     })
   } catch (error: any) {
-    // Handle 401
-    if (error?.response?.status === 401) {
-      const { logout } = useAuth()
-      logout()
-      navigateTo('/auth/login')
-    }
+    // Don't auto-logout on 401 - let the component handle it
     throw error
   }
 }

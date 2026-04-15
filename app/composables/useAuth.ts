@@ -16,9 +16,8 @@ export const useAuth = () => {
     maxAge: 60 * 60 * 24 * 7, // 7 days
     sameSite: 'lax',
     path: '/',
-    secure: process.env.NODE_ENV === 'production',
-    // Note: httpOnly cannot be set from client-side composable
-    // It must be set from server-side (login API)
+    secure: false, // Set to false for development
+    httpOnly: false
   })
 
   const user = useState<User | null>('auth_user', () => null)
@@ -40,7 +39,7 @@ export const useAuth = () => {
   // Logout function
   const logout = () => {
     clearAuth()
-    navigateTo('/auth/login')
+    navigateTo('/auth/login', { replace: true })
   }
   
   // Fetch current user (useful on app init)

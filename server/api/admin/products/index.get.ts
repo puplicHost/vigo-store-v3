@@ -6,8 +6,13 @@ export default defineEventHandler(async (event) => {
     // Verify admin access
     requireAdmin(event)
 
-    // Fetch all products with their category
+    // Get filter query parameter (optional: show archived products)
+    const query = getQuery(event)
+    const showArchived = query.showArchived === 'true'
+
+    // Fetch products with their category (filter out deleted by default)
     const products = await prisma.product.findMany({
+      where: showArchived ? undefined : { isDeleted: false },
       include: {
         category: {
           select: {

@@ -46,7 +46,7 @@ const handleLogin = async () => {
 
       // Redirect based on role
       const isAdmin = data.user.role === 'ADMIN' || data.user.role === 'SUPER_ADMIN'
-      navigateTo(isAdmin ? '/admin' : '/')
+      navigateTo(isAdmin ? '/admin' : '/', { replace: true })
     }
   } catch (e: any) {
     error.value = e.data?.statusMessage || 'An unexpected error occurred'

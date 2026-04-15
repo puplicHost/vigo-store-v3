@@ -53,8 +53,9 @@
               search
             </span>
             <input
+              v-model="searchQuery"
               type="text"
-              placeholder="Search inventory..."
+              placeholder="Search..."
               class="w-full bg-surface-container-low border border-outline-variant/20 rounded-lg py-2.5 pl-10 pr-4 text-sm font-body focus:outline-none focus:border-primary/50 transition-all duration-300"
             />
           </div>
@@ -91,6 +92,7 @@
 const { user, logout } = useAuth()
 const route = useRoute()
 const { hasPermission } = usePermissions()
+const { searchQuery } = useSearch()
 
 // All menu items with their required permissions
 const allMenuItems = [

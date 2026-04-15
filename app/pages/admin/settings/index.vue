@@ -311,10 +311,13 @@
 
 <script setup>
 definePageMeta({
-  layout: 'admin'
+  layout: 'admin',
+  middleware: ['permissions'],
+  permission: 'MANAGE_SETTINGS'
 })
 
 const auth = useAuth()
+const { settings, pending, error, updateSettings } = useSettings()
 const activeTab = ref('general')
 const saving = ref(false)
 
@@ -326,46 +329,10 @@ const tabs = [
   { id: 'payment', label: 'Payment' }
 ]
 
-const settings = ref({
-  shippingFee: 0,
-  currency: 'EGP',
-  contactEmail: '',
-  contactPhone: '',
-  contactAddress: '',
-  whatsappNumber: '',
-  maintenanceMode: false,
-  maintenanceMessage: '',
-  siteName: '',
-  siteDescription: '',
-  siteKeywords: '',
-  facebookUrl: '',
-  instagramUrl: '',
-  twitterUrl: '',
-  isCodEnabled: true,
-  isStripeEnabled: false,
-  stripePublicKey: '',
-  stripeSecretKey: '',
-  isTestMode: true
-})
-
-const { data: fetchedSettings, pending, error, refresh } = await useApiFetch('/api/admin/settings', {
-  default: () => null
-})
-
-watch(fetchedSettings, (newSettings) => {
-  if (newSettings) {
-    settings.value = { ...settings.value, ...newSettings }
-  }
-}, { immediate: true })
-
 const saveSettings = async () => {
   saving.value = true
   try {
-    await $fetch('/api/admin/settings', {
-      method: 'PATCH',
-      body: settings.value
-    })
-    await refresh()
+    await updateSettings(settings.value)
     alert('Settings saved successfully')
   } catch (err) {
     alert('Failed to save settings')
