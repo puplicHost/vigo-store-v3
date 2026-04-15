@@ -1,9 +1,12 @@
 /**
  * Secure API Fetch with JWT Authentication
- * Automatically injects Authorization header for all admin API calls
+ * Refactored for stability and correct Vue reactivity
  */
 export const useApiFetch = (url: string | (() => string), options: any = {}) => {
   const { token } = useAuth()
+  
+  // Use explicit key to avoid "incompatible options" warnings
+  const key = options.key || (typeof url === 'function' ? url() : url)
 
   // Create reactive headers
   const headers = computed(() => {
@@ -20,29 +23,36 @@ export const useApiFetch = (url: string | (() => string), options: any = {}) => 
 
   // Normalize response helper
   const transform = (res: any) => {
-    // Standardize { data: [...] } or { items: [...] } or just [...]
-    return res?.data || res?.items || res
+    // Standardize { data: [...] } or { items: [...] } or { settings: ... } or just [...]
+    return res?.items || res?.data || res?.settings || res
   }
 
-  const fetchResponse = useFetch(url, {
+  const response = useFetch(url, {
+    key,
+    credentials: 'include',
     ...options,
     headers,
-    transform: options.transform || transform
+    transform: options.transform || transform,
+    default: options.default || (() => null),
+    watch: false // Disable default watch as requested for manual control
   })
 
-  // Global error watcher for debugging/feedback
-  watch(fetchResponse.error, (err) => {
-    if (err) {
-      console.error(`[API Error] ${unref(url)}:`, err)
+  // Safe error watcher
+  watch(
+    () => response.error.value,
+    (err) => {
+      if (err) {
+        console.error(`[API ERROR] ${key}:`, err)
+      }
     }
-  })
+  )
 
-  return fetchResponse
+  return response
 }
 
 /**
  * $fetch wrapper for mutations (POST, PATCH, DELETE)
- * Automatically includes JWT token
+ * Automatically includes JWT token and standardized error handling
  */
 export const $apiFetch = async (url: string, options: any = {}) => {
   const { token } = useAuth()
@@ -62,7 +72,8 @@ export const $apiFetch = async (url: string, options: any = {}) => {
       headers
     })
   } catch (error: any) {
-    // Don't auto-logout on 401 - let the component handle it
+    // Logs the error but lets the component handle the specific re-throw
+    console.error('[API Fetch Error]:', error)
     throw error
   }
 }

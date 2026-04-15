@@ -17,7 +17,7 @@ export const useAuth = () => {
     sameSite: 'lax',
     path: '/',
     secure: process.env.NODE_ENV === 'production',
-    httpOnly: true // Securely handled by the browser
+    httpOnly: false // Client-side needs to read the token for SPA
   })
 
   const user = useState<User | null>('auth_user', () => null)

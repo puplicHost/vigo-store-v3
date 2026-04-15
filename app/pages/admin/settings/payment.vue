@@ -204,7 +204,7 @@ const { data: orders, pending: ordersPending } = await useApiFetch('/api/admin/o
   default: () => []
 })
 
-watch(fetchedSettings, (newSettings) => {
+watch(() => fetchedSettings.value, (newSettings) => {
   if (newSettings) {
     settings.value = { ...settings.value, ...newSettings }
   }
@@ -221,7 +221,7 @@ const transactions = computed(() => {
 const saveSettings = async () => {
   saving.value = true
   try {
-    await $fetch('/api/admin/settings', {
+    await $apiFetch('/api/admin/settings', {
       method: 'PATCH',
       body: settings.value
     })

@@ -1,16 +1,16 @@
 import prisma from '../../../utils/prisma'
 import { requireAdmin } from '../../../utils/admin'
-import { logger } from '../../../utils/logger'
+import { handleError } from '../../../utils/error'
 
 /**
  * GET /api/admin/settings
- * Fetch store settings
+ * Fetch store settings with auto-initialization
  */
 export default defineEventHandler(async (event) => {
-  // Verify admin access
-  requireAdmin(event)
-
   try {
+    // Verify admin access
+    requireAdmin(event)
+
     // Get settings (singleton - should only have one record)
     let settings = await prisma.settings.findFirst()
 
@@ -20,7 +20,8 @@ export default defineEventHandler(async (event) => {
         data: {
           shippingFee: 0,
           currency: 'EGP',
-          maintenanceMode: false
+          maintenanceMode: false,
+          siteName: 'Vigo Store'
         }
       })
     }
@@ -33,10 +34,6 @@ export default defineEventHandler(async (event) => {
       settings: safeSettings
     }
   } catch (error: any) {
-    logger.error('[Fetch Settings Error]:', error)
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Failed to fetch settings'
-    })
+    throw handleError(error)
   }
 })

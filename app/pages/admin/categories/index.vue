@@ -168,14 +168,14 @@ const { data: categories, pending, error, refresh } = await useApiFetch('/api/ad
 })
 
 const { searchQuery, filterCategories } = useSearch()
-const { triggerRefresh, refreshEvents } = useDataRefresh()
+const { triggerRefresh, lastRefreshEvent } = useDataRefresh()
 
 // Auto-refresh from other tabs
-watch(refreshEvents, (events) => {
-  if (events.has('categories')) {
+watch(() => lastRefreshEvent.value, (event) => {
+  if (event?.dataType === 'categories') {
     refresh()
   }
-}, { deep: true })
+})
 
 const filteredCategories = computed(() => {
   const filtered = filterCategories(categories.value, searchQuery.value)

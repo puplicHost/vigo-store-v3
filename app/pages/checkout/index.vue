@@ -403,7 +403,7 @@ const createOrder = async (paymentStatus) => {
       paymentStatus
     }
 
-    const response = await $fetch('/api/orders', {
+    const response = await $apiFetch('/api/orders', {
       method: 'POST',
       body: orderData
     })

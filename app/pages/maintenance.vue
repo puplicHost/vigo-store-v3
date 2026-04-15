@@ -21,7 +21,7 @@ const maintenanceMessage = ref('')
 
 onMounted(async () => {
   try {
-    const settings = await $fetch('/api/admin/settings')
+    const settings = await $apiFetch('/api/admin/settings')
     maintenanceMessage.value = settings?.settings?.maintenanceMessage || ''
   } catch (error) {
     // Fallback to default message

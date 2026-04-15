@@ -354,11 +354,14 @@ const { triggerRefresh, lastRefreshEvent } = useDataRefresh()
 const selectedCategory = ref('')
 
 // Auto-refresh if event triggered from another tab
-watch(lastRefreshEvent, (event) => {
-  if (event?.dataType === 'products') {
-    refreshProducts()
+watch(
+  () => lastRefreshEvent.value,
+  (event) => {
+    if (event?.dataType === 'products') {
+      refreshProducts()
+    }
   }
-})
+)
 const showCreateModal = ref(false)
 const creating = ref(false)
 const fileInput = ref(null)

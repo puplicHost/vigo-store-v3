@@ -1,21 +1,30 @@
 import prisma from '../../../utils/prisma'
 import { requireAdmin } from '../../../utils/admin'
+import { handleError } from '../../../utils/error'
 
 export default defineEventHandler(async (event) => {
   try {
     // Verify admin access
     requireAdmin(event)
 
-    // Get filter and pagination parameters with safety bounds
+    // Get filter and pagination parameters
     const query = getQuery(event)
     const showArchived = query.showArchived === 'true'
     const page = Math.max(parseInt(query.page as string) || 1, 1)
     const limit = Math.min(Math.max(parseInt(query.limit as string) || 20, 1), 100)
     const skip = (page - 1) * limit
 
-    // Fetch products with their category (filter out deleted by default)
+    // Build filters dynamically for safety
+    const where: any = {}
+    
+    // Only show non-deleted products unless archived is requested
+    if (!showArchived) {
+      where.isDeleted = false
+    }
+
+    // Fetch products
     const products = await prisma.product.findMany({
-      where: showArchived ? undefined : { isDeleted: false },
+      where,
       include: {
         category: {
           select: {
@@ -29,15 +38,12 @@ export default defineEventHandler(async (event) => {
       skip: skip
     })
 
-    return products
-  } catch (error: any) {
-    if (error.statusCode) {
-      throw error
+    // Return standardized format
+    return {
+      success: true,
+      items: products
     }
-    console.error('[Products GET Error]', error)
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Failed to fetch products'
-    })
+  } catch (error: any) {
+    throw handleError(error)
   }
 })

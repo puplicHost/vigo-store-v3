@@ -287,7 +287,7 @@ const { data: productsData } = await useFetch<any>('/api/products', {
 })
 
 // Auto-refresh when admin makes changes (synced across tabs)
-watch(lastRefreshEvent, (event) => {
+watch(() => lastRefreshEvent.value, (event) => {
   if (event?.dataType === 'products') {
     refresh()
   }

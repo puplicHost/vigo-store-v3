@@ -217,7 +217,7 @@ const saving = ref(false)
 const fileInput = ref<HTMLInputElement | null>(null)
 
 // Initialize form when product loads
-watch(product, (p) => {
+watch(() => product.value, (p) => {
   if (p) {
     form.name = p.name || ''
     form.description = p.description || ''

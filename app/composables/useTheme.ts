@@ -2,7 +2,7 @@ export const useTheme = () => {
   const isDark = useState<boolean>('theme_is_dark', () => false)
 
   // Watch for changes and apply class to document
-  watch(isDark, (val) => {
+  watch(() => isDark.value, (val) => {
     if (process.client) {
       if (val) {
         document.documentElement.classList.add('dark')

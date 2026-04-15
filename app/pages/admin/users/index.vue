@@ -351,7 +351,7 @@ const filteredUsers = computed(() => {
 
 const createUser = async () => {
   try {
-    await $fetch('/api/admin/users', {
+    await $apiFetch('/api/admin/users', {
       method: 'POST',
       body: newUser.value
     })
@@ -376,7 +376,7 @@ const editUser = (user) => {
 
 const updateUser = async () => {
   try {
-    await $fetch(`/api/admin/users/${editingUser.value.id}`, {
+    await $apiFetch(`/api/admin/users/${editingUser.value.id}`, {
       method: 'PATCH',
       body: {
         name: editingUser.value.name,
@@ -399,7 +399,7 @@ const confirmDelete = (user) => {
 
 const deleteUser = async () => {
   try {
-    await $fetch(`/api/admin/users/${userToDelete.value.id}`, {
+    await $apiFetch(`/api/admin/users/${userToDelete.value.id}`, {
       method: 'DELETE'
     })
     showDeleteModal.value = false

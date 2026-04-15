@@ -73,7 +73,7 @@ export default defineEventHandler(async (event) => {
 
     // 6. Set secure cookie
     setCookie(event, 'auth_token', token, {
-      httpOnly: true, // Prevents XSS token theft
+      httpOnly: false, // Client-side needs to read the token for SPA
       secure: process.env.NODE_ENV === 'production', // HTTPS only in production
       sameSite: 'lax', // CSRF protection
       path: '/', // Available on all paths
@@ -96,6 +96,7 @@ export default defineEventHandler(async (event) => {
   } catch (error: any) {
     if (error.statusCode) throw error
 
+    logger.error('[Login Error]', error)
     throw createError({
       statusCode: 500,
       statusMessage: 'Internal server error'

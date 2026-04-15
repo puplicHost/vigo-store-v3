@@ -1,40 +1,43 @@
 import jwt from 'jsonwebtoken'
-import { getCookie, setCookie, deleteCookie } from 'h3'
+import { getCookie, deleteCookie } from 'h3'
 import { logger } from '../utils/logger'
 
 export default defineEventHandler(async (event) => {
   const path = event.node.req.url || ''
 
-  // Skip auth for public routes
+  // Always initialize user context to null to prevent "undefined" issues
+  event.context.user = null
+
+  // Skip auth logic for public routes (optional optimization)
   if (!path.startsWith('/api/') ||
       path.startsWith('/api/auth/login') ||
       path.startsWith('/api/auth/register')) {
     return
   }
 
-  // Verify JWT_SECRET
+  // Validate JWT_SECRET
   const jwtSecret = process.env.JWT_SECRET
   if (!jwtSecret) {
-    throw new Error('JWT_SECRET environment variable is not defined')
-  }
-
-  // Try to get token from Authorization header first
-  const authHeader = getHeader(event, 'authorization')
-  let token: string | null = null
-
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    token = authHeader.substring(7)
-  } else {
-    // Try to get token from cookie
-    const cookieToken = getCookie(event, 'auth_token')
-    token = cookieToken || null
-  }
-
-  if (!token) {
+    logger.error('CRITICAL: JWT_SECRET environment variable is missing')
     return
   }
 
   try {
+    // Try to get token from Authorization header or Cookie
+    const authHeader = getHeader(event, 'authorization')
+    let token: string | null = null
+
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7)
+    } else {
+      token = getCookie(event, 'auth_token') || null
+    }
+
+    if (!token) {
+      return
+    }
+
+    // Verify token
     const decoded = jwt.verify(token, jwtSecret) as {
       userId: string
       email: string
@@ -42,19 +45,18 @@ export default defineEventHandler(async (event) => {
     }
 
     // Attach user to context
-    event.context.user = {
-      userId: decoded.userId,
-      email: decoded.email,
-      role: decoded.role
-    }
+    event.context.user = decoded
 
   } catch (error) {
-    // Token is expired or invalid - clear cookie and set user to null
+    // Token is expired or invalid
     event.context.user = null
-    deleteCookie(event, 'auth_token', {
-      path: '/',
-      sameSite: 'lax'
-    })
-    return
+    
+    // Clear cookie if present to prevent repeating invalid requests
+    if (getCookie(event, 'auth_token')) {
+      deleteCookie(event, 'auth_token', {
+        path: '/',
+        sameSite: 'lax'
+      })
+    }
   }
 })

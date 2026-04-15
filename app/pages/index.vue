@@ -242,7 +242,7 @@ const { data: productsData, pending, error, refresh } = await useFetch<any>('/ap
 })
 
 // Auto-refresh when admin makes changes (synced across tabs)
-watch(lastRefreshEvent, (event) => {
+watch(() => lastRefreshEvent.value, (event) => {
   if (event?.dataType === 'products') {
     refresh()
   }

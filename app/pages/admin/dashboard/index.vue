@@ -453,7 +453,7 @@ const seeding = ref(false)
 const seedDatabase = async () => {
   seeding.value = true
   try {
-    const response = await $fetch('/api/admin/seed', {
+    const response = await $apiFetch('/api/admin/seed', {
       method: 'POST'
     })
     alert('Database seeded successfully!')
