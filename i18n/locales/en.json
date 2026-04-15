@@ -1,0 +1,99 @@
+{
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "inventory": "Inventory",
+    "categories": "Categories",
+    "orders": "Orders",
+    "users": "Users",
+    "settings": "Settings",
+    "signOut": "Sign Out"
+  },
+  "topbar": {
+    "search": "Search...",
+    "notifications": "Notifications",
+    "markAllRead": "Mark all read",
+    "viewAll": "View All Notifications"
+  },
+  "products": {
+    "title": "Inventory",
+    "subtitle": "Manage your product catalog",
+    "addProduct": "Add Product",
+    "active": "Active",
+    "archived": "Archived",
+    "allCategories": "All Categories",
+    "product": "Product",
+    "category": "Category",
+    "price": "Price",
+    "stock": "Stock",
+    "status": "Status",
+    "actions": "Actions",
+    "units": "units",
+    "featured": "Featured",
+    "newProduct": "New Product",
+    "name": "Name",
+    "description": "Description",
+    "images": "Images",
+    "uploadImages": "Upload Images",
+    "clickToUpload": "Click to upload product images",
+    "discount": "Discount",
+    "creating": "Creating...",
+    "cancel": "Cancel",
+    "create": "Create Product"
+  },
+  "settings": {
+    "title": "Store Settings",
+    "subtitle": "Manage store configuration and preferences",
+    "general": "General",
+    "shipping": "Shipping",
+    "contact": "Contact",
+    "social": "Social Media",
+    "payment": "Payment",
+    "save": "Save Changes",
+    "saving": "Saving...",
+    "cancel": "Cancel"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Overview of your store performance",
+    "lastUpdated": "Last updated",
+    "seedData": "Seed Data",
+    "seeding": "Seeding...",
+    "stats": {
+      "totalProducts": "Total Products",
+      "totalOrders": "Total Orders",
+      "totalUsers": "Total Users",
+      "totalRevenue": "Total Revenue",
+      "paidOrders": "Paid Orders",
+      "pendingOrders": "Pending Orders",
+      "avgOrderValue": "Avg Order Value"
+    },
+    "alerts": {
+      "lowStock": "Low Stock Alert",
+      "productsLeft": "product(s) running low on stock",
+      "restock": "Restock"
+    },
+    "charts": {
+      "revenueTrend": "Revenue Trend",
+      "ordersByStatus": "Orders by Status",
+      "userDistribution": "User Distribution",
+      "weekly": "Weekly",
+      "monthly": "Monthly"
+    },
+    "orders": {
+      "recent": "Recent Orders",
+      "viewAll": "View All",
+      "orderId": "Order ID",
+      "customer": "Customer",
+      "total": "Total",
+      "status": "Status",
+      "payment": "Payment"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "success": "Success",
+    "confirm": "Confirm",
+    "delete": "Delete"
+  }
+}

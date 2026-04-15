@@ -9,7 +9,15 @@
 </template>
 
 <script setup>
+const { settings } = useSettings()
+
 useHead({
+  title: settings.value?.siteName || 'Vigo Store',
+  titleTemplate: (title) => title ? `${title} | Atelier` : 'Atelier | Premium Fashion',
+  meta: [
+    { name: 'description', content: settings.value?.siteDescription || 'Modern Editorial E-commerce' },
+    { name: 'keywords', content: settings.value?.siteKeywords || 'fashion, luxury, atelier' }
+  ],
   link: [
     {
       rel: 'stylesheet',

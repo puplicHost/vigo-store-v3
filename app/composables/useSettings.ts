@@ -1,24 +1,21 @@
-/**
- * Composable for managing store settings
- * Provides reactive access to store-wide settings with centralized fetching
- */
 export const useSettings = () => {
   const settings = useState<any>('store-settings', () => ({
     shippingFee: 0,
     freeShippingThreshold: 0,
     currency: 'EGP',
     siteName: 'Vigo Store',
+    siteDescription: 'Modern Editorial E-commerce',
     maintenanceMode: false
   }))
 
   const error = ref<any>(null)
 
   // Use useAsyncData for SSR-friendly, deduplicated fetching
+  // We use the PUBLIC endpoint here so it works for all users
   const { data, pending, refresh, error: fetchError } = useAsyncData(
     'settings',
-    () => $apiFetch('/api/admin/settings'),
+    () => $apiFetch('/api/settings'),
     {
-      // Only fetch on client if not already hydrated
       server: true,
       lazy: true,
       transform: (res: any) => res?.settings || res
@@ -32,7 +29,7 @@ export const useSettings = () => {
     }
   }, { immediate: true })
 
-  // Manual update function
+  // Manual update function (ADMIN ONLY)
   const updateSettings = async (newSettings: any) => {
     try {
       const response = await $apiFetch('/api/admin/settings', {

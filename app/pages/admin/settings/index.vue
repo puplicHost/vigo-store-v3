@@ -2,22 +2,22 @@
   <div>
     <!-- Header -->
     <div class="mb-8">
-      <h1 class="font-serif italic text-3xl text-on-surface mb-2">Store Settings</h1>
-      <p class="text-on-surface-variant/70 text-sm font-body">Manage store configuration and preferences</p>
+      <h1 class="font-serif italic text-3xl text-on-surface mb-2">{{ $t('settings.title') }}</h1>
+      <p class="text-on-surface-variant/70 text-sm font-body">{{ $t('settings.subtitle') }}</p>
     </div>
 
     <!-- Tabs -->
-    <div class="flex gap-4 mb-6 border-b border-outline-variant/10">
+    <div class="flex gap-4 mb-6 border-b border-outline-variant/10 overflow-x-auto">
       <button
         v-for="tab in tabs"
         :key="tab.id"
         @click="activeTab = tab.id"
         :class="[
-          'px-4 py-3 font-body text-sm transition-colors relative',
+          'px-4 py-3 font-body text-sm transition-colors relative whitespace-nowrap',
           activeTab === tab.id ? 'text-primary' : 'text-on-surface-variant hover:text-on-surface'
         ]"
       >
-        {{ tab.label }}
+        {{ $t(`settings.${tab.id}`) }}
         <span
           v-if="activeTab === tab.id"
           class="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
@@ -26,7 +26,7 @@
     </div>
 
     <!-- Content -->
-    <div class="bg-white rounded-xl border border-outline-variant/10 shadow-sm shadow-primary/5 p-6">
+    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm shadow-primary/5 p-6 transition-colors duration-300">
       <ClientOnly>
         <template #fallback>
           <div class="text-center py-12">
@@ -46,21 +46,21 @@
           <!-- General Tab -->
           <div v-if="activeTab === 'general'" class="space-y-6">
             <div>
-              <label class="block text-sm font-body text-on-surface-variant mb-1">Store Name</label>
+              <label class="block text-sm font-body text-on-surface-variant mb-1">{{ $t('products.name') }}</label>
               <input
                 v-model="settings.siteName"
                 type="text"
-                class="w-full border border-outline-variant/20 rounded-lg px-4 py-2.5 text-sm font-body focus:outline-none focus:border-primary/50"
-                placeholder="Vigo Store"
+                class="w-full bg-transparent border border-outline-variant/30 rounded-lg px-4 py-2.5 text-sm font-body text-on-surface focus:outline-none focus:border-primary/50 transition-colors"
+                :placeholder="$t('products.name')"
               />
             </div>
             <div>
-              <label class="block text-sm font-body text-on-surface-variant mb-1">Store Description</label>
+              <label class="block text-sm font-body text-on-surface-variant mb-1">{{ $t('products.description') }}</label>
               <textarea
                 v-model="settings.siteDescription"
                 rows="3"
-                class="w-full border border-outline-variant/20 rounded-lg px-4 py-2.5 text-sm font-body focus:outline-none focus:border-primary/50 resize-none"
-                placeholder="Your store description"
+                class="w-full bg-transparent border border-outline-variant/30 rounded-lg px-4 py-2.5 text-sm font-body text-on-surface focus:outline-none focus:border-primary/50 resize-none transition-colors"
+                :placeholder="$t('products.description')"
               />
             </div>
             <div>
@@ -73,10 +73,10 @@
               />
             </div>
             <div>
-              <label class="block text-sm font-body text-on-surface-variant mb-1">Currency</label>
+              <label class="block text-sm font-body text-on-surface-variant mb-1">{{ $t('products.price') }} (Currency)</label>
               <select
                 v-model="settings.currency"
-                class="w-full border border-outline-variant/20 rounded-lg px-4 py-2.5 text-sm font-body focus:outline-none focus:border-primary/50"
+                class="w-full bg-transparent border border-outline-variant/30 rounded-lg px-4 py-2.5 text-sm font-body text-on-surface focus:outline-none focus:border-primary/50 cursor-pointer transition-colors"
               >
                 <option value="EGP">EGP - Egyptian Pound</option>
                 <option value="USD">USD - US Dollar</option>
@@ -112,16 +112,16 @@
           <!-- Shipping Tab -->
           <div v-if="activeTab === 'shipping'" class="space-y-6">
             <div>
-              <label class="block text-sm font-body text-on-surface-variant mb-1">Shipping Fee</label>
+              <label class="block text-sm font-body text-on-surface-variant mb-1">{{ $t('settings.shipping') }} Fee</label>
               <div class="relative">
                 <input
                   v-model="settings.shippingFee"
                   type="number"
                   step="0.01"
-                  class="w-full border border-outline-variant/20 rounded-lg px-4 py-2.5 text-sm font-body focus:outline-none focus:border-primary/50"
+                  class="w-full bg-transparent border border-outline-variant/30 rounded-lg px-4 py-2.5 text-sm font-body text-on-surface focus:outline-none focus:border-primary/50 transition-colors"
                   placeholder="0.00"
                 />
-                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant font-body text-sm">
+                <span class="absolute right-4 rtl:right-auto rtl:left-4 top-1/2 -translate-y-1/2 text-on-surface-variant font-body text-sm">
                   {{ settings.currency }}
                 </span>
               </div>
@@ -133,14 +133,13 @@
                   v-model="settings.freeShippingThreshold"
                   type="number"
                   step="0.01"
-                  class="w-full border border-outline-variant/20 rounded-lg px-4 py-2.5 text-sm font-body focus:outline-none focus:border-primary/50"
+                  class="w-full bg-transparent border border-outline-variant/30 rounded-lg px-4 py-2.5 text-sm font-body text-on-surface focus:outline-none focus:border-primary/50 transition-colors"
                   placeholder="0.00"
                 />
-                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant font-body text-sm">
+                <span class="absolute right-4 rtl:right-auto rtl:left-4 top-1/2 -translate-y-1/2 text-on-surface-variant font-body text-sm">
                   {{ settings.currency }}
                 </span>
               </div>
-              <p class="text-xs text-on-surface-variant mt-1">Orders above this amount get free shipping (0 to disable)</p>
             </div>
           </div>
 
@@ -191,8 +190,8 @@
               <input
                 v-model="settings.facebookUrl"
                 type="url"
-                class="w-full border border-outline-variant/20 rounded-lg px-4 py-2.5 text-sm font-body focus:outline-none focus:border-primary/50"
-                placeholder="https://facebook.com/vigostore"
+                class="w-full bg-transparent border border-outline-variant/30 rounded-lg px-4 py-2.5 text-sm font-body text-on-surface focus:outline-none focus:border-primary/50 transition-colors"
+                placeholder="https://facebook.com/..."
               />
             </div>
             <div>
@@ -200,17 +199,8 @@
               <input
                 v-model="settings.instagramUrl"
                 type="url"
-                class="w-full border border-outline-variant/20 rounded-lg px-4 py-2.5 text-sm font-body focus:outline-none focus:border-primary/50"
-                placeholder="https://instagram.com/vigostore"
-              />
-            </div>
-            <div>
-              <label class="block text-sm font-body text-on-surface-variant mb-1">Twitter URL</label>
-              <input
-                v-model="settings.twitterUrl"
-                type="url"
-                class="w-full border border-outline-variant/20 rounded-lg px-4 py-2.5 text-sm font-body focus:outline-none focus:border-primary/50"
-                placeholder="https://twitter.com/vigostore"
+                class="w-full bg-transparent border border-outline-variant/30 rounded-lg px-4 py-2.5 text-sm font-body text-on-surface focus:outline-none focus:border-primary/50 transition-colors"
+                placeholder="https://instagram.com/..."
               />
             </div>
           </div>
@@ -289,18 +279,18 @@
           <div class="flex justify-end gap-3 mt-8 pt-6 border-t border-outline-variant/10">
             <button
               type="button"
-              @click="refresh"
-              class="px-6 py-2.5 border border-outline-variant/20 rounded-lg font-body text-sm hover:bg-surface-container-low transition-colors"
+              @click="fetchSettings"
+              class="px-6 py-2.5 border border-outline-variant/30 rounded-lg font-body text-sm text-on-surface-variant hover:bg-surface-container-low transition-colors"
             >
-              Cancel
+              {{ $t('settings.cancel') }}
             </button>
             <button
               type="submit"
               :disabled="saving"
-              class="px-6 py-2.5 bg-primary text-white rounded-lg font-body text-sm hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              class="px-6 py-2.5 bg-primary text-on-primary rounded-lg font-body text-sm hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               <span v-if="saving" class="material-symbols-outlined text-sm animate-spin">progress_activity</span>
-              {{ saving ? 'Saving...' : 'Save Changes' }}
+              {{ saving ? $t('settings.saving') : $t('settings.save') }}
             </button>
           </div>
         </form>
@@ -316,8 +306,8 @@ definePageMeta({
   permission: 'MANAGE_SETTINGS'
 })
 
-const auth = useAuth()
-const { settings, pending, error, updateSettings } = useSettings()
+const { settings, pending, error, updateSettings, fetchSettings } = useSettings()
+const { toast } = useNotifications()
 const activeTab = ref('general')
 const saving = ref(false)
 
@@ -333,9 +323,9 @@ const saveSettings = async () => {
   saving.value = true
   try {
     await updateSettings(settings.value)
-    alert('Settings saved successfully')
-  } catch (err) {
-    alert('Failed to save settings')
+    toast.success('Settings saved successfully')
+  } catch (err: any) {
+    toast.error(err?.data?.statusMessage || 'Failed to save settings')
   } finally {
     saving.value = false
   }

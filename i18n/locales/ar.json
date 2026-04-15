@@ -1,0 +1,99 @@
+{
+  "sidebar": {
+    "dashboard": "لوحة التحكم",
+    "inventory": "المنتجات",
+    "categories": "التصنيفات",
+    "orders": "الطلبات",
+    "users": "المستخدمين",
+    "settings": "الإعدادات",
+    "signOut": "تسجيل الخروج"
+  },
+  "topbar": {
+    "search": "بحث...",
+    "notifications": "الإشعارات",
+    "markAllRead": "تحديد الكل كمقروء",
+    "viewAll": "عرض كل الإشعارات"
+  },
+  "products": {
+    "title": "المنتجات",
+    "subtitle": "إدارة كتالوج المنتجات الخاص بك",
+    "addProduct": "إضافة منتج",
+    "active": "نشط",
+    "archived": "مؤرشف",
+    "allCategories": "كل الأقسام",
+    "product": "المنتج",
+    "category": "القسم",
+    "price": "السعر",
+    "stock": "المخزون",
+    "status": "الحالة",
+    "actions": "الإجراءات",
+    "units": "قطع",
+    "featured": "مميز",
+    "newProduct": "منتج جديد",
+    "name": "الاسم",
+    "description": "الوصف",
+    "images": "الصور",
+    "uploadImages": "رفع صور",
+    "clickToUpload": "انقر لرفع صور المنتج",
+    "discount": "الخصم",
+    "creating": "جارٍ الإنشاء...",
+    "cancel": "إلغاء",
+    "create": "إنشاء منتج"
+  },
+  "settings": {
+    "title": "إعدادات المتجر",
+    "subtitle": "إدارة تكوين وتفضيلات المتجر",
+    "general": "عام",
+    "shipping": "الشحن",
+    "contact": "التواصل",
+    "social": "وسائل التواصل",
+    "payment": "الدفع",
+    "save": "حفظ التغييرات",
+    "saving": "جارٍ الحفظ...",
+    "cancel": "إلغاء"
+  },
+  "dashboard": {
+    "title": "لوحة التحكم",
+    "subtitle": "نظرة عامة على أداء متجرك",
+    "lastUpdated": "آخر تحديث",
+    "seedData": "زيادة البيانات",
+    "seeding": "جارٍ الزيادة...",
+    "stats": {
+      "totalProducts": "إجمالي المنتجات",
+      "totalOrders": "إجمالي الطلبات",
+      "totalUsers": "إجمالي المستخدمين",
+      "totalRevenue": "إجمالي الإيرادات",
+      "paidOrders": "الطلبات المدفوعة",
+      "pendingOrders": "الطلبات المعلقة",
+      "avgOrderValue": "متوسط قيمة الطلب"
+    },
+    "alerts": {
+      "lowStock": "تنبیه نقص المخزون",
+      "productsLeft": "منتجات شارفت على النفاد",
+      "restock": "إعادة تعبئة"
+    },
+    "charts": {
+      "revenueTrend": "اتجاه الإيرادات",
+      "ordersByStatus": "الطلبات حسب الحالة",
+      "userDistribution": "توزيع المستخدمين",
+      "weekly": "أسبوعي",
+      "monthly": "شهري"
+    },
+    "orders": {
+      "recent": "الطلبات الأخيرة",
+      "viewAll": "عرض الكل",
+      "orderId": "رقم الطلب",
+      "customer": "العميل",
+      "total": "الإجمالي",
+      "status": "الحالة",
+      "payment": "الدفع"
+    }
+  },
+  "common": {
+    "loading": "جارٍ التحميل...",
+    "error": "حدث خطأ ما",
+    "success": "تم بنجاح",
+    "confirm": "تأكيد",
+    "delete": "حذف"
+  }
+}

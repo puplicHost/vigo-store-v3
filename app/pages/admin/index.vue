@@ -3,8 +3,8 @@
     <!-- Header -->
     <div class="flex items-center justify-between mb-8">
       <div>
-        <h1 class="font-serif italic text-3xl text-on-surface mb-2">Inventory</h1>
-        <p class="text-on-surface-variant/70 text-sm font-body">Manage your product catalog</p>
+        <h1 class="font-serif italic text-3xl text-on-surface mb-2">{{ $t('products.title') }}</h1>
+        <p class="text-on-surface-variant/70 text-sm font-body">{{ $t('products.subtitle') }}</p>
       </div>
       <div class="flex items-center gap-4">
         <button
@@ -12,14 +12,14 @@
           class="px-4 py-3 rounded-lg border border-outline-variant/30 text-on-surface-variant font-label text-[11px] uppercase tracking-[0.15em] hover:bg-surface-container-low transition-colors flex items-center gap-2"
         >
           <span class="material-symbols-outlined text-lg">{{ showArchived ? 'inventory' : 'archive' }}</span>
-          {{ showArchived ? 'Active' : 'Archived' }}
+          {{ showArchived ? $t('products.active') : $t('products.archived') }}
         </button>
         <button
           @click="showCreateModal = true"
           class="btn-gradient px-6 py-3 rounded-lg text-on-primary font-label text-[11px] uppercase tracking-[0.2em] flex items-center gap-2 hover:opacity-90 transition-opacity"
         >
           <span class="material-symbols-outlined text-lg">add</span>
-          Add Product
+          {{ $t('products.addProduct') }}
         </button>
       </div>
     </div>
@@ -29,26 +29,26 @@
       <div class="relative">
         <select
           v-model="selectedCategory"
-          class="appearance-none bg-white border border-outline-variant/20 rounded-lg py-2.5 pl-4 pr-10 text-sm font-body focus:outline-none focus:border-primary/50 cursor-pointer"
+          class="appearance-none bg-surface-container-lowest border border-outline-variant/20 rounded-lg py-2.5 pl-4 pr-10 text-sm font-body text-on-surface focus:outline-none focus:border-primary/50 cursor-pointer transition-colors"
         >
-          <option value="">All Categories</option>
-          <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+          <option value="">{{ $t('products.allCategories') }}</option>
+          <option v-for="cat in (categories || [])" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
         </select>
         <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">expand_more</span>
       </div>
     </div>
 
     <!-- Table -->
-    <div class="bg-white rounded-xl border border-outline-variant/10 shadow-sm shadow-primary/5 overflow-hidden">
+    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm shadow-primary/5 overflow-hidden transition-colors duration-300">
       <table class="w-full">
         <thead class="bg-surface-container-low border-b border-outline-variant/10">
           <tr>
-            <th class="text-left px-6 py-4 font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Product</th>
-            <th class="text-left px-6 py-4 font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Category</th>
-            <th class="text-left px-6 py-4 font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Price</th>
-            <th class="text-left px-6 py-4 font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Stock</th>
-            <th class="text-left px-6 py-4 font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Status</th>
-            <th class="text-right px-6 py-4 font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Actions</th>
+            <th class="text-left px-6 py-4 font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant rtl:text-right">{{ $t('products.product') }}</th>
+            <th class="text-left px-6 py-4 font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant rtl:text-right">{{ $t('products.category') }}</th>
+            <th class="text-left px-6 py-4 font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant rtl:text-right">{{ $t('products.price') }}</th>
+            <th class="text-left px-6 py-4 font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant rtl:text-right">{{ $t('products.stock') }}</th>
+            <th class="text-left px-6 py-4 font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant rtl:text-right">{{ $t('products.status') }}</th>
+            <th class="text-right px-6 py-4 font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant rtl:text-left">{{ $t('products.actions') }}</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-outline-variant/10">
@@ -102,21 +102,21 @@
             <td class="px-6 py-4">
               <span :class="[
                 'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium',
-                product.stock > 10 ? 'bg-success/10 text-success' :
-                product.stock > 0 ? 'bg-warning/10 text-warning' :
+                (product.stock ?? 0) > 10 ? 'bg-success/10 text-success' :
+                (product.stock ?? 0) > 0 ? 'bg-warning/10 text-warning' :
                 'bg-error/10 text-error'
               ]">
-                {{ product.stock }} units
+                {{ (product.stock ?? 0) }} {{ $t('products.units') }}
               </span>
             </td>
             <td class="px-6 py-4">
               <span v-if="product.isFeatured" class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                Featured
+                {{ $t('products.featured') }}
               </span>
               <span v-else class="text-on-surface-variant text-sm">-</span>
             </td>
             <td class="px-6 py-4 text-right">
-              <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div class="flex items-center justify-end gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                 <NuxtLink
                   :to="`/admin/products/${product.id}/edit`"
                   class="p-2 rounded-lg hover:bg-surface-container-low text-on-surface-variant hover:text-primary transition-colors"
@@ -154,43 +154,43 @@
 
     <!-- Create Modal (Simplified) -->
     <div v-if="showCreateModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl my-8">
+      <div class="bg-surface-container-lowest rounded-2xl shadow-2xl w-full max-w-2xl my-8 transition-colors duration-300">
         <div class="p-8 border-b border-outline-variant/10">
-          <h2 class="font-serif italic text-2xl text-on-surface">New Product</h2>
+          <h2 class="font-serif italic text-2xl text-on-surface">{{ $t('products.newProduct') }}</h2>
         </div>
         <form @submit.prevent="createProduct" class="p-8 space-y-6">
-          <div class="grid grid-cols-2 gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label class="block font-label text-[10px] uppercase tracking-[0.15em] text-on-surface-variant mb-2">Name</label>
+              <label class="block font-label text-[10px] uppercase tracking-[0.15em] text-on-surface-variant mb-2">{{ $t('products.name') }}</label>
               <input
                 v-model="newProduct.name"
                 type="text"
-                class="w-full bg-transparent border border-outline-variant/30 rounded-lg py-3 px-4 focus:outline-none focus:border-primary transition-colors font-body"
+                class="w-full bg-transparent border border-outline-variant/30 rounded-lg py-3 px-4 focus:outline-none focus:border-primary transition-colors font-body text-on-surface"
                 required
               />
             </div>
             <div>
-              <label class="block font-label text-[10px] uppercase tracking-[0.15em] text-on-surface-variant mb-2">Category</label>
+              <label class="block font-label text-[10px] uppercase tracking-[0.15em] text-on-surface-variant mb-2">{{ $t('products.category') }}</label>
               <select
                 v-model="newProduct.categoryId"
-                class="w-full bg-transparent border border-outline-variant/30 rounded-lg py-3 px-4 focus:outline-none focus:border-primary transition-colors font-body"
+                class="w-full bg-transparent border border-outline-variant/30 rounded-lg py-3 px-4 focus:outline-none focus:border-primary transition-colors font-body text-on-surface"
                 required
               >
-                <option value="">Select category</option>
+                <option value="">{{ $t('products.selectCategory') }}</option>
                 <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
               </select>
             </div>
           </div>
           <div>
-            <label class="block font-label text-[10px] uppercase tracking-[0.15em] text-on-surface-variant mb-2">Description</label>
+            <label class="block font-label text-[10px] uppercase tracking-[0.15em] text-on-surface-variant mb-2">{{ $t('products.description') }}</label>
             <textarea
               v-model="newProduct.description"
               rows="3"
-              class="w-full bg-transparent border border-outline-variant/30 rounded-lg py-3 px-4 focus:outline-none focus:border-primary transition-colors font-body resize-none"
+              class="w-full bg-transparent border border-outline-variant/30 rounded-lg py-3 px-4 focus:outline-none focus:border-primary transition-colors font-body text-on-surface resize-none"
             ></textarea>
           </div>
           <div>
-            <label class="block font-label text-[10px] uppercase tracking-[0.15em] text-on-surface-variant mb-2">Images</label>
+            <label class="block font-label text-[10px] uppercase tracking-[0.15em] text-on-surface-variant mb-2">{{ $t('products.images') }}</label>
             <div class="border-2 border-dashed border-outline-variant/30 rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
               <input
                 ref="fileInput"
@@ -206,7 +206,7 @@
                 class="flex flex-col items-center gap-2 text-on-surface-variant hover:text-primary transition-colors"
               >
                 <span class="material-symbols-outlined text-4xl">cloud_upload</span>
-                <span class="font-label text-sm uppercase tracking-widest">Upload Images</span>
+                <span class="font-label text-sm uppercase tracking-widest">{{ $t('products.uploadImages') }}</span>
               </button>
               <div v-if="imagePreviews.length" class="mt-4 flex flex-wrap gap-2">
                 <div v-for="(preview, index) in imagePreviews" :key="index" class="relative w-20 h-20 rounded-lg overflow-hidden">
@@ -220,39 +220,39 @@
                   </button>
                 </div>
               </div>
-              <p v-else class="text-xs text-on-surface-variant/60 mt-2">Click to upload product images</p>
+              <p v-else class="text-xs text-on-surface-variant/60 mt-2">{{ $t('products.clickToUpload') }}</p>
             </div>
           </div>
-          <div class="grid grid-cols-3 gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <label class="block font-label text-[10px] uppercase tracking-[0.15em] text-on-surface-variant mb-2">Price ($)</label>
+              <label class="block font-label text-[10px] uppercase tracking-[0.15em] text-on-surface-variant mb-2">{{ $t('products.price') }} ($)</label>
               <input
                 v-model.number="newProduct.price"
                 type="number"
                 step="0.01"
                 min="0"
-                class="w-full bg-transparent border border-outline-variant/30 rounded-lg py-3 px-4 focus:outline-none focus:border-primary transition-colors font-body"
+                class="w-full bg-transparent border border-outline-variant/30 rounded-lg py-3 px-4 focus:outline-none focus:border-primary transition-colors font-body text-on-surface"
                 required
               />
             </div>
             <div>
-              <label class="block font-label text-[10px] uppercase tracking-[0.15em] text-on-surface-variant mb-2">Stock</label>
+              <label class="block font-label text-[10px] uppercase tracking-[0.15em] text-on-surface-variant mb-2">{{ $t('products.stock') }}</label>
               <input
                 v-model.number="newProduct.stock"
                 type="number"
                 min="0"
-                class="w-full bg-transparent border border-outline-variant/30 rounded-lg py-3 px-4 focus:outline-none focus:border-primary transition-colors font-body"
+                class="w-full bg-transparent border border-outline-variant/30 rounded-lg py-3 px-4 focus:outline-none focus:border-primary transition-colors font-body text-on-surface"
                 required
               />
             </div>
             <div>
-              <label class="block font-label text-[10px] uppercase tracking-[0.15em] text-on-surface-variant mb-2">Discount (%)</label>
+              <label class="block font-label text-[10px] uppercase tracking-[0.15em] text-on-surface-variant mb-2">{{ $t('products.discount') }} (%)</label>
               <input
                 v-model.number="newProduct.discount"
                 type="number"
                 min="0"
                 max="100"
-                class="w-full bg-transparent border border-outline-variant/30 rounded-lg py-3 px-4 focus:outline-none focus:border-primary transition-colors font-body"
+                class="w-full bg-transparent border border-outline-variant/30 rounded-lg py-3 px-4 focus:outline-none focus:border-primary transition-colors font-body text-on-surface"
               />
             </div>
           </div>
@@ -262,14 +262,14 @@
               @click="showCreateModal = false"
               class="flex-1 py-3 rounded-lg border border-outline-variant/30 text-on-surface-variant font-label text-[11px] uppercase tracking-[0.15em] hover:bg-surface-container-low transition-colors"
             >
-              Cancel
+              {{ $t('products.cancel') }}
             </button>
             <button
               type="submit"
               :disabled="creating"
               class="flex-1 btn-gradient py-3 rounded-lg text-on-primary font-label text-[11px] uppercase tracking-[0.15em] hover:opacity-90 transition-opacity disabled:opacity-50"
             >
-              {{ creating ? 'Creating...' : 'Create Product' }}
+              {{ creating ? $t('products.creating') : $t('products.create') }}
             </button>
           </div>
         </form>
@@ -278,7 +278,7 @@
 
     <!-- Archive Confirmation -->
     <div v-if="deleteModal.show" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 text-center">
+      <div class="bg-surface-container-lowest rounded-2xl shadow-2xl w-full max-w-md p-8 text-center transition-colors duration-300">
         <span class="material-symbols-outlined text-5xl text-warning mb-4">archive</span>
         <h2 class="font-serif italic text-2xl text-on-surface mb-2">Archive Product?</h2>
         <p class="text-on-surface-variant mb-6 font-body">
@@ -304,7 +304,7 @@
 
     <!-- Permanent Delete Confirmation -->
     <div v-if="permanentDeleteModal.show" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 text-center border-2 border-error/10">
+      <div class="bg-surface-container-lowest rounded-2xl shadow-2xl w-full max-w-md p-8 text-center border-2 border-error/10 transition-colors duration-300">
         <span class="material-symbols-outlined text-5xl text-error mb-4">delete_forever</span>
         <h2 class="font-serif italic text-2xl text-on-surface mb-2">Permanent Delete?</h2>
         <p class="text-on-surface-variant mb-6 font-body">
@@ -339,57 +339,63 @@ definePageMeta({
 })
 
 const showArchived = ref(false)
-
-const { data: products, pending, error, refresh: refreshProducts } = await useApiFetch('/api/admin/products', {
-  default: () => [],
-  query: computed(() => ({ showArchived: showArchived.value ? 'true' : undefined }))
-})
-const { data: categories } = await useApiFetch('/api/admin/categories', {
-  default: () => []
-})
-
+const selectedCategory = ref('')
 const { searchQuery, filterProducts } = useSearch()
 const { toast } = useNotifications()
-const { triggerRefresh, lastRefreshEvent } = useDataRefresh()
-const selectedCategory = ref('')
+const { lastRefreshEvent } = useDataRefresh()
 
-// Auto-refresh if event triggered from another tab
+// Fetch products with stable key and reactive query fix
+const { data: productsData, pending, error, refresh: refreshProducts } = await useApiFetch('/api/admin/products', {
+  key: 'admin-products',
+  query: computed(() => ({ 
+    showArchived: showArchived.value ? 'true' : undefined 
+  }))
+})
+
+// Fetch categories with stable key
+const { data: categoriesData } = await useApiFetch('/api/admin/categories', {
+  key: 'admin-categories'
+})
+
+// Extract safe data
+const products = computed(() => productsData.value?.items || [])
+const categories = computed(() => categoriesData.value?.categories || categoriesData.value || [])
+
+// Watch for manual refresh triggers
+watch(() => showArchived.value, () => refreshProducts())
+
+// Auto-refresh from other tabs
 watch(
   () => lastRefreshEvent.value,
   (event) => {
-    if (event?.dataType === 'products') {
-      refreshProducts()
-    }
+    if (event?.dataType === 'products') refreshProducts()
   }
 )
+
 const showCreateModal = ref(false)
 const creating = ref(false)
-const fileInput = ref(null)
-const imagePreviews = ref([])
+const fileInput = ref<HTMLInputElement | null>(null)
+const imagePreviews = ref<string[]>([])
 
 const newProduct = ref({
   name: '',
   description: '',
   price: 0,
   stock: 0,
-  discount: null,
+  discount: 0,
   categoryId: '',
-  images: [],
-  sizes: [],
-  colors: []
+  images: [] as string[],
+  sizes: [] as string[],
+  colors: [] as string[]
 })
 
 const filteredProducts = computed(() => {
-  if (!products.value) return []
+  let filtered = [...products.value]
 
-  let filtered = products.value
-
-  // Apply category filter
   if (selectedCategory.value) {
     filtered = filtered.filter(p => p.categoryId === selectedCategory.value)
   }
 
-  // Apply search filter
   if (searchQuery.value) {
     filtered = filterProducts(filtered, searchQuery.value)
   }
@@ -398,7 +404,6 @@ const filteredProducts = computed(() => {
 })
 
 const createProduct = async () => {
-  // Validate category is selected
   if (!newProduct.value.categoryId) {
     toast.error('Please select a category')
     return
@@ -411,12 +416,14 @@ const createProduct = async () => {
       body: newProduct.value
     })
     toast.success('Product created successfully')
+    
+    // Reset form
     newProduct.value = {
       name: '',
       description: '',
       price: 0,
       stock: 0,
-      discount: null,
+      discount: 0,
       categoryId: '',
       images: [],
       sizes: [],
@@ -424,23 +431,16 @@ const createProduct = async () => {
     }
     imagePreviews.value = []
     showCreateModal.value = false
-    triggerRefresh('products')
     await refreshProducts()
-  } catch (err) {
-    toast.error(err.data?.statusMessage || 'Failed to create product')
+  } catch (err: any) {
+    toast.error(err?.data?.statusMessage || err?.message || 'Failed to create product')
   } finally {
     creating.value = false
   }
 }
 
-const deleteModal = ref({
-  show: false,
-  product: null
-})
-const permanentDeleteModal = ref({
-  show: false,
-  product: null as any
-})
+const deleteModal = ref({ show: false, product: null as any })
+const permanentDeleteModal = ref({ show: false, product: null as any })
 const deleting = ref(false)
 
 const confirmArchive = (product: any) => {
@@ -458,78 +458,66 @@ const deleteProductPermanently = async () => {
     await $apiFetch(`/api/admin/products/${permanentDeleteModal.value.product.id}?permanent=true`, {
       method: 'DELETE'
     })
-    toast.success(`Product "${permanentDeleteModal.value.product.name}" deleted permanently`)
+    toast.success(`Product deleted permanently`)
     permanentDeleteModal.value.show = false
-    triggerRefresh('products')
     await refreshProducts()
   } catch (err: any) {
-    toast.error(err.data?.statusMessage || 'Failed to delete product')
+    toast.error(err?.data?.statusMessage || err?.message || 'Failed to delete product')
   } finally {
     deleting.value = false
   }
 }
 
 const archiveProduct = async () => {
-  if (!deleteModal.value.product?.id) {
-    toast.error('Product ID is missing')
-    return
-  }
+  if (!deleteModal.value.product?.id) return
   deleting.value = true
   try {
     await $apiFetch(`/api/admin/products/${deleteModal.value.product.id}`, {
       method: 'DELETE'
     })
-    toast.success(`Product "${deleteModal.value.product.name}" archived`)
+    toast.success('Product archived')
     deleteModal.value.show = false
-    triggerRefresh('products')
     await refreshProducts()
-  } catch (err) {
-    toast.error(err.data?.statusMessage || 'Failed to archive product')
+  } catch (err: any) {
+    toast.error(err?.data?.statusMessage || err?.message || 'Failed to archive product')
   } finally {
     deleting.value = false
   }
 }
 
-const restoreProduct = async (product) => {
-  if (!product?.id) {
-    toast.error('Product ID is missing')
-    return
-  }
+const restoreProduct = async (product: any) => {
   try {
     await $apiFetch(`/api/admin/products/${product.id}/restore`, {
       method: 'PATCH'
     })
-    toast.success(`Product "${product.name}" restored`)
-    triggerRefresh('products')
+    toast.success('Product restored')
     await refreshProducts()
-  } catch (err) {
-    toast.error(err.data?.statusMessage || 'Failed to restore product')
+  } catch (err: any) {
+    toast.error(err?.data?.statusMessage || err?.message || 'Failed to restore product')
   }
 }
 
-const editProduct = (product) => {
-  alert('Edit functionality coming soon!')
-}
-
-const handleImageUpload = (event) => {
-  const files = event.target.files
-  if (!files || files.length === 0) return
+const handleImageUpload = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const files = target.files
+  if (!files) return
 
   Array.from(files).forEach(file => {
     if (!file.type.startsWith('image/')) return
-
     const reader = new FileReader()
     reader.onload = (e) => {
-      imagePreviews.value.push(e.target.result)
-      // Convert to base64 for storage (in production, upload to server)
-      newProduct.value.images.push(e.target.result)
+      const result = e.target?.result as string
+      imagePreviews.value.push(result)
+      // TODO: Implement actual file upload to server/cloud
+      newProduct.value.images.push(result)
     }
     reader.readAsDataURL(file)
   })
 }
 
-const removeImage = (index) => {
+const removeImage = (index: number) => {
   imagePreviews.value.splice(index, 1)
   newProduct.value.images.splice(index, 1)
 }
 </script>
+>

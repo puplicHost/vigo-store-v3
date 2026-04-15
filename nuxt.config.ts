@@ -15,6 +15,7 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@pinia/nuxt',
     '@nuxtjs/tailwindcss',
+    '@nuxtjs/i18n',
   ],
 
   // Global CSS
@@ -43,10 +44,25 @@ export default defineNuxtConfig({
   vite: {
     optimizeDeps: {
       include: [
-        'shiki',
         '@vue/devtools-core',
-        '@vue/devtools-kit'
+        '@vue/devtools-kit',
+        'vue3-apexcharts'
       ]
+    }
+  },
+
+  // i18n Configuration
+  i18n: {
+    locales: [
+      { code: 'en', name: 'English', dir: 'ltr', file: 'en.json' },
+      { code: 'ar', name: 'العربية', dir: 'rtl', file: 'ar.json' }
+    ],
+    defaultLocale: 'en',
+    langDir: 'locales/',
+    strategy: 'no_prefix',
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: 'i18n_locale'
     }
   }
 })
