@@ -1,7 +1,7 @@
 import prisma from '../../utils/prisma'
 import { requireSuperAdmin } from '../../utils/admin'
 import bcrypt from 'bcrypt'
-import { Role, OrderStatus, PaymentStatus } from '@prisma/client'
+import { Role, OrderStatus, PaymentStatus, Permission } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
   // Only SUPER_ADMIN can seed data
@@ -11,6 +11,41 @@ export default defineEventHandler(async (event) => {
     // Check if data already exists (optional warning, but allow seeding)
     const existingUsers = await prisma.user.count()
     const existingProducts = await prisma.product.count()
+
+    // Seed RolePermissions (RBAC)
+    const rolePermissions = [
+      // SUPER_ADMIN - All permissions (handled in code, no need to seed)
+      // ADMIN - Most permissions except MANAGE_SETTINGS
+      { role: Role.ADMIN, permission: Permission.VIEW_PRODUCTS },
+      { role: Role.ADMIN, permission: Permission.CREATE_PRODUCTS },
+      { role: Role.ADMIN, permission: Permission.EDIT_PRODUCTS },
+      { role: Role.ADMIN, permission: Permission.DELETE_PRODUCTS },
+      { role: Role.ADMIN, permission: Permission.VIEW_CATEGORIES },
+      { role: Role.ADMIN, permission: Permission.MANAGE_CATEGORIES },
+      { role: Role.ADMIN, permission: Permission.VIEW_ORDERS },
+      { role: Role.ADMIN, permission: Permission.UPDATE_ORDER_STATUS },
+      // MANAGER - Products and Orders
+      { role: Role.MANAGER, permission: Permission.VIEW_PRODUCTS },
+      { role: Role.MANAGER, permission: Permission.CREATE_PRODUCTS },
+      { role: Role.MANAGER, permission: Permission.EDIT_PRODUCTS },
+      { role: Role.MANAGER, permission: Permission.VIEW_CATEGORIES },
+      { role: Role.MANAGER, permission: Permission.MANAGE_CATEGORIES },
+      { role: Role.MANAGER, permission: Permission.VIEW_ORDERS },
+      { role: Role.MANAGER, permission: Permission.UPDATE_ORDER_STATUS },
+      // SALES - Orders only
+      { role: Role.SALES, permission: Permission.VIEW_ORDERS },
+      { role: Role.SALES, permission: Permission.UPDATE_ORDER_STATUS },
+    ]
+
+    await Promise.all(
+      rolePermissions.map(rp =>
+        prisma.rolePermission.upsert({
+          where: { role_permission: { role: rp.role, permission: rp.permission } },
+          update: {},
+          create: rp
+        })
+      )
+    )
 
     // Seed Users
     const usersData = [

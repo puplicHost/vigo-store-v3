@@ -292,7 +292,9 @@
 
 <script setup>
 definePageMeta({
-  layout: 'admin'
+  layout: 'admin',
+  middleware: ['permissions'],
+  permission: 'VIEW_PRODUCTS'
 })
 
 const { data: products, pending, error, refresh: refreshProducts } = await useApiFetch('/api/admin/products', {

@@ -108,7 +108,9 @@
 
 <script setup>
 definePageMeta({
-  layout: 'admin'
+  layout: 'admin',
+  middleware: ['permissions'],
+  permission: 'VIEW_ORDERS'
 })
 
 const { data: orders, pending, error } = await useApiFetch('/api/admin/orders', {

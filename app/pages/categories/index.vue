@@ -159,14 +159,16 @@
 
 <script setup>
 definePageMeta({
-  layout: 'admin'
+  layout: 'admin',
+  middleware: ['permissions'],
+  permission: 'VIEW_CATEGORIES'
 })
 
 const { data: categories, pending, error, refresh } = await useApiFetch('/api/admin/categories', {
   default: () => [],
   server: true
 })
-const showCreateModal = ref(false)
+// ...
 const newCategoryName = ref('')
 const creating = ref(false)
 

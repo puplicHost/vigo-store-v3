@@ -19,6 +19,21 @@ enum Role {
   SUPER_ADMIN
 }
 
+// 2.1 نظام الصلاحيات (Permissions)
+enum Permission {
+  VIEW_PRODUCTS
+  CREATE_PRODUCTS
+  EDIT_PRODUCTS
+  DELETE_PRODUCTS
+  VIEW_CATEGORIES
+  MANAGE_CATEGORIES
+  VIEW_ORDERS
+  UPDATE_ORDER_STATUS
+  VIEW_USERS
+  MANAGE_USERS
+  MANAGE_SETTINGS
+}
+
 // 3. نظام حالات الطلب
 enum OrderStatus {
   PENDING
@@ -47,6 +62,14 @@ model User {
   orders        Order[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+}
+
+// 4.1 ربط الصلاحيات بالأدوار
+model RolePermission {
+  id          String     @id @default(cuid())
+  role        Role
+  permission  Permission
+  @@unique([role, permission], name: "role_permission")
 }
 
 // 5. موديل المنتجات

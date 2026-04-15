@@ -422,7 +422,9 @@
 
 <script setup>
 definePageMeta({
-  layout: 'admin'
+  layout: 'admin',
+  middleware: ['permissions'],
+  permission: 'VIEW_PRODUCTS'
 })
 
 import VueApexCharts from 'vue3-apexcharts'

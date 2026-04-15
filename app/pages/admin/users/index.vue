@@ -297,7 +297,9 @@
 
 <script setup>
 definePageMeta({
-  layout: 'admin'
+  layout: 'admin',
+  middleware: ['permissions'],
+  permission: 'VIEW_USERS'
 })
 
 const auth = useAuth()

@@ -90,21 +90,41 @@
 <script setup>
 const { user, logout } = useAuth()
 const route = useRoute()
+const { hasPermission } = usePermissions()
 
-const menuItems = [
-  { name: 'Dashboard', path: '/admin/dashboard', icon: 'dashboard' },
-  { name: 'Inventory', path: '/admin', icon: 'inventory_2' },
-  { name: 'Categories', path: '/categories', icon: 'folder' },
-  { name: 'Orders', path: '/admin/orders', icon: 'shopping_bag' },
-  { name: 'Users', path: '/admin/users', icon: 'people' },
-  { name: 'Settings', path: '/admin/settings', icon: 'settings' }
+// All menu items with their required permissions
+const allMenuItems = [
+  { name: 'Dashboard', path: '/admin/dashboard', icon: 'dashboard', permission: 'VIEW_PRODUCTS' },
+  { name: 'Inventory', path: '/admin', icon: 'inventory_2', permission: 'VIEW_PRODUCTS' },
+  { name: 'Categories', path: '/categories', icon: 'folder', permission: 'VIEW_CATEGORIES' },
+  { name: 'Orders', path: '/admin/orders', icon: 'shopping_bag', permission: 'VIEW_ORDERS' },
+  { name: 'Users', path: '/admin/users', icon: 'people', permission: 'VIEW_USERS' },
+  { name: 'Settings', path: '/admin/settings', icon: 'settings', permission: 'MANAGE_SETTINGS' }
 ]
+
+// Filter menu items based on user permissions
+const menuItems = computed(() => {
+  if (!user.value) return []
+
+  // SUPER_ADMIN sees everything
+  if (user.value.role === 'SUPER_ADMIN') return allMenuItems
+
+  // Filter items based on permissions
+  const filtered = allMenuItems.filter(item => {
+    const hasAccess = hasPermission(item.permission)
+    console.log(`[Sidebar] ${item.name} requires ${item.permission}, has access: ${hasAccess}, user role: ${user.value.role}`)
+    return hasAccess
+  })
+
+  console.log('[Sidebar] Filtered menu items:', filtered.map(i => i.name))
+  return filtered
+})
 
 const isActive = (path) => {
   if (path === '/admin') return route.path === '/admin'
   return route.path.startsWith(path)
 }
 
-// Note: Route protection is now handled by middleware/admin-guard.global.ts
+// Note: Route protection is now handled by middleware/permissions.global.ts
 // This prevents UI flickering by checking permissions before the route loads
 </script>
