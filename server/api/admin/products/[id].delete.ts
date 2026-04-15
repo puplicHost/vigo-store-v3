@@ -7,8 +7,11 @@ export default defineEventHandler(async (event) => {
     // Verify admin access
     requireAdmin(event)
 
-    // Get product ID from route params
+    // Get product ID and query params
     const id = getRouterParam(event, 'id')
+    const query = getQuery(event)
+    const permanent = query.permanent === 'true'
+
     if (!id) {
       throw createError({
         statusCode: 400,
@@ -28,23 +31,31 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Soft delete (archive) the product
-    await prisma.product.update({
-      where: { id },
-      data: {
-        isDeleted: true,
-        isActive: false,
-        stock: 0,
-        deletedAt: new Date()
+    if (permanent) {
+      // Hard delete from database
+      await prisma.product.delete({
+        where: { id }
+      })
+      logger.audit(event.context.user.userId, 'PERMANENT_DELETE_PRODUCT', id)
+      return {
+        success: true,
+        message: 'Product permanently deleted'
       }
-    })
-
-    // Audit log
-    logger.audit(event.context.user.userId, 'ARCHIVE_PRODUCT', id)
-
-    return {
-      success: true,
-      message: 'Product archived successfully'
+    } else {
+      // Soft delete (archive) the product
+      await prisma.product.update({
+        where: { id },
+        data: {
+          isDeleted: true,
+          isActive: false,
+          deletedAt: new Date()
+        }
+      })
+      logger.audit(event.context.user.userId, 'ARCHIVE_PRODUCT', id)
+      return {
+        success: true,
+        message: 'Product archived successfully'
+      }
     }
   } catch (error: any) {
     if (error.statusCode) {

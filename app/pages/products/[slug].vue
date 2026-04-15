@@ -270,25 +270,33 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const route = useRoute()
 const { isAuthenticated } = useAuth()
+const { lastRefreshEvent } = useDataRefresh()
 const slug = route.params.slug
 
 // Fetch product by slug
-const { data: product, pending, error } = await useFetch(`/api/products/${slug}`, {
+const { data: product, pending, error, refresh } = await useFetch<any>(`/api/products/${slug}`, {
   default: () => null
 })
 
-// Fetch related products (same category)
-const { data: allProducts } = await useFetch('/api/products', {
-  default: () => []
+// Fetch all products for related section
+const { data: productsData } = await useFetch<any>('/api/products', {
+  default: () => ({ items: [] })
+})
+
+// Auto-refresh when admin makes changes (synced across tabs)
+watch(lastRefreshEvent, (event) => {
+  if (event?.dataType === 'products') {
+    refresh()
+  }
 })
 
 const relatedProducts = computed(() => {
-  if (!product.value || !allProducts.value) return []
-  return allProducts.value
-    .filter(p => p.id !== product.value.id && p.categoryId === product.value.categoryId)
+  if (!product.value || !productsData.value?.items) return []
+  return productsData.value.items
+    .filter((p: any) => p.id !== product.value.id && p.categoryId === product.value.categoryId)
     .slice(0, 4)
 })
 </script>

@@ -1,27 +1,35 @@
 /**
  * Global Data Refresh Event System
- * Allows triggering data refreshes across different pages
+ * Synchronizes data refreshes across all open browser tabs using BroadcastChannel
  */
-const refreshEvents = ref<Set<string>>(new Set())
+const lastRefreshEvent = ref<{ dataType: string; timestamp: number } | null>(null)
+let channel: BroadcastChannel | null = null
+
+if (process.client) {
+  channel = new BroadcastChannel('vigo_store_sync')
+  channel.onmessage = (event) => {
+    if (event.data?.type === 'REFRESH') {
+      lastRefreshEvent.value = {
+        dataType: event.data.dataType,
+        timestamp: Date.now()
+      }
+    }
+  }
+}
 
 export const useDataRefresh = () => {
-  // Trigger a refresh event for a specific data type
   const triggerRefresh = (dataType: string) => {
-    refreshEvents.value.add(dataType)
-    // Clear the event after a short delay to prevent infinite loops
-    setTimeout(() => {
-      refreshEvents.value.delete(dataType)
-    }, 100)
-  }
-
-  // Check if a refresh event is pending for a data type
-  const shouldRefresh = (dataType: string) => {
-    return refreshEvents.value.has(dataType)
+    const event = { dataType, timestamp: Date.now() }
+    lastRefreshEvent.value = event
+    
+    // Broadcast to other tabs
+    if (channel) {
+      channel.postMessage({ type: 'REFRESH', dataType })
+    }
   }
 
   return {
     triggerRefresh,
-    shouldRefresh,
-    refreshEvents // Useful for watching
+    lastRefreshEvent: readonly(lastRefreshEvent)
   }
 }

@@ -113,55 +113,47 @@
           </select>
         </div>
 
-        <!-- Status -->
-        <div class="space-y-2">
-          <label class="block font-label text-[10px] uppercase tracking-[0.15em] text-on-surface-variant">
-            Status
-          </label>
-          <div class="flex gap-4">
-            <label class="flex items-center gap-2 cursor-pointer">
-              <input
-                v-model="form.isActive"
-                type="radio"
-                :value="true"
-                class="w-4 h-4 text-primary border-outline-variant/30 focus:ring-primary"
-              />
-              <span class="text-on-surface font-body text-sm">Active</span>
-            </label>
-            <label class="flex items-center gap-2 cursor-pointer">
-              <input
-                v-model="form.isActive"
-                type="radio"
-                :value="false"
-                class="w-4 h-4 text-primary border-outline-variant/30 focus:ring-primary"
-              />
-              <span class="text-on-surface font-body text-sm">Inactive</span>
-            </label>
-          </div>
-        </div>
-
-        <!-- Featured -->
-        <div class="flex items-center gap-2">
-          <input
-            v-model="form.isFeatured"
-            type="checkbox"
-            class="w-4 h-4 text-primary border-outline-variant/30 rounded focus:ring-primary"
-          />
-          <label class="text-on-surface font-body text-sm cursor-pointer">
-            Featured Product
-          </label>
-        </div>
-
         <!-- Images -->
-        <div class="space-y-2">
+        <div class="space-y-4">
           <label class="block font-label text-[10px] uppercase tracking-[0.15em] text-on-surface-variant">
-            Image URLs (comma separated)
+            Product Images
           </label>
-          <textarea
-            v-model="imagesInput"
-            rows="3"
-            class="w-full bg-surface-container-low border border-outline-variant/20 rounded-lg py-3 px-4 text-on-surface font-body focus:outline-none focus:border-primary/50 transition-colors resize-none"
-            placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg"
+          
+          <div class="flex flex-wrap gap-4">
+            <!-- Image Previews -->
+            <div 
+              v-for="(image, index) in form.images" 
+              :key="index"
+              class="relative w-24 h-24 rounded-lg overflow-hidden border border-outline-variant/20 group"
+            >
+              <img :src="image" class="w-full h-full object-cover" />
+              <button 
+                type="button"
+                @click="removeImage(index)"
+                class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <span class="material-symbols-outlined text-white">delete</span>
+              </button>
+            </div>
+
+            <!-- Upload Button -->
+            <button
+              type="button"
+              @click="() => fileInput?.click()"
+              class="w-24 h-24 rounded-lg border-2 border-dashed border-outline-variant/30 flex flex-col items-center justify-center gap-1 text-on-surface-variant hover:border-primary hover:text-primary transition-all"
+            >
+              <span class="material-symbols-outlined">add_a_photo</span>
+              <span class="text-[9px] uppercase font-bold">Add</span>
+            </button>
+          </div>
+          
+          <input
+            ref="fileInput"
+            type="file"
+            multiple
+            accept="image/*"
+            class="hidden"
+            @change="handleImageUpload"
           />
         </div>
 
@@ -178,8 +170,8 @@
             :disabled="saving"
             class="btn-gradient px-8 py-3 rounded-lg text-on-primary font-label text-[11px] uppercase tracking-[0.2em] flex items-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50"
           >
-            <span v-if="saving" class="material-symbols-outlined animate-spin">progress_activity</span>
-            <span v-else class="material-symbols-outlined">save</span>
+            <span v-if="saving" class="material-symbols-outlined animate-spin text-sm">progress_activity</span>
+            <span v-else class="material-symbols-outlined text-sm">save</span>
             {{ saving ? 'Saving...' : 'Save Changes' }}
           </button>
         </div>
@@ -188,36 +180,28 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 definePageMeta({
-  layout: 'admin'
+  layout: 'admin',
+  middleware: ['permissions'],
+  permission: 'MANAGE_SETTINGS' 
 })
 
 const route = useRoute()
 const router = useRouter()
 const productId = route.params.id
+const { toast } = useNotifications()
+const { triggerRefresh } = useDataRefresh()
 
-// Redirect if no ID provided
-if (!productId) {
-  throw createError({ statusCode: 404, message: 'Product ID is required' })
-}
-
-const { data: product, pending, error, refresh } = await useApiFetch(
+const { data: product, pending, error, refresh } = await useApiFetch<any>(
   `/api/admin/products/${productId}`,
   { default: () => null }
 )
 
-// Redirect if product not found
-watchEffect(() => {
-  if (!pending.value && !error.value && !product.value) {
-    throw createError({ statusCode: 404, message: 'Product not found' })
-  }
-})
-const { data: categories } = await useApiFetch('/api/admin/categories', {
+const { data: categories } = await useApiFetch<any[]>('/api/admin/categories', {
   default: () => []
 })
 
-// Form state
 const form = reactive({
   name: '',
   description: '',
@@ -225,14 +209,15 @@ const form = reactive({
   stock: 0,
   categoryId: '',
   isActive: true,
-  isFeatured: false
+  isFeatured: false,
+  images: [] as string[]
 })
 
-const imagesInput = ref('')
 const saving = ref(false)
+const fileInput = ref<HTMLInputElement | null>(null)
 
 // Initialize form when product loads
-watch(() => product.value, (p) => {
+watch(product, (p) => {
   if (p) {
     form.name = p.name || ''
     form.description = p.description || ''
@@ -241,35 +226,43 @@ watch(() => product.value, (p) => {
     form.categoryId = p.categoryId || ''
     form.isActive = p.isActive !== false
     form.isFeatured = p.isFeatured || false
-    imagesInput.value = p.images?.join(', ') || ''
+    form.images = Array.isArray(p.images) ? [...p.images] : []
   }
 }, { immediate: true })
 
+const handleImageUpload = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const files = target.files
+  if (!files) return
+
+  Array.from(files).forEach(file => {
+    if (!file.type.startsWith('image/')) return
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const result = e.target?.result as string
+      if (result) form.images.push(result)
+    }
+    reader.readAsDataURL(file)
+  })
+}
+
+const removeImage = (index: number) => {
+  form.images.splice(index, 1)
+}
+
 async function handleSubmit() {
   saving.value = true
-
   try {
-    const images = imagesInput.value
-      .split(',')
-      .map(url => url.trim())
-      .filter(url => url.length > 0)
-
-    const payload = {
-      ...form,
-      price: parseFloat(form.price),
-      stock: parseInt(form.stock),
-      images
-    }
-
     await $apiFetch(`/api/admin/products/${productId}`, {
       method: 'PATCH',
-      body: payload
+      body: form
     })
 
-    alert('Product updated successfully!')
+    toast.success('Product updated successfully')
+    triggerRefresh('products')
     router.push('/admin')
-  } catch (err) {
-    alert(err?.data?.statusMessage || 'Failed to update product')
+  } catch (err: any) {
+    toast.error(err?.data?.statusMessage || 'Failed to update product')
   } finally {
     saving.value = false
   }

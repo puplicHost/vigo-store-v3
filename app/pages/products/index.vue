@@ -196,22 +196,31 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const { isAuthenticated } = useAuth()
+const { lastRefreshEvent } = useDataRefresh()
 
 // Size filter state
 const selectedSize = ref<string | null>(null)
 
 // Fetch products
-const { data: products, pending, error } = await useFetch('/api/products', {
-  default: () => []
+const { data: productsData, pending, error, refresh } = await useFetch<any>('/api/products', {
+  default: () => ({ items: [] })
+})
+
+// Auto-refresh when admin makes changes (synced across tabs)
+watch(lastRefreshEvent, (event) => {
+  if (event?.dataType === 'products') {
+    refresh()
+  }
 })
 
 // Filter products by selected size
 const filteredProducts = computed(() => {
-  if (!selectedSize.value) return products.value
-  return products.value?.filter(product =>
+  const items = productsData.value?.items || []
+  if (!selectedSize.value) return items
+  return items.filter((product: any) =>
     product.sizes?.includes(selectedSize.value)
-  ) || []
+  )
 })
 </script>

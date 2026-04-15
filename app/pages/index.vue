@@ -231,17 +231,26 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const { isAuthenticated } = useAuth()
+const { lastRefreshEvent } = useDataRefresh()
 
 // Fetch featured products for the homepage
-const { data: products, pending, error } = await useFetch('/api/products', {
-  default: () => []
+const { data: productsData, pending, error, refresh } = await useFetch<any>('/api/products', {
+  default: () => ({ items: [] }),
+  query: { limit: 4 }
+})
+
+// Auto-refresh when admin makes changes (synced across tabs)
+watch(lastRefreshEvent, (event) => {
+  if (event?.dataType === 'products') {
+    refresh()
+  }
 })
 
 // Get first 4 products as featured
 const featuredProducts = computed(() => {
-  return products.value?.slice(0, 4) || []
+  return productsData.value?.items || []
 })
 </script>
 

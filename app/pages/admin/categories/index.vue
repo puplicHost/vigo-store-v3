@@ -155,7 +155,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 definePageMeta({
   layout: 'admin',
   middleware: ['permissions'],
@@ -168,6 +168,14 @@ const { data: categories, pending, error, refresh } = await useApiFetch('/api/ad
 })
 
 const { searchQuery, filterCategories } = useSearch()
+const { triggerRefresh, refreshEvents } = useDataRefresh()
+
+// Auto-refresh from other tabs
+watch(refreshEvents, (events) => {
+  if (events.has('categories')) {
+    refresh()
+  }
+}, { deep: true })
 
 const filteredCategories = computed(() => {
   const filtered = filterCategories(categories.value, searchQuery.value)
@@ -192,15 +200,16 @@ const createCategory = async () => {
     })
     newCategoryName.value = ''
     showCreateModal.value = false
+    triggerRefresh('categories')
     await refresh()
-  } catch (err) {
+  } catch (err: any) {
     alert(err.message || 'Failed to create category')
   } finally {
     creating.value = false
   }
 }
 
-const confirmDelete = (category) => {
+const confirmDelete = (category: any) => {
   deleteModal.value = { show: true, category }
 }
 
@@ -212,8 +221,9 @@ const deleteCategory = async () => {
       method: 'DELETE'
     })
     deleteModal.value.show = false
+    triggerRefresh('categories')
     await refresh()
-  } catch (err) {
+  } catch (err: any) {
     alert(err.message || 'Failed to delete category')
   } finally {
     deleting.value = false

@@ -137,6 +137,14 @@
                 >
                   <span class="material-symbols-outlined text-lg">restore_from_trash</span>
                 </button>
+                <!-- Permanent Delete Button -->
+                <button
+                  @click="confirmPermanentDelete(product)"
+                  class="p-2 rounded-lg hover:bg-error/10 text-on-surface-variant hover:text-error transition-colors"
+                  title="Permanent Delete"
+                >
+                  <span class="material-symbols-outlined text-lg">delete_forever</span>
+                </button>
               </div>
             </td>
           </tr>
@@ -293,10 +301,37 @@
         </div>
       </div>
     </div>
+
+    <!-- Permanent Delete Confirmation -->
+    <div v-if="permanentDeleteModal.show" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 text-center border-2 border-error/10">
+        <span class="material-symbols-outlined text-5xl text-error mb-4">delete_forever</span>
+        <h2 class="font-serif italic text-2xl text-on-surface mb-2">Permanent Delete?</h2>
+        <p class="text-on-surface-variant mb-6 font-body">
+          Are you sure you want to delete "{{ permanentDeleteModal.product?.name }}"? <br/>
+          <span class="text-error font-bold text-xs uppercase tracking-widest mt-2 block">This action cannot be undone and will remove all product data.</span>
+        </p>
+        <div class="flex gap-3">
+          <button
+            @click="permanentDeleteModal.show = false"
+            class="flex-1 py-3 rounded-lg border border-outline-variant/30 text-on-surface-variant font-label text-[11px] uppercase tracking-[0.15em] hover:bg-surface-container-low transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            @click="deleteProductPermanently"
+            :disabled="deleting"
+            class="flex-1 bg-error text-white py-3 rounded-lg font-label text-[11px] uppercase tracking-[0.15em] hover:opacity-90 transition-opacity disabled:opacity-50"
+          >
+            {{ deleting ? 'Deleting...' : 'Delete Permanently' }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 definePageMeta({
   layout: 'admin',
   middleware: ['permissions'],
@@ -315,7 +350,15 @@ const { data: categories } = await useApiFetch('/api/admin/categories', {
 
 const { searchQuery, filterProducts } = useSearch()
 const { toast } = useNotifications()
+const { triggerRefresh, lastRefreshEvent } = useDataRefresh()
 const selectedCategory = ref('')
+
+// Auto-refresh if event triggered from another tab
+watch(lastRefreshEvent, (event) => {
+  if (event?.dataType === 'products') {
+    refreshProducts()
+  }
+})
 const showCreateModal = ref(false)
 const creating = ref(false)
 const fileInput = ref(null)
@@ -378,6 +421,7 @@ const createProduct = async () => {
     }
     imagePreviews.value = []
     showCreateModal.value = false
+    triggerRefresh('products')
     await refreshProducts()
   } catch (err) {
     toast.error(err.data?.statusMessage || 'Failed to create product')
@@ -390,10 +434,36 @@ const deleteModal = ref({
   show: false,
   product: null
 })
+const permanentDeleteModal = ref({
+  show: false,
+  product: null as any
+})
 const deleting = ref(false)
 
-const confirmArchive = (product) => {
+const confirmArchive = (product: any) => {
   deleteModal.value = { show: true, product }
+}
+
+const confirmPermanentDelete = (product: any) => {
+  permanentDeleteModal.value = { show: true, product }
+}
+
+const deleteProductPermanently = async () => {
+  if (!permanentDeleteModal.value.product?.id) return
+  deleting.value = true
+  try {
+    await $apiFetch(`/api/admin/products/${permanentDeleteModal.value.product.id}?permanent=true`, {
+      method: 'DELETE'
+    })
+    toast.success(`Product "${permanentDeleteModal.value.product.name}" deleted permanently`)
+    permanentDeleteModal.value.show = false
+    triggerRefresh('products')
+    await refreshProducts()
+  } catch (err: any) {
+    toast.error(err.data?.statusMessage || 'Failed to delete product')
+  } finally {
+    deleting.value = false
+  }
 }
 
 const archiveProduct = async () => {
@@ -408,6 +478,7 @@ const archiveProduct = async () => {
     })
     toast.success(`Product "${deleteModal.value.product.name}" archived`)
     deleteModal.value.show = false
+    triggerRefresh('products')
     await refreshProducts()
   } catch (err) {
     toast.error(err.data?.statusMessage || 'Failed to archive product')
@@ -426,6 +497,7 @@ const restoreProduct = async (product) => {
       method: 'PATCH'
     })
     toast.success(`Product "${product.name}" restored`)
+    triggerRefresh('products')
     await refreshProducts()
   } catch (err) {
     toast.error(err.data?.statusMessage || 'Failed to restore product')
