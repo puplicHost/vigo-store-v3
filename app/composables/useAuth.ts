@@ -16,13 +16,13 @@ export const useAuth = () => {
     maxAge: 60 * 60 * 24 * 7, // 7 days
     sameSite: 'lax',
     path: '/',
-    secure: false, // Set to false for development
-    httpOnly: false
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true // Securely handled by the browser
   })
 
   const user = useState<User | null>('auth_user', () => null)
   const isLoading = useState<boolean>('auth_loading', () => false)
-  const isAuthenticated = computed(() => !!token.value && !!user.value)
+  const isAuthenticated = computed(() => !!user.value) // Token is httpOnly, so we rely on user state
   
   // Set auth data after login
   const setAuth = (authToken: string, userData: User) => {
@@ -50,7 +50,7 @@ export const useAuth = () => {
 
     try {
       const response = await $apiFetch('/api/auth/me') as any
-      user.value = response.data.value.user
+      user.value = response.user
     } catch (error) {
       console.error('Failed to fetch user:', error)
       // If 401, clear auth

@@ -28,7 +28,14 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Delete category (cascade will delete associated products)
+    if (category.products.length > 0) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Cannot delete category with associated products'
+      })
+    }
+
+    // Delete category
     await prisma.category.delete({
       where: { id }
     })

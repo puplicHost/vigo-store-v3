@@ -6,9 +6,12 @@ export default defineEventHandler(async (event) => {
     // Verify admin access
     requireAdmin(event)
 
-    // Get filter query parameter (optional: show archived products)
+    // Get filter and pagination parameters with safety bounds
     const query = getQuery(event)
     const showArchived = query.showArchived === 'true'
+    const page = Math.max(parseInt(query.page as string) || 1, 1)
+    const limit = Math.min(Math.max(parseInt(query.limit as string) || 20, 1), 100)
+    const skip = (page - 1) * limit
 
     // Fetch products with their category (filter out deleted by default)
     const products = await prisma.product.findMany({
@@ -21,7 +24,9 @@ export default defineEventHandler(async (event) => {
           }
         }
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      skip: skip
     })
 
     return products

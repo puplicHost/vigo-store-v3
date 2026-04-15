@@ -2,9 +2,9 @@
  * Global Data Refresh Event System
  * Allows triggering data refreshes across different pages
  */
-export const useDataRefresh = () => {
-  const refreshEvents = ref<Set<string>>(new Set())
+const refreshEvents = ref<Set<string>>(new Set())
 
+export const useDataRefresh = () => {
   // Trigger a refresh event for a specific data type
   const triggerRefresh = (dataType: string) => {
     refreshEvents.value.add(dataType)
@@ -21,6 +21,7 @@ export const useDataRefresh = () => {
 
   return {
     triggerRefresh,
-    shouldRefresh
+    shouldRefresh,
+    refreshEvents // Useful for watching
   }
 }

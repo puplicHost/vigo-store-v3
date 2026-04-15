@@ -63,18 +63,59 @@
 
         <!-- Right Actions -->
         <div class="flex items-center gap-4">
-          <button class="relative p-2 rounded-lg hover:bg-surface-container-low transition-colors">
-            <span class="material-symbols-outlined text-on-surface-variant">notifications</span>
-            <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full"></span>
+          <!-- Theme Toggle -->
+          <button 
+            @click="toggleTheme" 
+            class="p-2 rounded-lg hover:bg-surface-container-low transition-colors text-on-surface-variant flex items-center justify-center"
+            :title="isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
+          >
+            <span class="material-symbols-outlined text-xl">
+              {{ isDark ? 'light_mode' : 'dark_mode' }}
+            </span>
           </button>
+
+          <!-- Notifications -->
+          <div class="relative">
+            <button 
+              @click="showNotifDropdown = !showNotifDropdown"
+              class="relative p-2 rounded-lg hover:bg-surface-container-low transition-colors"
+            >
+              <span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+              <span v-if="hasUnread" class="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full border-2 border-white"></span>
+            </button>
+
+            <!-- Dropdown -->
+            <div v-if="showNotifDropdown" class="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-2xl border border-outline-variant/20 z-[60] overflow-hidden">
+              <div class="p-4 border-b border-outline-variant/10 flex items-center justify-between">
+                <span class="font-bold text-sm">Notifications</span>
+                <button @click="markAllAsRead" class="text-[10px] uppercase font-bold text-primary hover:underline">Mark all read</button>
+              </div>
+              <div class="max-h-96 overflow-y-auto">
+                <div v-if="notifications.length === 0" class="p-8 text-center text-on-surface-variant/50 text-sm">
+                  No notifications
+                </div>
+                <div 
+                  v-for="notif in notifications" 
+                  :key="notif.id"
+                  class="p-4 border-b border-outline-variant/5 hover:bg-surface-container-low transition-colors cursor-pointer"
+                  :class="{ 'bg-primary/5': !notif.read }"
+                  @click="markAsRead(notif.id)"
+                >
+                  <p class="font-bold text-xs mb-1">{{ notif.title }}</p>
+                  <p class="text-xs text-on-surface-variant line-clamp-2">{{ notif.message }}</p>
+                  <p class="text-[9px] text-on-surface-variant/40 mt-2">{{ new Date(notif.createdAt).toLocaleTimeString() }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
 
           <div class="flex items-center gap-3 pl-4 border-l border-outline-variant/20">
             <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
               <span class="material-symbols-outlined text-primary text-sm">person</span>
             </div>
             <div class="hidden md:block">
-              <p class="text-sm font-medium text-on-surface">{{ user?.name || 'Admin' }}</p>
-              <p class="text-[10px] uppercase tracking-wider text-on-surface-variant">{{ user?.role || 'ADMIN' }}</p>
+              <p class="text-sm font-medium text-on-surface uppercase">{{ user?.name || 'Admin User' }}</p>
+              <p class="text-[10px] uppercase tracking-wider text-on-surface-variant font-bold">{{ user?.role || 'Guest' }}</p>
             </div>
           </div>
         </div>
@@ -89,16 +130,26 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
+
 const { user, logout } = useAuth()
 const route = useRoute()
 const { hasPermission } = usePermissions()
 const { searchQuery } = useSearch()
+const { isDark, toggleTheme, initTheme } = useTheme()
+const { notifications, hasUnread, markAsRead, markAllAsRead } = useNotifications()
+
+const showNotifDropdown = ref(false)
+
+onMounted(() => {
+  initTheme()
+})
 
 // All menu items with their required permissions
 const allMenuItems = [
   { name: 'Dashboard', path: '/admin/dashboard', icon: 'dashboard', permission: 'VIEW_PRODUCTS' },
   { name: 'Inventory', path: '/admin', icon: 'inventory_2', permission: 'VIEW_PRODUCTS' },
-  { name: 'Categories', path: '/categories', icon: 'folder', permission: 'VIEW_CATEGORIES' },
+  { name: 'Categories', path: '/admin/categories', icon: 'folder', permission: 'VIEW_CATEGORIES' },
   { name: 'Orders', path: '/admin/orders', icon: 'shopping_bag', permission: 'VIEW_ORDERS' },
   { name: 'Users', path: '/admin/users', icon: 'people', permission: 'VIEW_USERS' },
   { name: 'Settings', path: '/admin/settings', icon: 'settings', permission: 'MANAGE_SETTINGS' }
@@ -114,11 +165,9 @@ const menuItems = computed(() => {
   // Filter items based on permissions
   const filtered = allMenuItems.filter(item => {
     const hasAccess = hasPermission(item.permission)
-    console.log(`[Sidebar] ${item.name} requires ${item.permission}, has access: ${hasAccess}, user role: ${user.value.role}`)
     return hasAccess
   })
 
-  console.log('[Sidebar] Filtered menu items:', filtered.map(i => i.name))
   return filtered
 })
 

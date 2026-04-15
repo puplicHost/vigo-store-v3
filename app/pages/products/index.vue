@@ -61,11 +61,19 @@
             <div>
               <h4 class="text-sm font-serif mb-4">Size</h4>
               <div class="grid grid-cols-3 gap-2">
-                <button class="border border-outline-variant py-2 text-xs font-label hover:border-primary transition-colors">XS</button>
-                <button class="border border-outline-variant py-2 text-xs font-label hover:border-primary transition-colors">S</button>
-                <button class="border border-outline-variant py-2 text-xs font-label hover:border-primary transition-colors">M</button>
-                <button class="border border-outline-variant py-2 text-xs font-label hover:border-primary transition-colors">L</button>
-                <button class="border border-outline-variant py-2 text-xs font-label hover:border-primary transition-colors">XL</button>
+                <button
+                  v-for="size in ['XS', 'S', 'M', 'L', 'XL']"
+                  :key="size"
+                  @click="selectedSize = selectedSize === size ? null : size"
+                  :class="[
+                    'border py-2 text-xs font-label transition-colors',
+                    selectedSize === size
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-outline-variant hover:border-primary'
+                  ]"
+                >
+                  {{ size }}
+                </button>
               </div>
             </div>
             <!-- Filter Category: Color -->
@@ -109,11 +117,11 @@
               </div>
             </div>
             <div v-else-if="error" class="text-center text-error py-20">Failed to load products</div>
-            <div v-else-if="!products?.length" class="text-center text-on-surface-variant py-20">No products found</div>
+            <div v-else-if="!filteredProducts?.length" class="text-center text-on-surface-variant py-20">No products found</div>
             <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
-              <NuxtLink 
-                v-for="product in products" 
-                :key="product.id" 
+              <NuxtLink
+                v-for="product in filteredProducts"
+                :key="product.id"
                 :to="`/products/${product.slug}`"
                 class="group cursor-pointer"
               >
@@ -191,8 +199,19 @@
 <script setup>
 const { isAuthenticated } = useAuth()
 
+// Size filter state
+const selectedSize = ref<string | null>(null)
+
 // Fetch products
 const { data: products, pending, error } = await useFetch('/api/products', {
   default: () => []
+})
+
+// Filter products by selected size
+const filteredProducts = computed(() => {
+  if (!selectedSize.value) return products.value
+  return products.value?.filter(product =>
+    product.sizes?.includes(selectedSize.value)
+  ) || []
 })
 </script>

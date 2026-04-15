@@ -95,6 +95,10 @@ model Product {
   
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@index([isDeleted, isActive])
+  @@index([categoryId])
+  @@index([createdAt])
 }
 
 // 6. التصنيفات
@@ -117,6 +121,10 @@ model Order {
   transactionId   String?
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
+
+  @@index([status])
+  @@index([userId])
+  @@index([createdAt])
 }
 
 model OrderItem {

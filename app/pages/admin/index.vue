@@ -51,107 +51,96 @@
             <th class="text-right px-6 py-4 font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Actions</th>
           </tr>
         </thead>
-        <ClientOnly>
-          <template #fallback>
-            <tbody class="divide-y divide-outline-variant/10">
-              <tr class="hover:bg-surface-container-low/50 transition-colors">
-                <td colspan="6" class="px-6 py-12 text-center">
-                  <span class="text-on-surface-variant font-body">Loading...</span>
-                </td>
-              </tr>
-            </tbody>
-          </template>
-          <tbody class="divide-y divide-outline-variant/10">
-            <tr v-if="pending" class="hover:bg-surface-container-low/50 transition-colors">
-              <td colspan="6" class="px-6 py-12 text-center text-on-surface-variant">
-                <span class="material-symbols-outlined text-3xl animate-spin">progress_activity</span>
-              </td>
-            </tr>
-            <tr v-else-if="error" class="hover:bg-surface-container-low/50 transition-colors">
-              <td colspan="6" class="px-6 py-12 text-center">
-                <span class="text-error font-body">Failed to load products</span>
-              </td>
-            </tr>
-            <tr v-else-if="!filteredProducts?.length" class="hover:bg-surface-container-low/50 transition-colors">
-              <td colspan="6" class="px-6 py-12 text-center">
-                <span class="text-on-surface-variant font-body">No products found. Create your first product to get started.</span>
-              </td>
-            </tr>
-            <tr
-              v-for="product in filteredProducts"
-              :key="product.id"
-              class="hover:bg-surface-container-low/50 transition-colors group"
-            >
-              <td class="px-6 py-4">
-                <div class="flex items-center gap-3">
-                  <div class="w-12 h-12 rounded-lg bg-surface-container-low overflow-hidden">
-                    <img
-                      v-if="product.images?.[0]"
-                      :src="product.images[0]"
-                      class="w-full h-full object-cover"
-                      alt=""
-                    />
-                    <div v-else class="w-full h-full flex items-center justify-center">
-                      <span class="material-symbols-outlined text-on-surface-variant/30">image</span>
-                    </div>
-                  </div>
-                  <div>
-                    <div class="font-medium text-on-surface font-body">{{ product.name }}</div>
-                    <div class="text-xs text-on-surface-variant">{{ product.slug }}</div>
+        <tbody class="divide-y divide-outline-variant/10">
+          <tr v-if="pending" class="hover:bg-surface-container-low/50 transition-colors">
+            <td colspan="6" class="px-6 py-12 text-center text-on-surface-variant">
+              <span class="material-symbols-outlined text-3xl animate-spin">progress_activity</span>
+            </td>
+          </tr>
+          <tr v-else-if="error" class="hover:bg-surface-container-low/50 transition-colors">
+            <td colspan="6" class="px-6 py-12 text-center">
+              <span class="text-error font-body">Failed to load products</span>
+            </td>
+          </tr>
+          <tr v-else-if="!filteredProducts?.length" class="hover:bg-surface-container-low/50 transition-colors">
+            <td colspan="6" class="px-6 py-12 text-center">
+              <span class="text-on-surface-variant font-body">No products found. Create your first product to get started.</span>
+            </td>
+          </tr>
+          <tr
+            v-for="product in filteredProducts"
+            :key="product.id"
+            class="hover:bg-surface-container-low/50 transition-colors group"
+          >
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-lg bg-surface-container-low overflow-hidden">
+                  <img
+                    v-if="product.images?.[0]"
+                    :src="product.images[0]"
+                    class="w-full h-full object-cover"
+                    alt=""
+                  />
+                  <div v-else class="w-full h-full flex items-center justify-center">
+                    <span class="material-symbols-outlined text-on-surface-variant/30">image</span>
                   </div>
                 </div>
-              </td>
-              <td class="px-6 py-4">
-                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-secondary/50 text-on-secondary">
-                  {{ product.category?.name || 'Uncategorized' }}
-                </span>
-              </td>
-              <td class="px-6 py-4 font-medium text-on-surface font-body">
-                ${{ (product.price ?? 0).toFixed(2) }}
-              </td>
-              <td class="px-6 py-4">
-                <span :class="[
-                  'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium',
-                  product.stock > 10 ? 'bg-success/10 text-success' :
-                  product.stock > 0 ? 'bg-warning/10 text-warning' :
-                  'bg-error/10 text-error'
-                ]">
-                  {{ product.stock }} units
-                </span>
-              </td>
-              <td class="px-6 py-4">
-                <span v-if="product.isFeatured" class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                  Featured
-                </span>
-                <span v-else class="text-on-surface-variant text-sm">-</span>
-              </td>
-              <td class="px-6 py-4 text-right">
-                <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <NuxtLink
-                    :to="`/admin/products/${product.id}/edit`"
-                    class="p-2 rounded-lg hover:bg-surface-container-low text-on-surface-variant hover:text-primary transition-colors"
-                  >
-                    <span class="material-symbols-outlined text-lg">edit</span>
-                  </NuxtLink>
-                  <button
-                    v-if="!product.isDeleted"
-                    @click="confirmArchive(product)"
-                    class="p-2 rounded-lg hover:bg-warning/10 text-on-surface-variant hover:text-warning transition-colors"
-                  >
-                    <span class="material-symbols-outlined text-lg">archive</span>
-                  </button>
-                  <button
-                    v-else
-                    @click="restoreProduct(product)"
-                    class="p-2 rounded-lg hover:bg-success/10 text-on-surface-variant hover:text-success transition-colors"
-                  >
-                    <span class="material-symbols-outlined text-lg">restore_from_trash</span>
-                  </button>
+                <div>
+                  <div class="font-medium text-on-surface font-body">{{ product.name }}</div>
+                  <div class="text-xs text-on-surface-variant">{{ product.slug }}</div>
                 </div>
-              </td>
-            </tr>
-          </tbody>
-        </ClientOnly>
+              </div>
+            </td>
+            <td class="px-6 py-4">
+              <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-secondary/50 text-on-secondary">
+                {{ product.category?.name || 'Uncategorized' }}
+              </span>
+            </td>
+            <td class="px-6 py-4 font-medium text-on-surface font-body">
+              ${{ (product.price ?? 0).toFixed(2) }}
+            </td>
+            <td class="px-6 py-4">
+              <span :class="[
+                'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium',
+                product.stock > 10 ? 'bg-success/10 text-success' :
+                product.stock > 0 ? 'bg-warning/10 text-warning' :
+                'bg-error/10 text-error'
+              ]">
+                {{ product.stock }} units
+              </span>
+            </td>
+            <td class="px-6 py-4">
+              <span v-if="product.isFeatured" class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                Featured
+              </span>
+              <span v-else class="text-on-surface-variant text-sm">-</span>
+            </td>
+            <td class="px-6 py-4 text-right">
+              <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <NuxtLink
+                  :to="`/admin/products/${product.id}/edit`"
+                  class="p-2 rounded-lg hover:bg-surface-container-low text-on-surface-variant hover:text-primary transition-colors"
+                >
+                  <span class="material-symbols-outlined text-lg">edit</span>
+                </NuxtLink>
+                <button
+                  v-if="!product.isDeleted"
+                  @click="confirmArchive(product)"
+                  class="p-2 rounded-lg hover:bg-warning/10 text-on-surface-variant hover:text-warning transition-colors"
+                >
+                  <span class="material-symbols-outlined text-lg">archive</span>
+                </button>
+                <button
+                  v-else
+                  @click="restoreProduct(product)"
+                  class="p-2 rounded-lg hover:bg-success/10 text-on-surface-variant hover:text-success transition-colors"
+                >
+                  <span class="material-symbols-outlined text-lg">restore_from_trash</span>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
       </table>
     </div>
 
@@ -325,6 +314,7 @@ const { data: categories } = await useApiFetch('/api/admin/categories', {
 })
 
 const { searchQuery, filterProducts } = useSearch()
+const { toast } = useNotifications()
 const selectedCategory = ref('')
 const showCreateModal = ref(false)
 const creating = ref(false)
@@ -364,7 +354,7 @@ const filteredProducts = computed(() => {
 const createProduct = async () => {
   // Validate category is selected
   if (!newProduct.value.categoryId) {
-    alert('Please select a category')
+    toast.error('Please select a category')
     return
   }
 
@@ -374,6 +364,7 @@ const createProduct = async () => {
       method: 'POST',
       body: newProduct.value
     })
+    toast.success('Product created successfully')
     newProduct.value = {
       name: '',
       description: '',
@@ -389,7 +380,7 @@ const createProduct = async () => {
     showCreateModal.value = false
     await refreshProducts()
   } catch (err) {
-    alert(err.message || 'Failed to create product')
+    toast.error(err.data?.statusMessage || 'Failed to create product')
   } finally {
     creating.value = false
   }
@@ -407,7 +398,7 @@ const confirmArchive = (product) => {
 
 const archiveProduct = async () => {
   if (!deleteModal.value.product?.id) {
-    alert('Product ID is missing')
+    toast.error('Product ID is missing')
     return
   }
   deleting.value = true
@@ -415,10 +406,11 @@ const archiveProduct = async () => {
     await $apiFetch(`/api/admin/products/${deleteModal.value.product.id}`, {
       method: 'DELETE'
     })
+    toast.success(`Product "${deleteModal.value.product.name}" archived`)
     deleteModal.value.show = false
     await refreshProducts()
   } catch (err) {
-    alert(err.message || 'Failed to archive product')
+    toast.error(err.data?.statusMessage || 'Failed to archive product')
   } finally {
     deleting.value = false
   }
@@ -426,16 +418,17 @@ const archiveProduct = async () => {
 
 const restoreProduct = async (product) => {
   if (!product?.id) {
-    alert('Product ID is missing')
+    toast.error('Product ID is missing')
     return
   }
   try {
     await $apiFetch(`/api/admin/products/${product.id}/restore`, {
       method: 'PATCH'
     })
+    toast.success(`Product "${product.name}" restored`)
     await refreshProducts()
   } catch (err) {
-    alert(err.message || 'Failed to restore product')
+    toast.error(err.data?.statusMessage || 'Failed to restore product')
   }
 }
 

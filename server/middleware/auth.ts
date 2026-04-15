@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken'
 import { getCookie, setCookie, deleteCookie } from 'h3'
+import { logger } from '../utils/logger'
 
 export default defineEventHandler(async (event) => {
   const path = event.node.req.url || ''
@@ -7,9 +8,14 @@ export default defineEventHandler(async (event) => {
   // Skip auth for public routes
   if (!path.startsWith('/api/') ||
       path.startsWith('/api/auth/login') ||
-      path.startsWith('/api/auth/register') ||
-      path.startsWith('/api/auth/me')) {
+      path.startsWith('/api/auth/register')) {
     return
+  }
+
+  // Verify JWT_SECRET
+  const jwtSecret = process.env.JWT_SECRET
+  if (!jwtSecret) {
+    throw new Error('JWT_SECRET environment variable is not defined')
   }
 
   // Try to get token from Authorization header first
@@ -29,13 +35,6 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    // Verify token
-    const jwtSecret = process.env.JWT_SECRET
-    if (!jwtSecret) {
-      console.error('JWT_SECRET not configured')
-      return
-    }
-
     const decoded = jwt.verify(token, jwtSecret) as {
       userId: string
       email: string
@@ -51,7 +50,6 @@ export default defineEventHandler(async (event) => {
 
   } catch (error) {
     // Token is expired or invalid - clear cookie and set user to null
-    // This prevents server crashes and ensures clean state
     event.context.user = null
     deleteCookie(event, 'auth_token', {
       path: '/',

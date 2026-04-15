@@ -111,9 +111,9 @@ const handleLogin = async () => {
             Password
           </label>
           <div class="absolute right-0 top-3">
-            <a href="#" class="text-[10px] uppercase tracking-[0.1em] text-on-surface-variant/60 hover:text-primary transition-colors underline underline-offset-4 decoration-outline-variant/20">
+            <NuxtLink to="/auth/forgot-password" class="text-[10px] uppercase tracking-[0.1em] text-on-surface-variant/60 hover:text-primary transition-colors underline underline-offset-4 decoration-outline-variant/20">
               Forgot?
-            </a>
+            </NuxtLink>
           </div>
         </div>
       </div>

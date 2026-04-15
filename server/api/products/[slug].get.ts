@@ -11,8 +11,12 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const product = await prisma.product.findUnique({
-      where: { slug },
+    const product = await prisma.product.findFirst({
+      where: { 
+        slug,
+        isDeleted: false,
+        isActive: true
+      },
       include: {
         category: {
           select: {

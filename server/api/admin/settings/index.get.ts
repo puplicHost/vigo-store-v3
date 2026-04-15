@@ -1,5 +1,6 @@
 import prisma from '../../../utils/prisma'
 import { requireAdmin } from '../../../utils/admin'
+import { logger } from '../../../utils/logger'
 
 /**
  * GET /api/admin/settings
@@ -24,12 +25,15 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // Remove sensitive fields before sending to client
+    const { stripeSecretKey, ...safeSettings } = settings as any
+
     return {
       success: true,
-      settings
+      settings: safeSettings
     }
   } catch (error: any) {
-    console.error('[Fetch Settings Error]:', error)
+    logger.error('[Fetch Settings Error]:', error)
     throw createError({
       statusCode: 500,
       statusMessage: 'Failed to fetch settings'

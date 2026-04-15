@@ -1,5 +1,6 @@
 import prisma from '../../../utils/prisma'
 import { requireAdmin } from '../../../utils/admin'
+import { logger } from '../../../utils/logger'
 
 /**
  * GET /api/admin/users
@@ -10,8 +11,11 @@ export default defineEventHandler(async (event) => {
   requireAdmin(event)
 
   try {
-    // Get query parameters for filtering
+    // Get pagination parameters with safety bounds
     const query = getQuery(event)
+    const page = Math.max(parseInt(query.page as string) || 1, 1)
+    const limit = Math.min(Math.max(parseInt(query.limit as string) || 20, 1), 100)
+    const skip = (page - 1) * limit
     const role = query.role as string
 
     // Build where clause based on role filter
@@ -23,6 +27,8 @@ export default defineEventHandler(async (event) => {
     // Fetch all users with their order count
     const users = await prisma.user.findMany({
       where,
+      take: limit,
+      skip,
       select: {
         id: true,
         name: true,
@@ -47,7 +53,7 @@ export default defineEventHandler(async (event) => {
       total: users.length
     }
   } catch (error: any) {
-    console.error('[Fetch Users Error]:', error)
+    logger.error('[Users GET Error]', error)
     throw createError({
       statusCode: 500,
       statusMessage: 'Failed to fetch users'

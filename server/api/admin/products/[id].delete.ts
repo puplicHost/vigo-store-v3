@@ -1,5 +1,6 @@
 import prisma from '../../../utils/prisma'
 import { requireAdmin } from '../../../utils/admin'
+import { logger } from '../../../utils/logger'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -37,6 +38,9 @@ export default defineEventHandler(async (event) => {
         deletedAt: new Date()
       }
     })
+
+    // Audit log
+    logger.audit(event.context.user.userId, 'ARCHIVE_PRODUCT', id)
 
     return {
       success: true,

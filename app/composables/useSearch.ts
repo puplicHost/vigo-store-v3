@@ -3,8 +3,8 @@
  * Provides debounced search functionality with state management
  */
 export const useSearch = () => {
-  const searchQuery = ref('')
-  const isSearching = ref(false)
+  const searchQuery = useState<string>('global_search_query', () => '')
+  const isSearching = useState<boolean>('global_is_searching', () => false)
 
   // Debounce function
   const debounce = (fn: Function, delay: number) => {

@@ -1,5 +1,7 @@
 import prisma from '../../../utils/prisma'
 import { requireAdmin, generateSlug } from '../../../utils/admin'
+import { ProductSchema } from '../../../utils/validators'
+import { logger } from '../../../utils/logger'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -8,6 +10,16 @@ export default defineEventHandler(async (event) => {
 
     // Parse body
     const body = await readBody(event)
+
+    // Validate with Zod
+    const result = ProductSchema.safeParse(body)
+    if (!result.success) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: result.error.issues[0]?.message || 'Validation failed'
+      })
+    }
+
     const {
       name,
       description,
@@ -19,43 +31,17 @@ export default defineEventHandler(async (event) => {
       sizes,
       colors,
       isFeatured
-    } = body
+    } = result.data
 
-    // Validation
-    if (!name || typeof name !== 'string' || name.trim().length === 0) {
-      throw createError({
-        statusCode: 400,
-        statusMessage: 'Product name is required'
-      })
-    }
-
-    if (price === undefined || price === null || isNaN(parseFloat(price)) || parseFloat(price) < 0) {
-      throw createError({
-        statusCode: 400,
-        statusMessage: 'Valid product price is required'
-      })
-    }
-
-    if (discount !== undefined && discount !== null && (isNaN(parseFloat(discount)) || parseFloat(discount) < 0 || parseFloat(discount) > 100)) {
+    // Additional validation: discount must be between 0 and 100 if provided
+    if (discount !== undefined && discount !== null && (discount < 0 || discount > 100)) {
       throw createError({
         statusCode: 400,
         statusMessage: 'Discount must be between 0 and 100'
       })
     }
 
-    if (!categoryId) {
-      throw createError({
-        statusCode: 400,
-        statusMessage: 'Category ID is required'
-      })
-    }
-
-    if (stock === undefined || stock === null || isNaN(parseInt(stock)) || parseInt(stock) < 0) {
-      throw createError({
-        statusCode: 400,
-        statusMessage: 'Valid stock quantity is required'
-      })
-    }
+    // Stock validation is already handled by Zod (non-negative)
 
     // Verify category exists
     const category = await prisma.category.findUnique({
@@ -86,9 +72,9 @@ export default defineEventHandler(async (event) => {
         name: name.trim(),
         slug,
         description: description || null,
-        price: parseFloat(price),
-        discount: discount ? parseFloat(discount) : null,
-        stock: parseInt(stock),
+        price: price,
+        discount: discount || null,
+        stock: stock,
         categoryId,
         images: images || [],
         sizes: sizes || [],
@@ -114,7 +100,7 @@ export default defineEventHandler(async (event) => {
     if (error.statusCode) {
       throw error
     }
-    console.error('[Product POST Error]', error)
+    logger.error('[Product POST Error]', error)
     throw createError({
       statusCode: 500,
       statusMessage: 'Failed to create product'

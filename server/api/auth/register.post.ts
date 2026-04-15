@@ -1,33 +1,32 @@
 import bcrypt from 'bcrypt'
+import { checkRateLimit, getRateLimitResetTime } from '../../utils/rateLimiter'
+import { getRequestHeader } from 'h3'
+import { RegisterSchema } from '../../utils/validators'
 
 export default defineEventHandler(async (event) => {
+  // Rate limiting - max 5 attempts per IP per minute
+  const ip = getRequestHeader(event, 'x-forwarded-for') || getRequestHeader(event, 'x-real-ip') || 'unknown'
+  if (!checkRateLimit(ip, 5, 60000)) {
+    const resetTime = getRateLimitResetTime(ip)
+    throw createError({
+      statusCode: 429,
+      statusMessage: 'Too many registration attempts. Please try again later.',
+      data: { resetTime }
+    })
+  }
+
   const body = await readBody(event)
-  const { email, password, name, role } = body
 
-  // 1. Validation
-  if (!email || !password) {
+  // Validate with Zod
+  const result = RegisterSchema.safeParse(body)
+  if (!result.success) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Email and password are required'
+      statusMessage: result.error.issues[0]?.message || 'Validation failed'
     })
   }
 
-  // 2. Email format validation
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  if (!emailRegex.test(email)) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Invalid email format'
-    })
-  }
-
-  // 3. Password strength
-  if (password.length < 6) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Password must be at least 6 characters'
-    })
-  }
+  const { email, password, name } = result.data
 
   try {
     // نستخدم prisma مباشرة (Auto-imported)
@@ -50,7 +49,7 @@ export default defineEventHandler(async (event) => {
         email,
         password: hashedPassword,
         name: name || null,
-        role: role || 'USER'
+        role: 'USER'
       },
       select: {
         id: true,

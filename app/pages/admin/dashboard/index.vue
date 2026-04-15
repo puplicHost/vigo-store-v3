@@ -397,7 +397,7 @@
         </div>
       </NuxtLink>
 
-      <NuxtLink to="/categories" class="bg-gradient-to-br from-white to-secondary/5 rounded-2xl border border-secondary/10 p-6 shadow-lg shadow-secondary/10 hover:shadow-xl hover:shadow-secondary/20 transition-all duration-300 group">
+      <NuxtLink to="/admin/categories" class="bg-gradient-to-br from-white to-secondary/5 rounded-2xl border border-secondary/10 p-6 shadow-lg shadow-secondary/10 hover:shadow-xl hover:shadow-secondary/20 transition-all duration-300 group">
         <div class="flex items-center gap-4">
           <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center shadow-lg shadow-secondary/20 group-hover:scale-110 transition-transform">
             <span class="material-symbols-outlined text-white text-xl">folder</span>

@@ -2,17 +2,15 @@
  * Secure API Fetch with JWT Authentication
  * Automatically injects Authorization header for all admin API calls
  */
-export const useApiFetch = (url: string, options: any = {}) => {
-  const { token, isAuthenticated } = useAuth()
+export const useApiFetch = (url: string | (() => string), options: any = {}) => {
+  const { token } = useAuth()
 
-  // Create headers with Authorization
+  // Create reactive headers
   const headers = computed(() => {
     const h: Record<string, string> = {
-      'Content-Type': 'application/json',
-      ...((options.headers as Record<string, string>) || {})
+      ...unref(options.headers)
     }
 
-    // Add JWT token if available
     if (token.value) {
       h.Authorization = `Bearer ${token.value}`
     }
@@ -20,13 +18,26 @@ export const useApiFetch = (url: string, options: any = {}) => {
     return h
   })
 
-  // Merge options with auth headers
-  const fetchOptions = computed(() => ({
-    ...options,
-    headers: headers.value
-  }))
+  // Normalize response helper
+  const transform = (res: any) => {
+    // Standardize { data: [...] } or { items: [...] } or just [...]
+    return res?.data || res?.items || res
+  }
 
-  return useFetch(url, fetchOptions.value)
+  const fetchResponse = useFetch(url, {
+    ...options,
+    headers,
+    transform: options.transform || transform
+  })
+
+  // Global error watcher for debugging/feedback
+  watch(fetchResponse.error, (err) => {
+    if (err) {
+      console.error(`[API Error] ${unref(url)}:`, err)
+    }
+  })
+
+  return fetchResponse
 }
 
 /**

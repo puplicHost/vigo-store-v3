@@ -1,60 +1,7 @@
 import prisma from './prisma'
 import { H3Event } from 'h3'
-
-// Permission types as strings
-export type Permission =
-  | 'VIEW_PRODUCTS'
-  | 'CREATE_PRODUCTS'
-  | 'EDIT_PRODUCTS'
-  | 'DELETE_PRODUCTS'
-  | 'VIEW_ORDERS'
-  | 'UPDATE_ORDER_STATUS'
-  | 'VIEW_USERS'
-  | 'MANAGE_USERS'
-  | 'MANAGE_SETTINGS'
-  | 'VIEW_CATEGORIES'
-  | 'MANAGE_CATEGORIES'
-
-// Role-based permission mappings
-const ROLE_PERMISSIONS: Record<string, Permission[]> = {
-  SUPER_ADMIN: [
-    'VIEW_PRODUCTS',
-    'CREATE_PRODUCTS',
-    'EDIT_PRODUCTS',
-    'DELETE_PRODUCTS',
-    'VIEW_ORDERS',
-    'UPDATE_ORDER_STATUS',
-    'VIEW_USERS',
-    'MANAGE_USERS',
-    'MANAGE_SETTINGS',
-    'VIEW_CATEGORIES',
-    'MANAGE_CATEGORIES'
-  ],
-  ADMIN: [
-    'VIEW_PRODUCTS',
-    'CREATE_PRODUCTS',
-    'EDIT_PRODUCTS',
-    'DELETE_PRODUCTS',
-    'VIEW_ORDERS',
-    'UPDATE_ORDER_STATUS',
-    'VIEW_CATEGORIES',
-    'MANAGE_CATEGORIES'
-  ],
-  MANAGER: [
-    'VIEW_PRODUCTS',
-    'CREATE_PRODUCTS',
-    'EDIT_PRODUCTS',
-    'VIEW_ORDERS',
-    'UPDATE_ORDER_STATUS',
-    'VIEW_CATEGORIES',
-    'MANAGE_CATEGORIES'
-  ],
-  SALES: [
-    'VIEW_ORDERS',
-    'UPDATE_ORDER_STATUS'
-  ],
-  USER: []
-}
+import type { Permission } from '../../shared/constants/permissions'
+import { ROLE_PERMISSIONS } from '../../shared/constants/permissions'
 
 // Get permissions for a user based on their role
 export function getUserPermissions(role: string): Permission[] {

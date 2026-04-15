@@ -1,5 +1,7 @@
 import prisma from '../../../utils/prisma'
 import { requireAdmin, generateSlug } from '../../../utils/admin'
+import { UpdateProductSchema } from '../../../utils/validators'
+import { logger } from '../../../utils/logger'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -29,6 +31,16 @@ export default defineEventHandler(async (event) => {
 
     // Parse body
     const body = await readBody(event)
+
+    // Validate with Zod
+    const result = UpdateProductSchema.safeParse(body)
+    if (!result.success) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: result.error.issues[0]?.message || 'Validation failed'
+      })
+    }
+
     const {
       name,
       description,
@@ -40,18 +52,12 @@ export default defineEventHandler(async (event) => {
       sizes,
       colors,
       isFeatured
-    } = body
+    } = result.data
 
     // Build update data
     const updateData: any = {}
 
     if (name !== undefined) {
-      if (typeof name !== 'string' || name.trim().length === 0) {
-        throw createError({
-          statusCode: 400,
-          statusMessage: 'Product name cannot be empty'
-        })
-      }
       updateData.name = name.trim()
 
       // Regenerate slug if name changed
@@ -73,9 +79,9 @@ export default defineEventHandler(async (event) => {
     }
 
     if (description !== undefined) updateData.description = description
-    if (price !== undefined) updateData.price = parseFloat(price)
-    if (discount !== undefined) updateData.discount = discount ? parseFloat(discount) : null
-    if (stock !== undefined) updateData.stock = parseInt(stock)
+    if (price !== undefined) updateData.price = price
+    if (discount !== undefined) updateData.discount = discount || null
+    if (stock !== undefined) updateData.stock = stock
     if (images !== undefined) updateData.images = images
     if (sizes !== undefined) updateData.sizes = sizes
     if (colors !== undefined) updateData.colors = colors
@@ -124,7 +130,7 @@ export default defineEventHandler(async (event) => {
         statusMessage: 'Product not found'
       })
     }
-    console.error('[Product PATCH Error]', error)
+    logger.error('[Product PATCH Error]', error)
     throw createError({
       statusCode: 500,
       statusMessage: 'Failed to update product'

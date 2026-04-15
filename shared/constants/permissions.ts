@@ -1,0 +1,54 @@
+// Permission types
+export type Permission =
+  | 'VIEW_PRODUCTS'
+  | 'CREATE_PRODUCTS'
+  | 'EDIT_PRODUCTS'
+  | 'DELETE_PRODUCTS'
+  | 'VIEW_ORDERS'
+  | 'UPDATE_ORDER_STATUS'
+  | 'VIEW_USERS'
+  | 'MANAGE_USERS'
+  | 'MANAGE_SETTINGS'
+  | 'VIEW_CATEGORIES'
+  | 'MANAGE_CATEGORIES'
+
+// Role-based permission mappings
+export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
+  SUPER_ADMIN: [
+    'VIEW_PRODUCTS',
+    'CREATE_PRODUCTS',
+    'EDIT_PRODUCTS',
+    'DELETE_PRODUCTS',
+    'VIEW_ORDERS',
+    'UPDATE_ORDER_STATUS',
+    'VIEW_USERS',
+    'MANAGE_USERS',
+    'MANAGE_SETTINGS',
+    'VIEW_CATEGORIES',
+    'MANAGE_CATEGORIES'
+  ],
+  ADMIN: [
+    'VIEW_PRODUCTS',
+    'CREATE_PRODUCTS',
+    'EDIT_PRODUCTS',
+    'DELETE_PRODUCTS',
+    'VIEW_ORDERS',
+    'UPDATE_ORDER_STATUS',
+    'VIEW_CATEGORIES',
+    'MANAGE_CATEGORIES'
+  ],
+  MANAGER: [
+    'VIEW_PRODUCTS',
+    'CREATE_PRODUCTS',
+    'EDIT_PRODUCTS',
+    'VIEW_ORDERS',
+    'UPDATE_ORDER_STATUS',
+    'VIEW_CATEGORIES',
+    'MANAGE_CATEGORIES'
+  ],
+  SALES: [
+    'VIEW_ORDERS',
+    'UPDATE_ORDER_STATUS'
+  ],
+  USER: []
+}
