@@ -470,68 +470,58 @@ const seedDatabase = async () => {
   }
 }
 
-const { data: products, refresh: refreshProducts } = await useApiFetch('/api/admin/products', {
-  default: () => []
+// Use new aggregated dashboard endpoint
+const { data: dashboardData, pending, refresh: refreshDashboard } = await useApiFetch('/api/admin/dashboard', {
+  default: () => ({
+    stats: {
+      products: 0,
+      categories: 0,
+      orders: 0,
+      users: 0,
+      revenue: 0,
+      paidOrders: 0,
+      pendingOrders: 0,
+      averageOrderValue: 0,
+      adminUsers: 0,
+      customerUsers: 0,
+      staffUsers: 0
+    },
+    recentOrders: [],
+    lowStockProducts: []
+  })
 })
-const { data: categories, refresh: refreshCategories } = await useApiFetch('/api/admin/categories', {
-  default: () => []
-})
-const { data: orders, pending, refresh: refreshOrders } = await useApiFetch('/api/admin/orders', {
-  default: () => []
-})
-const { data: users, refresh: refreshUsers } = await useApiFetch('/api/admin/users', {
+
+// Keep separate orders fetch for chart data (needs full order history for time series)
+const { data: orders, refresh: refreshOrders } = await useApiFetch('/api/admin/orders', {
   default: () => []
 })
 
 // Refresh all data function
 const refreshAllData = () => {
-  refreshProducts()
-  refreshCategories()
+  refreshDashboard()
   refreshOrders()
-  refreshUsers()
 }
 
 // Revenue chart period state
 const selectedPeriod = ref<'weekly' | 'monthly'>('weekly')
 
-const stats = computed(() => {
-  const ordersArray = Array.isArray(orders.value) ? orders.value : []
-  const usersArray = Array.isArray(users.value) ? users.value : []
-
-  // Only count paid orders for revenue calculation
-  const paidOrdersArray = ordersArray.filter(o => o.paymentStatus === 'PAID')
-  const pendingOrdersArray = ordersArray.filter(o => o.paymentStatus === 'PENDING')
-
-  const paidOrders = paidOrdersArray.length
-  const pendingOrders = pendingOrdersArray.length
-  const adminUsers = usersArray.filter(u => u.role === 'ADMIN' || u.role === 'SUPER_ADMIN').length
-  const customerUsers = usersArray.filter(u => u.role === 'USER').length
-  const staffUsers = usersArray.filter(u => u.role === 'SALES' || u.role === 'MANAGER').length
-
-  return {
-    products: products.value?.length || 0,
-    categories: categories.value?.length || 0,
-    orders: ordersArray.length || 0,
-    users: usersArray.length || 0,
-    revenue: paidOrdersArray.reduce((sum, o) => sum + (o.totalAmount || 0), 0) || 0,
-    paidOrders,
-    pendingOrders,
-    averageOrderValue: paidOrdersArray.length > 0 ? (paidOrdersArray.reduce((sum, o) => sum + (o.totalAmount || 0), 0) / paidOrdersArray.length) : 0,
-    adminUsers,
-    customerUsers,
-    staffUsers
-  }
+const stats = computed(() => dashboardData.value?.stats || {
+  products: 0,
+  categories: 0,
+  orders: 0,
+  users: 0,
+  revenue: 0,
+  paidOrders: 0,
+  pendingOrders: 0,
+  averageOrderValue: 0,
+  adminUsers: 0,
+  customerUsers: 0,
+  staffUsers: 0
 })
 
-const recentOrders = computed(() => {
-  const ordersArray = Array.isArray(orders.value) ? orders.value : []
-  return ordersArray.slice(0, 5)
-})
+const recentOrders = computed(() => dashboardData.value?.recentOrders || [])
 
-const lowStockProducts = computed(() => {
-  const productsArray = Array.isArray(products.value) ? products.value : []
-  return productsArray.filter(p => p.stock < 10).sort((a, b) => a.stock - b.stock)
-})
+const lowStockProducts = computed(() => dashboardData.value?.lowStockProducts || [])
 
 // Revenue Chart Data
 const revenueChartSeries = computed(() => {

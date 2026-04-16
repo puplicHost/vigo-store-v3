@@ -30,6 +30,13 @@ export default defineNuxtConfig({
   nitro: {
     experimental: {
       openAPI: true
+    },
+    // Server middleware for request tracking and observability
+    routeRules: {
+      '/api/**': {
+        middleware: ['request-id'],
+        cors: true
+      }
     }
   },
 
