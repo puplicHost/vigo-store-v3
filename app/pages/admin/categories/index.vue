@@ -200,8 +200,7 @@ definePageMeta({
 
 const { data: categories, pending, error, refresh } = await useApiFetch('/api/admin/categories', {
   key: 'admin-categories-list',
-  default: () => [],
-  server: true
+  default: () => []
 })
 
 const { searchQuery, filterCategories } = useSearch()
@@ -215,7 +214,10 @@ watch(() => lastRefreshEvent.value, (event) => {
 
 const filteredCategories = computed(() => {
   if (!categories.value) return []
-  const data = Array.isArray(categories.value) ? categories.value : (categories.value as any).categories || []
+  // Handle new API response format { items, total } or legacy format
+  const data = Array.isArray(categories.value) 
+    ? categories.value 
+    : (categories.value as any).items || (categories.value as any).categories || []
   return filterCategories(data, searchQuery.value)
 })
 

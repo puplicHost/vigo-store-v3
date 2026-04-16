@@ -344,22 +344,30 @@ const { searchQuery, filterProducts } = useSearch()
 const { toast } = useNotifications()
 const { lastRefreshEvent } = useDataRefresh()
 
-// Fetch products with stable key and reactive query fix
+// Fetch products with dynamic key based on showArchived to prevent caching
+const productsKey = computed(() => `admin-products-${showArchived.value ? 'archived' : 'active'}`)
 const { data: productsData, pending, error, refresh: refreshProducts } = await useApiFetch('/api/admin/products', {
-  key: 'admin-products',
+  key: productsKey,
   query: computed(() => ({ 
     showArchived: showArchived.value ? 'true' : undefined 
   }))
 })
 
 // Fetch categories with stable key
-const { data: categoriesData } = await useApiFetch('/api/admin/categories', {
+const { data: categoriesData, refresh: refreshCategories } = await useApiFetch('/api/admin/categories', {
   key: 'admin-categories'
 })
 
 // Extract safe data
-const products = computed(() => productsData.value?.items || [])
-const categories = computed(() => categoriesData.value?.categories || categoriesData.value || [])
+const products = computed(() => {
+  if (!productsData.value) return []
+  return (productsData.value as any)?.items || Array.isArray(productsData.value) ? productsData.value : []
+})
+const categories = computed(() => {
+  if (!categoriesData.value) return []
+  const data = (categoriesData.value as any)?.categories || (categoriesData.value as any)?.items || Array.isArray(categoriesData.value) ? categoriesData.value : []
+  return data as any[]
+})
 
 // Watch for manual refresh triggers
 watch(() => showArchived.value, () => refreshProducts())
@@ -390,7 +398,8 @@ const newProduct = ref({
 })
 
 const filteredProducts = computed(() => {
-  let filtered = [...products.value]
+  const productsArray = Array.isArray(products.value) ? products.value : []
+  let filtered = [...productsArray]
 
   if (selectedCategory.value) {
     filtered = filtered.filter(p => p.categoryId === selectedCategory.value)

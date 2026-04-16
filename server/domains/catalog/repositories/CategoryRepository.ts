@@ -90,8 +90,8 @@ export class CategoryRepository {
     return {
       id: String(category.id),
       name: category.name,
-      createdAt: category.createdAt.toISOString(),
-      updatedAt: category.updatedAt.toISOString()
+      createdAt: (category.createdAt instanceof Date ? category.createdAt : new Date()).toISOString(),
+      updatedAt: (category.updatedAt instanceof Date ? category.updatedAt : new Date()).toISOString()
     }
   }
 }

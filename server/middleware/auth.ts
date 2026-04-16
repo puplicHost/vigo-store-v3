@@ -34,6 +34,7 @@ export default defineEventHandler(async (event) => {
     }
 
     if (!token) {
+      logger.info(`[Auth] No token found for ${path}`)
       return
     }
 
@@ -49,6 +50,7 @@ export default defineEventHandler(async (event) => {
 
   } catch (error) {
     // Token is expired or invalid
+    logger.info(`[Auth] Invalid/expired token for ${path}`)
     event.context.user = null
     
     // Clear cookie if present to prevent repeating invalid requests

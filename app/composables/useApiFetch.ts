@@ -1,6 +1,6 @@
 /**
  * Secure API Fetch with JWT Authentication
- * Refactored for stability and correct Vue reactivity
+ * SSR-safe with reactive token handling and proper refetch logic
  */
 export const useApiFetch = (url: string | (() => string), options: any = {}) => {
   const { token } = useAuth()
@@ -8,10 +8,16 @@ export const useApiFetch = (url: string | (() => string), options: any = {}) => 
   // Use explicit key to avoid "incompatible options" warnings
   const key = options.key || (typeof url === 'function' ? url() : url)
 
+  // Normalize response helper
+  const transform = (res: any) => {
+    // Standardize { data: [...] } or { items: [...] } or { settings: ... } or just [...]
+    return res?.items || res?.data || res?.settings || res
+  }
+
   // Create reactive headers
   const headers = computed(() => {
     const h: Record<string, string> = {
-      ...unref(options.headers)
+      ...(options.headers || {})
     }
 
     if (token.value) {
@@ -21,12 +27,6 @@ export const useApiFetch = (url: string | (() => string), options: any = {}) => 
     return h
   })
 
-  // Normalize response helper
-  const transform = (res: any) => {
-    // Standardize { data: [...] } or { items: [...] } or { settings: ... } or just [...]
-    return res?.items || res?.data || res?.settings || res
-  }
-
   const response = useFetch(url, {
     key,
     credentials: 'include',
@@ -34,8 +34,22 @@ export const useApiFetch = (url: string | (() => string), options: any = {}) => 
     headers,
     transform: options.transform || transform,
     default: options.default || (() => null),
-    watch: false // Disable default watch as requested for manual control
+    // Watch token changes to refetch when token becomes available
+    watch: [token],
+    // Don't run on server if token is not ready
+    server: process.server ? !!token.value : true
   })
+
+  // Debug logging for request configuration
+  if (process.env.NODE_ENV === 'development') {
+    watch(
+      () => [token.value, response.data.value, response.error.value],
+      ([tokenVal, data, err]) => {
+        console.log(`[API FETCH] ${key} - Token exists: ${!!tokenVal}, Data: ${!!data}, Error: ${!!err}`)
+      },
+      { immediate: true }
+    )
+  }
 
   // Safe error watcher
   watch(
