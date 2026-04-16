@@ -1,11 +1,12 @@
 /**
  * Catalog Service
  * Business logic for catalog management (categories, products)
- * With caching support for improved performance
+ * With caching support for improved performance and audit logging
  */
 
 import { categoryRepository } from '../repositories/CategoryRepository'
 import { getCacheProvider } from '../../../shared/cache/CacheProvider'
+import { auditLogService } from '../../../shared/audit/AuditLogService'
 import { NotFoundError, ValidationError, ConflictError } from '../../../../shared/errors/domain-errors'
 import type { CategoryDTO } from '../../../../shared/dto'
 
@@ -77,9 +78,9 @@ export class CatalogService {
   }
 
   /**
-   * Create category (invalidates cache)
+   * Create category (invalidates cache + audit logging)
    */
-  async createCategory(data: { name: string }): Promise<CategoryDTO> {
+  async createCategory(data: { name: string }, userId: string, userRole: string, event?: any): Promise<CategoryDTO> {
     // Validation
     if (!data.name || data.name.length < 2) {
       throw new ValidationError('Category name must be at least 2 characters')
@@ -97,13 +98,23 @@ export class CatalogService {
     // Invalidate relevant caches
     await this.invalidateCategoriesCache()
 
+    // Log audit
+    await auditLogService.logCreate({
+      userId,
+      userRole,
+      resource: 'category',
+      resourceId: category.id,
+      data,
+      event
+    })
+
     return category
   }
 
   /**
-   * Update category (invalidates cache)
+   * Update category (invalidates cache + audit logging)
    */
-  async updateCategory(id: string, data: { name?: string }): Promise<CategoryDTO> {
+  async updateCategory(id: string, data: { name?: string }, userId: string, userRole: string, event?: any): Promise<CategoryDTO> {
     // Check if category exists
     const existing = await categoryRepository.findById(id)
     if (!existing) {
@@ -123,6 +134,12 @@ export class CatalogService {
       }
     }
 
+    // Calculate changes for audit
+    const changes: Record<string, { from: unknown; to: unknown }> = {}
+    if (data.name !== undefined && data.name !== existing.name) {
+      changes.name = { from: existing.name, to: data.name }
+    }
+
     // Update category
     const category = await categoryRepository.update(id, data)
 
@@ -130,13 +147,25 @@ export class CatalogService {
     await this.invalidateCategoriesCache()
     await this.invalidateCategoryCache(id)
 
+    // Log audit if there were changes
+    if (Object.keys(changes).length > 0) {
+      await auditLogService.logUpdate({
+        userId,
+        userRole,
+        resource: 'category',
+        resourceId: id,
+        changes,
+        event
+      })
+    }
+
     return category
   }
 
   /**
-   * Delete category (invalidates cache)
+   * Delete category (invalidates cache + audit logging)
    */
-  async deleteCategory(id: string): Promise<void> {
+  async deleteCategory(id: string, userId: string, userRole: string, event?: any): Promise<void> {
     // Check if category exists
     const existing = await categoryRepository.findById(id)
     if (!existing) {
@@ -149,6 +178,16 @@ export class CatalogService {
     // Invalidate relevant caches
     await this.invalidateCategoriesCache()
     await this.invalidateCategoryCache(id)
+
+    // Log audit
+    await auditLogService.logDelete({
+      userId,
+      userRole,
+      resource: 'category',
+      resourceId: id,
+      deletedData: existing as unknown as Record<string, unknown>,
+      event
+    })
   }
 
   /**

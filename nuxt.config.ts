@@ -31,10 +31,10 @@ export default defineNuxtConfig({
     experimental: {
       openAPI: true
     },
-    // Server middleware for request tracking and observability
+    // Server middleware for request tracking, observability, and rate limiting
     routeRules: {
       '/api/**': {
-        middleware: ['request-id'],
+        middleware: ['request-id', 'rate-limit'],
         cors: true
       }
     }

@@ -6,6 +6,7 @@
 
 import { settingsRepository } from '../repositories/SettingsRepository'
 import { getCacheProvider } from '../../../shared/cache/CacheProvider'
+import { auditLogService } from '../../../shared/audit/AuditLogService'
 import type { SettingsDTO } from '../../../../shared/dto'
 
 // Cache keys
@@ -39,14 +40,40 @@ export class SettingsService {
   }
 
   /**
-   * Update settings (invalidates cache)
+   * Update settings (invalidates cache + audit logging)
    */
-  async updateSettings(data: Partial<SettingsDTO>): Promise<SettingsDTO> {
+  async updateSettings(data: Partial<SettingsDTO>, userId: string, userRole: string, event?: any): Promise<SettingsDTO> {
+    // Get current settings for audit
+    const currentSettings = await settingsRepository.getSettings()
+
+    // Calculate changes for audit
+    const changes: Record<string, { from: unknown; to: unknown }> = {}
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== undefined && value !== currentSettings[key as keyof SettingsDTO]) {
+        changes[key] = {
+          from: currentSettings[key as keyof SettingsDTO],
+          to: value
+        }
+      }
+    })
+
     // Update in database
     const settings = await settingsRepository.updateSettings(data)
 
     // Invalidate cache
     await this.cache.del(CACHE_KEY)
+
+    // Log audit if there were changes
+    if (Object.keys(changes).length > 0) {
+      await auditLogService.logUpdate({
+        userId,
+        userRole,
+        resource: 'settings',
+        resourceId: '1', // Settings is a singleton
+        changes,
+        event
+      })
+    }
 
     return settings
   }

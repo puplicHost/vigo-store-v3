@@ -1,11 +1,12 @@
 /**
  * Products Service
  * Business logic for product management
- * With caching support for improved performance
+ * With caching support for improved performance and audit logging
  */
 
 import { productRepository } from '../repositories/ProductRepository'
 import { getCacheProvider } from '../../../shared/cache/CacheProvider'
+import { auditLogService } from '../../../shared/audit/AuditLogService'
 import { NotFoundError, ValidationError } from '../../../../shared/errors/domain-errors'
 import type { ProductDTO, ProductListDTO } from '../../../../shared/dto'
 
@@ -114,7 +115,7 @@ export class ProductsService {
   }
 
   /**
-   * Create product (invalidates cache)
+   * Create product (invalidates cache + audit logging)
    */
   async createProduct(data: {
     name: string
@@ -128,7 +129,7 @@ export class ProductsService {
     stock: number
     isFeatured?: boolean
     categoryId: string
-  }): Promise<ProductDTO> {
+  }, userId: string, userRole: string, event?: any): Promise<ProductDTO> {
     // Validation
     if (!data.name || data.name.length < 2) {
       throw new ValidationError('Product name must be at least 2 characters')
@@ -156,11 +157,21 @@ export class ProductsService {
     // Invalidate relevant caches
     await this.invalidateProductsCache()
 
+    // Log audit
+    await auditLogService.logCreate({
+      userId,
+      userRole,
+      resource: 'product',
+      resourceId: product.id,
+      data,
+      event
+    })
+
     return product
   }
 
   /**
-   * Update product (invalidates cache)
+   * Update product (invalidates cache + audit logging)
    */
   async updateProduct(id: string, data: Partial<{
     name: string
@@ -174,7 +185,7 @@ export class ProductsService {
     stock: number
     isFeatured: boolean
     categoryId: string
-  }>): Promise<ProductDTO> {
+  }>, userId: string, userRole: string, event?: any): Promise<ProductDTO> {
     // Check if product exists
     const existing = await productRepository.findById(id)
     if (!existing) {
@@ -190,6 +201,14 @@ export class ProductsService {
       throw new ValidationError('Product stock cannot be negative')
     }
 
+    // Calculate changes for audit
+    const changes: Record<string, { from: unknown; to: unknown }> = {}
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== undefined && value !== (existing as any)[key]) {
+        changes[key] = { from: (existing as any)[key], to: value }
+      }
+    })
+
     // Update product using repository
     const product = await productRepository.update(id, data)
 
@@ -197,13 +216,25 @@ export class ProductsService {
     await this.invalidateProductsCache()
     await this.invalidateProductCache(id)
 
+    // Log audit if there were changes
+    if (Object.keys(changes).length > 0) {
+      await auditLogService.logUpdate({
+        userId,
+        userRole,
+        resource: 'product',
+        resourceId: id,
+        changes,
+        event
+      })
+    }
+
     return product
   }
 
   /**
-   * Delete product (soft delete, invalidates cache)
+   * Delete product (soft delete, invalidates cache + audit logging)
    */
-  async deleteProduct(id: string): Promise<void> {
+  async deleteProduct(id: string, userId: string, userRole: string, event?: any): Promise<void> {
     const existing = await productRepository.findById(id)
     if (!existing) {
       throw new NotFoundError('Product', id)
@@ -215,6 +246,16 @@ export class ProductsService {
     // Invalidate relevant caches
     await this.invalidateProductsCache()
     await this.invalidateProductCache(id)
+
+    // Log audit
+    await auditLogService.logDelete({
+      userId,
+      userRole,
+      resource: 'product',
+      resourceId: id,
+      deletedData: existing as unknown as Record<string, unknown>,
+      event
+    })
   }
 
   /**
