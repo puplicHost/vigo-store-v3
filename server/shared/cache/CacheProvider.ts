@@ -73,14 +73,126 @@ export class InMemoryCacheProvider implements CacheProvider {
 }
 
 /**
+ * Redis cache provider (for production)
+ * Uses ioredis for Redis connection
+ */
+export class RedisCacheProvider implements CacheProvider {
+  private client: any = null
+
+  constructor() {
+    // Lazy load Redis client to avoid issues if Redis is not configured
+    this.initialize()
+  }
+
+  private async initialize() {
+    try {
+      // Dynamic import to avoid requiring Redis in dev
+      const Redis = (await import('ioredis')).default
+      this.client = new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
+        maxRetriesPerRequest: 3,
+        retryStrategy: (times: number) => Math.min(times * 50, 2000),
+        enableReadyCheck: true
+      })
+
+      this.client.on('error', (err: Error) => {
+        console.error('[Redis Error]:', err)
+      })
+
+      this.client.on('connect', () => {
+        console.log('[Redis] Connected successfully')
+      })
+    } catch (error) {
+      console.error('[Redis] Failed to initialize:', error)
+    }
+  }
+
+  private ensureConnected() {
+    if (!this.client) {
+      throw new Error('Redis client not initialized')
+    }
+  }
+
+  async get<T>(key: string): Promise<T | null> {
+    this.ensureConnected()
+
+    try {
+      const value = await this.client.get(key)
+      if (!value) return null
+
+      return JSON.parse(value) as T
+    } catch (error) {
+      console.error('[Redis Get Error]:', error)
+      return null
+    }
+  }
+
+  async set<T>(key: string, value: T, ttlSeconds?: number): Promise<void> {
+    this.ensureConnected()
+
+    try {
+      const serialized = JSON.stringify(value)
+      if (ttlSeconds) {
+        await this.client.setex(key, ttlSeconds, serialized)
+      } else {
+        await this.client.set(key, serialized)
+      }
+    } catch (error) {
+      console.error('[Redis Set Error]:', error)
+    }
+  }
+
+  async del(key: string): Promise<void> {
+    this.ensureConnected()
+
+    try {
+      await this.client.del(key)
+    } catch (error) {
+      console.error('[Redis Delete Error]:', error)
+    }
+  }
+
+  async delPattern(pattern: string): Promise<void> {
+    this.ensureConnected()
+
+    try {
+      const keys = await this.client.keys(pattern)
+      if (keys.length > 0) {
+        await this.client.del(...keys)
+      }
+    } catch (error) {
+      console.error('[Redis Delete Pattern Error]:', error)
+    }
+  }
+
+  async exists(key: string): Promise<boolean> {
+    this.ensureConnected()
+
+    try {
+      return (await this.client.exists(key)) === 1
+    } catch (error) {
+      console.error('[Redis Exists Error]:', error)
+      return false
+    }
+  }
+
+  /**
+   * Close Redis connection
+   */
+  async disconnect(): Promise<void> {
+    if (this.client) {
+      await this.client.quit()
+    }
+  }
+}
+
+/**
  * Get the appropriate cache provider based on environment
  */
 export function getCacheProvider(): CacheProvider {
   // In development, use in-memory cache
-  // In production, this should return a Redis implementation
+  // In production with REDIS_URL, use Redis
   if (process.env.NODE_ENV === 'production' && process.env.REDIS_URL) {
-    // TODO: Implement RedisCacheProvider
-    throw new Error('Redis cache provider not yet implemented')
+    return new RedisCacheProvider()
   }
 
   return new InMemoryCacheProvider()

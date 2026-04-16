@@ -8,6 +8,10 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  // Connection pool configuration for production
+  // Adjust based on your database server capacity
+  connection_limit = env("DATABASE_POOL_SIZE") ? parseInt(env("DATABASE_POOL_SIZE")) : 10
+  pool_timeout = env("DATABASE_POOL_TIMEOUT") ? parseInt(env("DATABASE_POOL_TIMEOUT")) : 2
 }
 
 // 2. نظام الأدوار (Roles)

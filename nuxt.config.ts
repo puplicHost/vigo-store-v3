@@ -37,6 +37,12 @@ export default defineNuxtConfig({
         middleware: ['request-id', 'rate-limit'],
         cors: true
       }
+    },
+    // Redis configuration for production caching
+    redis: {
+      // Redis will be used in production when REDIS_URL is set
+      // Fallback to in-memory cache in development
+      default: process.env.REDIS_URL || undefined
     }
   },
 
