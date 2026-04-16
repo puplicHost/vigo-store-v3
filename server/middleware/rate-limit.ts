@@ -1,12 +1,18 @@
 /**
  * Rate Limit Middleware
  * Applies rate limiting to API endpoints based on configuration
+ * Disabled in development mode
  */
 
 import { rateLimiter, RATE_LIMIT_CONFIGS, RateLimitResult } from '../shared/ratelimit/RateLimiter'
 import { getRequestHeader } from 'h3'
 
 export default defineEventHandler(async (event) => {
+  // Skip rate limiting in development
+  if (process.env.NODE_ENV !== 'production') {
+    return
+  }
+
   // Skip rate limiting for non-API routes
   if (!event.node?.req?.url?.startsWith('/api/')) {
     return

@@ -86,7 +86,12 @@
       "customer": "Customer",
       "total": "Total",
       "status": "Status",
-      "payment": "Payment"
+      "payment": "Payment",
+      "pending": "Pending",
+      "paid": "Paid",
+      "shipped": "Shipped",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled"
     }
   },
   "common": {

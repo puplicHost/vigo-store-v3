@@ -34,7 +34,7 @@ export default defineNuxtConfig({
     // Server middleware for request tracking, observability, and rate limiting
     routeRules: {
       '/api/**': {
-        middleware: ['request-id', 'rate-limit'],
+        middleware: ['request-id', 'auth', 'rate-limit'],
         cors: true
       }
     },
