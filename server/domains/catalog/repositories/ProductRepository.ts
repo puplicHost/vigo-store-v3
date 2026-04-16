@@ -154,6 +154,106 @@ export class ProductRepository {
   }
 
   /**
+   * Create product
+   */
+  async create(data: {
+    name: string
+    slug: string
+    description?: string
+    price: number
+    discount?: number
+    images: string[]
+    sizes?: string[]
+    colors?: string[]
+    stock: number
+    isFeatured?: boolean
+    categoryId: string
+  }): Promise<ProductDTO> {
+    const product = await prisma.product.create({
+      data,
+      include: {
+        category: {
+          select: {
+            name: true
+          }
+        }
+      }
+    })
+
+    return this.toProductDTO(product)
+  }
+
+  /**
+   * Update product
+   */
+  async update(id: string, data: Partial<{
+    name: string
+    slug: string
+    description: string
+    price: number
+    discount: number
+    images: string[]
+    sizes: string[]
+    colors: string[]
+    stock: number
+    isFeatured: boolean
+    isActive: boolean
+    categoryId: string
+  }>): Promise<ProductDTO> {
+    const product = await prisma.product.update({
+      where: { id },
+      data,
+      include: {
+        category: {
+          select: {
+            name: true
+          }
+        }
+      }
+    })
+
+    return this.toProductDTO(product)
+  }
+
+  /**
+   * Soft delete product
+   */
+  async softDelete(id: string): Promise<ProductDTO> {
+    const product = await prisma.product.update({
+      where: { id },
+      data: { isDeleted: true },
+      include: {
+        category: {
+          select: {
+            name: true
+          }
+        }
+      }
+    })
+
+    return this.toProductDTO(product)
+  }
+
+  /**
+   * Restore product
+   */
+  async restore(id: string): Promise<ProductDTO> {
+    const product = await prisma.product.update({
+      where: { id },
+      data: { isDeleted: false },
+      include: {
+        category: {
+          select: {
+            name: true
+          }
+        }
+      }
+    })
+
+    return this.toProductDTO(product)
+  }
+
+  /**
    * Convert Prisma product to DTO
    */
   private toProductDTO(product: any): ProductDTO {

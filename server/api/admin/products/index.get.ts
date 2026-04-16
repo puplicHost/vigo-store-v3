@@ -1,6 +1,5 @@
-import prisma from '../../../utils/prisma'
 import { requireAdmin } from '../../../utils/admin'
-import { handleError } from '../../../utils/error'
+import { productsService } from '../../../domains/catalog/services/ProductsService'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -12,38 +11,26 @@ export default defineEventHandler(async (event) => {
     const showArchived = query.showArchived === 'true'
     const page = Math.max(parseInt(query.page as string) || 1, 1)
     const limit = Math.min(Math.max(parseInt(query.limit as string) || 20, 1), 100)
-    const skip = (page - 1) * limit
 
-    // Build filters dynamically for safety
-    const where: any = {}
-    
-    // Only show non-deleted products unless archived is requested
-    if (!showArchived) {
-      where.isDeleted = false
-    }
-
-    // Fetch products
-    const products = await prisma.product.findMany({
-      where,
-      include: {
-        category: {
-          select: {
-            id: true,
-            name: true
-          }
-        }
-      },
-      orderBy: { createdAt: 'desc' },
-      take: limit,
-      skip: skip
+    // Fetch products using service
+    const result = await productsService.listProducts({
+      page,
+      limit
     })
 
     // Return standardized format
     return {
       success: true,
-      items: products
+      items: result.products,
+      total: result.total,
+      page: result.page,
+      limit: result.limit
     }
   } catch (error: any) {
-    throw handleError(error)
+    console.error('[Products Error]:', error)
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Failed to load products'
+    })
   }
 })

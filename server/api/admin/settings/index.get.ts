@@ -1,39 +1,27 @@
-import prisma from '../../../utils/prisma'
 import { requireAdmin } from '../../../utils/admin'
-import { handleError } from '../../../utils/error'
+import { settingsService } from '../../../domains/settings/services/SettingsService'
 
 /**
  * GET /api/admin/settings
- * Fetch store settings with auto-initialization
+ * Fetch store settings using SettingsService
  */
 export default defineEventHandler(async (event) => {
   try {
     // Verify admin access
     requireAdmin(event)
 
-    // Get settings (singleton - should only have one record)
-    let settings = await prisma.settings.findFirst()
-
-    // If no settings exist, create default settings
-    if (!settings) {
-      settings = await prisma.settings.create({
-        data: {
-          shippingFee: 0,
-          currency: 'EGP',
-          maintenanceMode: false,
-          siteName: 'Vigo Store'
-        }
-      })
-    }
-
-    // Remove sensitive fields before sending to client
-    const { stripeSecretKey, ...safeSettings } = settings as any
+    // Get settings using service
+    const settings = await settingsService.getSettings()
 
     return {
       success: true,
-      settings: safeSettings
+      settings
     }
   } catch (error: any) {
-    throw handleError(error)
+    console.error('[Settings Error]:', error)
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Failed to load settings'
+    })
   }
 })
