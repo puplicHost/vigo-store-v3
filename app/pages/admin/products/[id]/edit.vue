@@ -16,13 +16,13 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="pending" class="bg-white rounded-xl border border-outline-variant/10 p-12 text-center">
+    <div v-if="pending" class="bg-surface-container-lowest rounded-xl border border-outline-variant/10 p-12 text-center">
       <span class="material-symbols-outlined text-4xl animate-spin text-primary">progress_activity</span>
       <p class="mt-4 text-on-surface-variant font-body">Loading product...</p>
     </div>
 
     <!-- Error State -->
-    <div v-else-if="error" class="bg-white rounded-xl border border-outline-variant/10 p-12 text-center">
+    <div v-else-if="error" class="bg-surface-container-lowest rounded-xl border border-outline-variant/10 p-12 text-center">
       <span class="material-symbols-outlined text-4xl text-error">error</span>
       <p class="mt-4 text-error font-body">Failed to load product</p>
       <button
@@ -34,7 +34,7 @@
     </div>
 
     <!-- Edit Form -->
-    <div v-else class="bg-white rounded-xl border border-outline-variant/10 shadow-sm shadow-primary/5 p-8">
+    <div v-else class="bg-surface-container-lowest rounded-xl border border-outline-variant/10 shadow-sm shadow-primary/5 p-8">
       <form @submit.prevent="handleSubmit" class="space-y-6">
         <!-- Product Name -->
         <div class="space-y-2">

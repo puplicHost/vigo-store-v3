@@ -20,7 +20,7 @@
       <div class="relative">
         <select
           v-model="statusFilter"
-          class="appearance-none bg-white border border-outline-variant/20 rounded-lg py-2.5 pl-4 pr-10 text-sm font-body focus:outline-none focus:border-primary/50 cursor-pointer"
+class="appearance-none bg-surface-container-lowest border border-outline-variant/20 rounded-lg py-2.5 pl-4 pr-10 text-sm font-body focus:outline-none focus:border-primary/50 cursor-pointer"
         >
           <option value="">All Status</option>
           <option value="PENDING">Pending</option>
@@ -34,7 +34,7 @@
     </div>
 
     <!-- Table -->
-    <div class="bg-white rounded-xl border border-outline-variant/10 shadow-sm shadow-primary/5 overflow-hidden">
+    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant/10 shadow-sm shadow-primary/5 overflow-hidden">
       <table class="w-full">
         <thead class="bg-surface-container-low border-b border-outline-variant/10">
           <tr>

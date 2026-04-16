@@ -21,7 +21,7 @@
       <div class="relative">
         <select
           v-model="roleFilter"
-          class="appearance-none bg-white border border-outline-variant/20 rounded-lg py-2.5 pl-4 pr-10 text-sm font-body focus:outline-none focus:border-primary/50 cursor-pointer"
+class="appearance-none bg-surface-container-lowest border border-outline-variant/20 rounded-lg py-2.5 pl-4 pr-10 text-sm font-body focus:outline-none focus:border-primary/50 cursor-pointer"
         >
           <option value="ALL">All Roles</option>
           <option value="USER">User</option>
@@ -35,7 +35,7 @@
     </div>
 
     <!-- Table -->
-    <div class="bg-white rounded-xl border border-outline-variant/10 shadow-sm shadow-primary/5 overflow-hidden">
+    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant/10 shadow-sm shadow-primary/5 overflow-hidden">
       <table class="w-full">
         <thead class="bg-surface-container-low border-b border-outline-variant/10">
           <tr>
@@ -140,7 +140,7 @@
 
     <!-- Create User Modal -->
     <div v-if="showCreateModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4">
+      <div class="bg-surface-container-lowest rounded-xl p-6 w-full max-w-md mx-4">
         <h2 class="text-xl font-serif italic text-on-surface mb-4">Add New User</h2>
         <form @submit.prevent="createUser">
           <div class="space-y-4">
@@ -207,7 +207,7 @@
 
     <!-- Edit User Modal -->
     <div v-if="showEditModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4">
+      <div class="bg-surface-container-lowest rounded-xl p-6 w-full max-w-md mx-4">
         <h2 class="text-xl font-serif italic text-on-surface mb-4">Edit User</h2>
         <form @submit.prevent="updateUser">
           <div class="space-y-4">

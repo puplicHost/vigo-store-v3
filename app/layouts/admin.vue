@@ -1,23 +1,44 @@
 <template>
   <div class="min-h-screen bg-surface flex transition-colors duration-300">
+    <!-- Mobile Backdrop -->
+    <div 
+      v-if="isMobileSidebarOpen" 
+      @click="closeMobileSidebar"
+      class="fixed inset-0 bg-black/50 z-40 lg:hidden"
+    ></div>
+
     <!-- Sidebar -->
-    <aside class="w-64 bg-surface-container-lowest border-r border-outline-variant flex flex-col transition-colors duration-300">
+    <aside 
+      :class="[
+        'fixed lg:relative z-50 lg:z-auto bg-surface-container-lowest border-r border-outline-variant flex flex-col transition-all duration-300 ease-in-out',
+        'lg:w-64',
+        isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+      ]"
+    >
       <!-- Logo -->
-      <div class="p-8 border-b border-outline-variant/10">
+      <div class="p-8 border-b border-outline-variant/10 flex items-center justify-between">
         <h1 class="font-serif italic text-2xl tracking-[0.15em] text-on-surface">
           {{ settings?.siteName || 'THE ATELIER' }}
         </h1>
-        <p class="text-[10px] uppercase tracking-[0.3em] text-on-surface-variant mt-1">
-          Management
-        </p>
+        <!-- Close button for mobile -->
+        <button 
+          @click="closeMobileSidebar"
+          class="lg:hidden p-2 rounded-lg hover:bg-surface-container-low transition-colors"
+        >
+          <span class="material-symbols-outlined text-on-surface-variant">close</span>
+        </button>
       </div>
+      <p class="text-[10px] uppercase tracking-[0.3em] text-on-surface-variant mt-1 px-8 pb-4">
+        Management
+      </p>
 
       <!-- Navigation -->
-      <nav class="flex-1 p-6 space-y-2">
+      <nav class="flex-1 p-6 space-y-2 overflow-y-auto scrollbar-custom">
         <NuxtLink
           v-for="item in menuItems"
           :key="item.path"
           :to="item.path"
+          @click="closeMobileSidebar"
           :class="[
             'flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300',
             isActive(item.path)
@@ -29,6 +50,20 @@
           <span class="font-label text-[11px] uppercase tracking-[0.15em]">{{ $t(item.name) }}</span>
         </NuxtLink>
       </nav>
+
+      <!-- Quick Stats (Mobile) -->
+      <div class="px-6 pb-4 lg:hidden">
+        <div class="bg-surface-container-low rounded-lg p-4 space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="text-xs text-on-surface-variant">Products</span>
+            <span class="text-sm font-medium text-on-surface">1,247</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-xs text-on-surface-variant">Orders</span>
+            <span class="text-sm font-medium text-on-surface">348</span>
+          </div>
+        </div>
+      </div>
 
       <!-- Bottom Actions -->
       <div class="p-6 border-t border-outline-variant/10">
@@ -43,21 +78,32 @@
     </aside>
 
     <!-- Main Content -->
-    <div class="flex-1 flex flex-col">
+    <div class="flex-1 flex flex-col lg:ml-0">
       <!-- Top Bar -->
-      <header class="h-16 bg-surface-container-lowest border-b border-outline-variant flex items-center justify-between px-8 transition-colors duration-300">
-        <!-- Search -->
-        <div class="flex-1 max-w-md">
-          <div class="relative group">
-            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/50 text-lg">
-              search
-            </span>
-            <input
-              v-model="searchQuery"
-              type="text"
-              :placeholder="$t('topbar.search')"
-              class="w-full bg-surface-container-low border border-outline-variant/20 rounded-lg py-2.5 pl-10 pr-4 text-sm font-body focus:outline-none focus:border-primary/50 transition-all duration-300"
-            />
+      <header class="h-16 bg-surface-container-lowest border-b border-outline-variant flex items-center justify-between px-4 lg:px-8 transition-colors duration-300">
+        <!-- Left: Hamburger + Search -->
+        <div class="flex items-center gap-4 flex-1">
+          <!-- Hamburger Menu (Mobile only) -->
+          <button 
+            @click="openMobileSidebar"
+            class="lg:hidden p-2 rounded-lg hover:bg-surface-container-low transition-colors"
+          >
+            <span class="material-symbols-outlined text-on-surface-variant text-xl">menu</span>
+          </button>
+
+          <!-- Search -->
+          <div class="flex-1 max-w-md">
+            <div class="relative group">
+              <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/50 text-lg">
+                search
+              </span>
+              <input
+                v-model="searchQuery"
+                type="text"
+                :placeholder="$t('topbar.search')"
+                class="w-full bg-surface-container-low border border-outline-variant/20 rounded-lg py-2.5 pl-10 pr-4 text-sm font-body focus:outline-none focus:border-primary/50 transition-all duration-300"
+              />
+            </div>
           </div>
         </div>
 
@@ -89,7 +135,7 @@
               class="relative p-2 rounded-lg hover:bg-surface-container-low transition-colors"
             >
               <span class="material-symbols-outlined text-on-surface-variant">notifications</span>
-              <span v-if="hasUnread" class="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full border-2 border-white"></span>
+              <span v-if="hasUnread" class="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full border-2 border-surface-container-lowest"></span>
             </button>
 
             <!-- Dropdown -->
@@ -160,6 +206,15 @@ const { settings } = useSettings()
 const { locale, setLocale, t } = useI18n()
 
 const showNotifDropdown = ref(false)
+const isMobileSidebarOpen = ref(false)
+
+const openMobileSidebar = () => {
+  isMobileSidebarOpen.value = true
+}
+
+const closeMobileSidebar = () => {
+  isMobileSidebarOpen.value = false
+}
 
 onMounted(() => {
   initTheme()

@@ -7,7 +7,7 @@
     </div>
 
     <!-- Payment Methods -->
-    <div class="bg-white rounded-xl border border-outline-variant/10 shadow-sm shadow-primary/5 p-6 mb-6">
+    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant/10 shadow-sm shadow-primary/5 p-6 mb-6">
       <h2 class="font-serif italic text-xl text-on-surface mb-6">Payment Methods</h2>
       
       <div class="space-y-4">
