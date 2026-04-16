@@ -1,41 +1,91 @@
 /**
  * Products Service
  * Business logic for product management
+ * With caching support for improved performance
  */
 
 import { productRepository } from '../repositories/ProductRepository'
+import { getCacheProvider } from '../../../shared/cache/CacheProvider'
 import { NotFoundError, ValidationError } from '../../../../shared/errors/domain-errors'
 import type { ProductDTO, ProductListDTO } from '../../../../shared/dto'
 
+// Cache keys
+const CACHE_KEYS = {
+  PRODUCT_BY_ID: (id: string) => `product:${id}`,
+  PRODUCT_BY_SLUG: (slug: string) => `product:slug:${slug}`,
+  PRODUCTS_LIST: (params: string) => `products:list:${params}`,
+  PRODUCT_COUNT: (params: string) => `products:count:${params}`,
+  LOW_STOCK: (threshold: number, limit: number) => `products:low-stock:${threshold}:${limit}`
+}
+
+// Cache TTL in seconds
+const CACHE_TTL = {
+  PRODUCT_BY_ID: 3600, // 1 hour
+  PRODUCT_BY_SLUG: 3600, // 1 hour
+  PRODUCTS_LIST: 300, // 5 minutes
+  PRODUCT_COUNT: 300, // 5 minutes
+  LOW_STOCK: 300 // 5 minutes
+}
+
 export class ProductsService {
+  private cache = getCacheProvider()
+
   /**
-   * Get product by ID
+   * Get product by ID (with caching)
    */
-  async getProductById(id: string): Promise<ProductDTO> {
+  async getProductById(id: string, forceRefresh: boolean = false): Promise<ProductDTO> {
+    const cacheKey = CACHE_KEYS.PRODUCT_BY_ID(id)
+
+    // Try to get from cache
+    if (!forceRefresh) {
+      const cached = await this.cache.get<ProductDTO>(cacheKey)
+      if (cached) {
+        return cached
+      }
+    }
+
+    // Fetch from database
     const product = await productRepository.findById(id)
     
     if (!product) {
       throw new NotFoundError('Product', id)
     }
 
+    // Cache the result
+    await this.cache.set(cacheKey, product, CACHE_TTL.PRODUCT_BY_ID)
+
     return product
   }
 
   /**
-   * Get product by slug
+   * Get product by slug (with caching)
    */
-  async getProductBySlug(slug: string): Promise<ProductDTO> {
+  async getProductBySlug(slug: string, forceRefresh: boolean = false): Promise<ProductDTO> {
+    const cacheKey = CACHE_KEYS.PRODUCT_BY_SLUG(slug)
+
+    // Try to get from cache
+    if (!forceRefresh) {
+      const cached = await this.cache.get<ProductDTO>(cacheKey)
+      if (cached) {
+        return cached
+      }
+    }
+
+    // Fetch from database
     const product = await productRepository.findBySlug(slug)
     
     if (!product) {
       throw new NotFoundError('Product', slug)
     }
 
+    // Cache the result
+    await this.cache.set(cacheKey, product, CACHE_TTL.PRODUCT_BY_SLUG)
+
     return product
   }
 
   /**
-   * List products with pagination
+   * List products with pagination (with caching)
    */
   async listProducts(params: {
     page: number
@@ -43,12 +93,28 @@ export class ProductsService {
     search?: string
     categoryId?: string
     isFeatured?: boolean
-  }): Promise<ProductListDTO> {
-    return await productRepository.list(params)
+  }, forceRefresh: boolean = false): Promise<ProductListDTO> {
+    const cacheKey = CACHE_KEYS.PRODUCTS_LIST(JSON.stringify(params))
+
+    // Try to get from cache
+    if (!forceRefresh) {
+      const cached = await this.cache.get<ProductListDTO>(cacheKey)
+      if (cached) {
+        return cached
+      }
+    }
+
+    // Fetch from database
+    const result = await productRepository.list(params)
+
+    // Cache the result
+    await this.cache.set(cacheKey, result, CACHE_TTL.PRODUCTS_LIST)
+
+    return result
   }
 
   /**
-   * Create product
+   * Create product (invalidates cache)
    */
   async createProduct(data: {
     name: string
@@ -85,11 +151,16 @@ export class ProductsService {
     }
 
     // Create product using repository
-    return await productRepository.create(data)
+    const product = await productRepository.create(data)
+
+    // Invalidate relevant caches
+    await this.invalidateProductsCache()
+
+    return product
   }
 
   /**
-   * Update product
+   * Update product (invalidates cache)
    */
   async updateProduct(id: string, data: Partial<{
     name: string
@@ -120,11 +191,17 @@ export class ProductsService {
     }
 
     // Update product using repository
-    return await productRepository.update(id, data)
+    const product = await productRepository.update(id, data)
+
+    // Invalidate relevant caches
+    await this.invalidateProductsCache()
+    await this.invalidateProductCache(id)
+
+    return product
   }
 
   /**
-   * Delete product (soft delete)
+   * Delete product (soft delete, invalidates cache)
    */
   async deleteProduct(id: string): Promise<void> {
     const existing = await productRepository.findById(id)
@@ -134,20 +211,71 @@ export class ProductsService {
 
     // Soft delete using repository
     await productRepository.softDelete(id)
+
+    // Invalidate relevant caches
+    await this.invalidateProductsCache()
+    await this.invalidateProductCache(id)
   }
 
   /**
-   * Get low stock products
+   * Get low stock products (with caching)
    */
-  async getLowStockProducts(threshold: number = 10, limit: number = 10) {
-    return await productRepository.findLowStock(threshold, limit)
+  async getLowStockProducts(threshold: number = 10, limit: number = 10, forceRefresh: boolean = false) {
+    const cacheKey = CACHE_KEYS.LOW_STOCK(threshold, limit)
+
+    // Try to get from cache
+    if (!forceRefresh) {
+      const cached = await this.cache.get(cacheKey)
+      if (cached) {
+        return cached
+      }
+    }
+
+    const result = await productRepository.findLowStock(threshold, limit)
+
+    // Cache the result
+    await this.cache.set(cacheKey, result, CACHE_TTL.LOW_STOCK)
+
+    return result
   }
 
   /**
-   * Count products
+   * Count products (with caching)
    */
-  async countProducts(params?: { isDeleted?: boolean; isActive?: boolean }): Promise<number> {
-    return await productRepository.count(params)
+  async countProducts(params?: { isDeleted?: boolean; isActive?: boolean }, forceRefresh: boolean = false): Promise<number> {
+    const cacheKey = CACHE_KEYS.PRODUCT_COUNT(JSON.stringify(params || {}))
+
+    // Try to get from cache
+    if (!forceRefresh) {
+      const cached = await this.cache.get<number>(cacheKey)
+      if (cached !== null) {
+        return cached
+      }
+    }
+
+    const count = await productRepository.count(params)
+
+    // Cache the result
+    await this.cache.set(cacheKey, count, CACHE_TTL.PRODUCT_COUNT)
+
+    return count
+  }
+
+  /**
+   * Invalidate all product-related caches
+   */
+  async invalidateProductsCache(): Promise<void> {
+    await this.cache.delPattern('products:*')
+  }
+
+  /**
+   * Invalidate specific product cache
+   */
+  async invalidateProductCache(id: string): Promise<void> {
+    await Promise.all([
+      this.cache.delPattern(`product:${id}`),
+      this.cache.delPattern(`product:slug:*`)
+    ])
   }
 }
 

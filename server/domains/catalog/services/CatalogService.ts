@@ -1,35 +1,83 @@
 /**
  * Catalog Service
  * Business logic for catalog management (categories, products)
+ * With caching support for improved performance
  */
 
 import { categoryRepository } from '../repositories/CategoryRepository'
+import { getCacheProvider } from '../../../shared/cache/CacheProvider'
 import { NotFoundError, ValidationError, ConflictError } from '../../../../shared/errors/domain-errors'
 import type { CategoryDTO } from '../../../../shared/dto'
 
+// Cache keys
+const CACHE_KEYS = {
+  CATEGORIES_ALL: 'categories:all',
+  CATEGORY_BY_ID: (id: string) => `category:${id}`,
+  CATEGORY_COUNT: 'categories:count'
+}
+
+// Cache TTL in seconds
+const CACHE_TTL = {
+  CATEGORIES_ALL: 600, // 10 minutes
+  CATEGORY_BY_ID: 3600, // 1 hour
+  CATEGORY_COUNT: 300 // 5 minutes
+}
+
 export class CatalogService {
+  private cache = getCacheProvider()
+
   /**
-   * Get all categories
+   * Get all categories (with caching)
    */
-  async getCategories(): Promise<CategoryDTO[]> {
-    return await categoryRepository.list()
+  async getCategories(forceRefresh: boolean = false): Promise<CategoryDTO[]> {
+    const cacheKey = CACHE_KEYS.CATEGORIES_ALL
+
+    // Try to get from cache
+    if (!forceRefresh) {
+      const cached = await this.cache.get<CategoryDTO[]>(cacheKey)
+      if (cached) {
+        return cached
+      }
+    }
+
+    // Fetch from database
+    const categories = await categoryRepository.list()
+
+    // Cache the result
+    await this.cache.set(cacheKey, categories, CACHE_TTL.CATEGORIES_ALL)
+
+    return categories
   }
 
   /**
-   * Get category by ID
+   * Get category by ID (with caching)
    */
-  async getCategoryById(id: string): Promise<CategoryDTO> {
+  async getCategoryById(id: string, forceRefresh: boolean = false): Promise<CategoryDTO> {
+    const cacheKey = CACHE_KEYS.CATEGORY_BY_ID(id)
+
+    // Try to get from cache
+    if (!forceRefresh) {
+      const cached = await this.cache.get<CategoryDTO>(cacheKey)
+      if (cached) {
+        return cached
+      }
+    }
+
+    // Fetch from database
     const category = await categoryRepository.findById(id)
     
     if (!category) {
       throw new NotFoundError('Category', id)
     }
 
+    // Cache the result
+    await this.cache.set(cacheKey, category, CACHE_TTL.CATEGORY_BY_ID)
+
     return category
   }
 
   /**
-   * Create category
+   * Create category (invalidates cache)
    */
   async createCategory(data: { name: string }): Promise<CategoryDTO> {
     // Validation
@@ -43,11 +91,17 @@ export class CatalogService {
       throw new ConflictError('Category with this name already exists')
     }
 
-    return await categoryRepository.create(data)
+    // Create category
+    const category = await categoryRepository.create(data)
+
+    // Invalidate relevant caches
+    await this.invalidateCategoriesCache()
+
+    return category
   }
 
   /**
-   * Update category
+   * Update category (invalidates cache)
    */
   async updateCategory(id: string, data: { name?: string }): Promise<CategoryDTO> {
     // Check if category exists
@@ -69,11 +123,18 @@ export class CatalogService {
       }
     }
 
-    return await categoryRepository.update(id, data)
+    // Update category
+    const category = await categoryRepository.update(id, data)
+
+    // Invalidate relevant caches
+    await this.invalidateCategoriesCache()
+    await this.invalidateCategoryCache(id)
+
+    return category
   }
 
   /**
-   * Delete category
+   * Delete category (invalidates cache)
    */
   async deleteCategory(id: string): Promise<void> {
     // Check if category exists
@@ -82,14 +143,52 @@ export class CatalogService {
       throw new NotFoundError('Category', id)
     }
 
+    // Delete category
     await categoryRepository.delete(id)
+
+    // Invalidate relevant caches
+    await this.invalidateCategoriesCache()
+    await this.invalidateCategoryCache(id)
   }
 
   /**
-   * Count categories
+   * Count categories (with caching)
    */
-  async countCategories(): Promise<number> {
-    return await categoryRepository.count()
+  async countCategories(forceRefresh: boolean = false): Promise<number> {
+    const cacheKey = CACHE_KEYS.CATEGORY_COUNT
+
+    // Try to get from cache
+    if (!forceRefresh) {
+      const cached = await this.cache.get<number>(cacheKey)
+      if (cached !== null) {
+        return cached
+      }
+    }
+
+    // Fetch from database
+    const count = await categoryRepository.count()
+
+    // Cache the result
+    await this.cache.set(cacheKey, count, CACHE_TTL.CATEGORY_COUNT)
+
+    return count
+  }
+
+  /**
+   * Invalidate all category-related caches
+   */
+  async invalidateCategoriesCache(): Promise<void> {
+    await Promise.all([
+      this.cache.del(CACHE_KEYS.CATEGORIES_ALL),
+      this.cache.del(CACHE_KEYS.CATEGORY_COUNT)
+    ])
+  }
+
+  /**
+   * Invalidate specific category cache
+   */
+  async invalidateCategoryCache(id: string): Promise<void> {
+    await this.cache.del(CACHE_KEYS.CATEGORY_BY_ID(id))
   }
 }
 
