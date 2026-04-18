@@ -53,16 +53,56 @@
           </span>
         </NuxtLink>
         
-        <!-- Mobile Menu Toggle (to be implemented in 2.4) -->
-        <button class="md:hidden hover:opacity-80 transition-all duration-300 text-primary">
+        <!-- Mobile Menu Toggle -->
+        <button 
+          @click="isMobileMenuOpen = true"
+          class="md:hidden hover:opacity-80 transition-all duration-300 text-primary"
+        >
           <span class="material-symbols-outlined">menu</span>
         </button>
       </div>
     </div>
+
+    <!-- Mobile Sidebar -->
+    <Transition name="slide">
+      <div v-if="isMobileMenuOpen" class="fixed inset-0 z-[100] md:hidden">
+        <div class="absolute inset-0 bg-stone-900/40 backdrop-blur-sm" @click="isMobileMenuOpen = false"></div>
+        <aside class="absolute top-0 right-0 w-[80%] h-full bg-white shadow-2xl p-10 flex flex-col">
+          <div class="flex justify-between items-center mb-16">
+            <span class="text-xl font-serif italic">VIGO</span>
+            <button @click="isMobileMenuOpen = false" class="text-stone-400 hover:text-stone-900 transition-colors">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+
+          <nav class="flex flex-col gap-8">
+            <NuxtLink @click="isMobileMenuOpen = false" to="/" class="text-2xl font-serif italic text-stone-800 border-b border-stone-50 pb-4">Home</NuxtLink>
+            <NuxtLink @click="isMobileMenuOpen = false" to="/products" class="text-2xl font-serif italic text-stone-800 border-b border-stone-50 pb-4">Shop All</NuxtLink>
+            <NuxtLink @click="isMobileMenuOpen = false" to="/about" class="text-2xl font-serif italic text-stone-800 border-b border-stone-50 pb-4">Our Story</NuxtLink>
+            <NuxtLink @click="isMobileMenuOpen = false" v-if="isAuthenticated && ['SUPER_ADMIN', 'ADMIN', 'MANAGER'].includes(user?.role)" to="/admin" class="text-2xl font-serif italic text-primary border-b border-stone-50 pb-4">Admin Hub</NuxtLink>
+          </nav>
+
+          <div class="mt-auto pt-10 border-t border-stone-100 italic text-xs text-stone-400 font-serif">
+            The Atelier Editorial - 2024
+          </div>
+        </aside>
+      </div>
+    </Transition>
   </nav>
 </template>
 
 <script setup lang="ts">
 const { isAuthenticated, user } = useAuth()
 const { cartItemCount } = useCart()
+const isMobileMenuOpen = ref(false)
 </script>
+
+<style scoped>
+.slide-enter-active, .slide-leave-active {
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.slide-enter-from, .slide-leave-to {
+  transform: translateX(100%);
+  opacity: 0;
+}
+</style>

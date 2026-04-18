@@ -78,10 +78,18 @@
               </div>
               <h1 class="font-serif text-4xl md:text-5xl lg:text-6xl text-on-surface tracking-tight mb-6 italic leading-tight">{{ product.name }}</h1>
               <div class="flex items-baseline gap-4 mb-8">
-                <p class="text-2xl font-body text-on-surface">{{ settings?.currency || 'EGP' }} {{ (product.price ?? 0).toFixed(2) }}</p>
-                <p class="text-sm font-label text-on-surface-variant uppercase tracking-wider">Taxes & Duties Included</p>
+                <div v-if="product.discount" class="flex flex-col">
+                  <span class="text-xs text-stone-400 line-through font-body mb-1">{{ settings?.currency || 'EGP' }} {{ (product.price).toFixed(2) }}</span>
+                  <p class="text-2xl font-body text-primary">{{ settings?.currency || 'EGP' }} {{ (product.price * (1 - product.discount/100)).toFixed(2) }}</p>
+                </div>
+                <p v-else class="text-2xl font-body text-on-surface">{{ settings?.currency || 'EGP' }} {{ (product.price ?? 0).toFixed(2) }}</p>
+                <div v-if="product.discount" class="bg-primary/10 text-primary px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
+                  Save {{ product.discount }}%
+                </div>
+                <p class="text-xs font-label text-on-surface-variant uppercase tracking-wider ml-auto">Taxes & Duties Included</p>
               </div>
-              <div class="mb-10 text-on-surface-variant leading-relaxed font-body text-base max-w-md">
+
+              <div class="mb-10 text-on-surface-variant leading-relaxed font-body text-base max-w-md border-l-2 border-outline-variant/10 pl-6 italic">
                 {{ product.description || 'Hand-crafted with premium materials, this piece features exceptional quality and timeless design.' }}
               </div>
 
@@ -97,12 +105,13 @@
                     @click="selectedColor = color"
                     :class="['w-8 h-8 rounded-full hover:scale-110 transition-all border border-outline-variant/20', selectedColor === color ? 'ring-2 ring-primary ring-offset-2' : '']"
                     :style="{ backgroundColor: color }"
+                    :title="color"
                   ></button>
                 </div>
               </div>
 
               <!-- Selection: Size -->
-              <div v-if="product.sizes?.length" class="mb-12">
+              <div v-if="product.sizes?.length" class="mb-10">
                 <div class="flex justify-between items-center mb-4">
                   <span class="text-xs font-label uppercase tracking-widest text-on-surface font-bold">Select Size</span>
                   <button class="text-[10px] font-label uppercase tracking-widest text-primary underline underline-offset-4 decoration-primary/30">Size Guide</button>
@@ -112,17 +121,49 @@
                     v-for="size in product.sizes" 
                     :key="size"
                     @click="selectedSize = size"
-                    :class="['py-3 border text-xs font-label uppercase tracking-widest transition-colors', selectedSize === size ? 'border-primary bg-primary/5 text-primary' : 'border-outline-variant/30 hover:bg-surface-container-low']"
+                    :class="['py-3 border text-xs font-label uppercase tracking-widest transition-colors', selectedSize === size ? 'border-primary bg-primary/5 text-primary font-bold shadow-sm' : 'border-outline-variant/30 hover:bg-surface-container-low text-on-surface-variant']"
                   >
                     {{ size }}
                   </button>
                 </div>
               </div>
 
+              <!-- Selection: Quantity -->
+              <div class="mb-12">
+                <span class="text-xs font-label uppercase tracking-widest text-on-surface font-bold mb-4 block">Quantity</span>
+                <div class="flex items-center gap-6">
+                  <div class="flex items-center border border-outline-variant/30 rounded-lg overflow-hidden h-14 bg-surface-container-low">
+                    <button @click="quantity = Math.max(1, quantity - 1)" class="w-14 h-full hover:bg-surface-container transition-colors border-r border-outline-variant/10 flex items-center justify-center">
+                      <span class="material-symbols-outlined text-sm">remove</span>
+                    </button>
+                    <input type="number" v-model.number="quantity" class="w-12 h-full text-center bg-transparent focus:outline-none font-bold text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+                    <button @click="quantity++" class="w-14 h-full hover:bg-surface-container transition-colors border-l border-outline-variant/10 flex items-center justify-center">
+                      <span class="material-symbols-outlined text-sm">add</span>
+                    </button>
+                  </div>
+                  <div class="flex flex-col">
+                    <span v-if="product.stock > 0" class="flex items-center gap-2 text-[10px] text-green-600 font-bold uppercase tracking-widest">
+                      <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                      In Stock
+                    </span>
+                    <span v-else class="flex items-center gap-2 text-[10px] text-error font-bold uppercase tracking-widest">
+                      <span class="w-1.5 h-1.5 rounded-full bg-error"></span>
+                      Out of Stock
+                    </span>
+                    <span class="text-[9px] text-stone-400 uppercase tracking-widest mt-1">Free 2-Day Shipping</span>
+                  </div>
+                </div>
+              </div>
+
               <!-- Actions -->
               <div class="flex flex-col gap-4 mb-16">
-                <button @click="handleAddToCart" class="w-full py-5 bg-gradient-to-tr from-primary to-primary-container text-on-primary rounded-xl font-label uppercase tracking-[0.2em] text-sm font-bold shadow-lg shadow-primary/10 hover:opacity-90 transition-all transform active:scale-[0.98]">
-                  Add to Bag
+                <button 
+                  @click="handleAddToCart" 
+                  :disabled="product.stock <= 0"
+                  class="w-full py-5 bg-gradient-to-tr from-stone-900 to-stone-800 text-white rounded-xl font-label uppercase tracking-[0.2em] text-sm font-bold shadow-xl shadow-stone-950/10 hover:opacity-90 transition-all transform active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed group flex items-center justify-center gap-4"
+                >
+                  <span v-if="product.stock > 0" class="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">shopping_bag</span>
+                  <span>{{ product.stock > 0 ? 'Add to Bag' : 'Out of Stock' }}</span>
                 </button>
                 <button class="w-full py-5 border border-outline-variant/30 text-on-surface rounded-xl font-label uppercase tracking-[0.2em] text-sm flex items-center justify-center gap-3 hover:bg-surface-container-low transition-colors">
                   <span class="material-symbols-outlined text-[20px]">favorite</span>
@@ -218,6 +259,7 @@ const slug = route.params.slug
 const activeImage = ref('')
 const selectedColor = ref('')
 const selectedSize = ref('')
+const quantity = ref(1)
 
 const handleAddToCart = () => {
   if (!product.value) return
@@ -229,8 +271,17 @@ const handleAddToCart = () => {
     toast.warning('Please select a color before adding to bag.', 'Selection Required')
     return
   }
-  addToCart(product.value, 1, selectedSize.value, selectedColor.value)
-  toast.success('Item added to your shopping bag!', 'Success')
+  
+  const finalPrice = product.value.discount 
+    ? product.value.price * (1 - product.value.discount / 100)
+    : product.value.price
+
+  addToCart({
+    ...product.value,
+    price: finalPrice
+  }, quantity.value, selectedSize.value, selectedColor.value)
+  
+  toast.success(`${quantity.value} item(s) added to your shopping bag!`, 'Success')
   navigateTo('/cart')
 }
 

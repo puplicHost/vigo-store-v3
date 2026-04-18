@@ -15,11 +15,17 @@
           </div>
           <div class="flex items-center gap-4">
             <span class="text-xs font-label uppercase tracking-widest text-outline">Sort By</span>
-            <div class="relative group">
-              <button class="flex items-center gap-2 border-b border-outline-variant py-1 font-body text-sm hover:border-primary transition-all">
-                <span>Newest First</span>
-                <span class="material-symbols-outlined text-sm">expand_more</span>
-              </button>
+            <div class="relative">
+              <select 
+                v-model="sortBy"
+                class="appearance-none bg-transparent border-b border-outline-variant/30 pr-8 py-1 font-body text-sm hover:border-primary transition-all focus:outline-none cursor-pointer"
+              >
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+              </select>
+              <span class="material-symbols-outlined absolute right-0 top-1/2 -translate-y-1/2 text-sm pointer-events-none">expand_more</span>
             </div>
           </div>
         </div>
@@ -31,20 +37,52 @@
           <div class="sticky top-40 space-y-10">
             <div class="flex items-center justify-between">
               <h3 class="text-xs font-label uppercase tracking-widest font-semibold">Filters</h3>
-              <button class="text-xs font-label uppercase tracking-widest text-primary underline underline-offset-4 opacity-70 hover:opacity-100 transition-opacity">Clear All</button>
+              <button 
+                @click="clearAll"
+                class="text-xs font-label uppercase tracking-widest text-primary underline underline-offset-4 opacity-70 hover:opacity-100 transition-opacity"
+              >
+                Clear All
+              </button>
             </div>
+
+            <!-- Filter: Price Range -->
+            <div>
+              <h4 class="text-sm font-serif mb-4">Price Range</h4>
+              <div class="space-y-4">
+                <div class="flex items-center gap-2">
+                  <input 
+                    v-model.number="priceRange[0]" 
+                    type="number" 
+                    placeholder="Min"
+                    class="w-full bg-stone-50 border border-outline-variant/30 rounded py-2 px-3 text-xs font-body"
+                  />
+                  <span class="text-stone-300">-</span>
+                  <input 
+                    v-model.number="priceRange[1]" 
+                    type="number" 
+                    placeholder="Max"
+                    class="w-full bg-stone-50 border border-outline-variant/30 rounded py-2 px-3 text-xs font-body"
+                  />
+                </div>
+                <!-- Simple Slider (Visual representation) -->
+                <div class="relative h-1 bg-stone-100 rounded-full">
+                   <div class="absolute h-full bg-primary rounded-full w-full opacity-30"></div>
+                </div>
+              </div>
+            </div>
+
             <!-- Filter Category: Size -->
             <div>
               <h4 class="text-sm font-serif mb-4">Size</h4>
               <div class="grid grid-cols-3 gap-2">
                 <button
-                  v-for="size in ['XS', 'S', 'M', 'L', 'XL']"
+                  v-for="size in ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL']"
                   :key="size"
                   @click="selectedSize = selectedSize === size ? null : size"
                   :class="[
                     'border py-2 text-xs font-label transition-colors',
                     selectedSize === size
-                      ? 'border-primary bg-primary/10 text-primary'
+                      ? 'border-primary bg-primary/10 text-primary font-bold'
                       : 'border-outline-variant hover:border-primary'
                   ]"
                 >
@@ -52,22 +90,25 @@
                 </button>
               </div>
             </div>
+
             <!-- Filter Category: Color -->
             <div>
               <h4 class="text-sm font-serif mb-4">Color</h4>
-              <div class="space-y-3">
-                <label class="flex items-center gap-3 cursor-pointer group">
-                  <span class="w-4 h-4 rounded-full bg-stone-900 ring-offset-2 ring-1 ring-transparent group-hover:ring-outline-variant transition-all"></span>
-                  <span class="text-sm font-body text-secondary group-hover:text-on-surface">Obsidian</span>
-                </label>
-                <label class="flex items-center gap-3 cursor-pointer group">
-                  <span class="w-4 h-4 rounded-full bg-[#D2B48C] ring-offset-2 ring-1 ring-transparent group-hover:ring-outline-variant transition-all"></span>
-                  <span class="text-sm font-body text-secondary group-hover:text-on-surface">Sandstone</span>
-                </label>
-                <label class="flex items-center gap-3 cursor-pointer group">
-                  <span class="w-4 h-4 rounded-full bg-[#F5F5DC] ring-offset-2 ring-1 ring-transparent group-hover:ring-outline-variant transition-all"></span>
-                  <span class="text-sm font-body text-secondary group-hover:text-on-surface">Ecru</span>
-                </label>
+              <div class="flex flex-wrap gap-3">
+                <button
+                  v-for="color in availableColors"
+                  :key="color"
+                  @click="toggleColor(color)"
+                  class="group flex flex-col items-center gap-2"
+                >
+                  <div 
+                    class="w-8 h-8 rounded-full border-2 transition-all p-0.5"
+                    :class="selectedColors.includes(color) ? 'border-primary' : 'border-transparent group-hover:border-stone-200'"
+                  >
+                    <div class="w-full h-full rounded-full border border-stone-200" :style="{ backgroundColor: color }"></div>
+                  </div>
+                  <span class="text-[9px] uppercase tracking-widest text-stone-400 group-hover:text-stone-900 transition-colors">{{ color }}</span>
+                </button>
               </div>
             </div>
           </div>
@@ -140,31 +181,89 @@
 </template>
 
 <script setup lang="ts">
-const { isAuthenticated, user } = useAuth()
 const { settings } = useSettings()
 const { lastRefreshEvent } = useDataRefresh()
+const route = useRoute()
 
-// Size filter state
+// Filter states
 const selectedSize = ref<string | null>(null)
+const selectedColors = ref<string[]>([])
+const priceRange = ref([0, 10000])
+const sortBy = ref('newest')
 
 // Fetch products
 const { data: productsData, pending, error, refresh } = await useFetch<any>('/api/products', {
   default: () => ({ items: [] })
 })
 
-// Auto-refresh when admin makes changes (synced across tabs)
+// Auto-refresh when admin makes changes
 watch(() => lastRefreshEvent.value, (event) => {
-  if (event?.dataType === 'products') {
-    refresh()
-  }
+  if (event?.dataType === 'products') refresh()
 })
 
-// Filter products by selected size
-const filteredProducts = computed(() => {
+const categories = computed(() => {
   const items = productsData.value?.items || []
-  if (!selectedSize.value) return items
-  return items.filter((product: any) =>
-    product.sizes?.includes(selectedSize.value)
-  )
+  const cats = items.map((p: any) => p.category?.name).filter(Boolean)
+  return [...new Set(cats)]
 })
+
+const availableColors = computed(() => {
+  const items = productsData.value?.items || []
+  const colors = items.flatMap((p: any) => p.colors || [])
+  return [...new Set(colors)]
+})
+
+// Combined Filtered and Sorted Products
+const filteredProducts = computed(() => {
+  let items = [...(productsData.value?.items || [])]
+
+  // Filter by Category (from URL)
+  if (route.query.category) {
+    items = items.filter(p => p.categoryId === route.query.category)
+  }
+
+  // Filter by Size
+  if (selectedSize.value) {
+    items = items.filter(p => p.sizes?.includes(selectedSize.value))
+  }
+
+  // Filter by Color
+  if (selectedColors.value.length > 0) {
+    items = items.filter(p => p.colors?.some((c: string) => selectedColors.value.includes(c)))
+  }
+
+  // Filter by Price
+  items = items.filter(p => p.price >= priceRange.value[0] && p.price <= priceRange.value[1])
+
+  // Sorting
+  switch (sortBy.value) {
+    case 'price-low':
+      items.sort((a, b) => a.price - b.price)
+      break
+    case 'price-high':
+      items.sort((a, b) => b.price - a.price)
+      break
+    case 'oldest':
+      items.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+      break
+    case 'newest':
+    default:
+      items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+  }
+
+  return items
+})
+
+const toggleColor = (color: string) => {
+  const idx = selectedColors.value.indexOf(color)
+  if (idx >= 0) selectedColors.value.splice(idx, 1)
+  else selectedColors.value.push(color)
+}
+
+const clearAll = () => {
+  selectedSize.value = null
+  selectedColors.value = []
+  priceRange.value = [0, 10000]
+  sortBy.value = 'newest'
+}
 </script>
