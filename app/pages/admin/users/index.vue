@@ -62,67 +62,69 @@ class="appearance-none bg-surface-container-lowest border border-outline-variant
                 <span class="text-on-surface-variant font-body">No users found.</span>
               </td>
             </tr>
-            <tr
-              v-for="(user, index) in filteredUsers"
-              :key="user.id || index"
-              class="hover:bg-surface-container-low/50 transition-colors"
-            >
-              <td class="px-6 py-4">
-                <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center">
-                    <span class="material-symbols-outlined text-on-surface-variant">person</span>
+            <template v-else>
+              <tr
+                v-for="(user, index) in filteredUsers"
+                :key="user.id || index"
+                class="hover:bg-surface-container-low/50 transition-colors"
+              >
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center">
+                      <span class="material-symbols-outlined text-on-surface-variant">person</span>
+                    </div>
+                    <div>
+                      <div class="font-medium text-on-surface font-body">{{ user.name || 'No name' }}</div>
+                      <div class="text-xs text-on-surface-variant">{{ user.email }}</div>
+                    </div>
                   </div>
-                  <div>
-                    <div class="font-medium text-on-surface font-body">{{ user.name || 'No name' }}</div>
-                    <div class="text-xs text-on-surface-variant">{{ user.email }}</div>
+                </td>
+                <td class="px-6 py-4">
+                  <span :class="[
+                    'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium',
+                    user.role === 'SUPER_ADMIN' ? 'bg-purple-100 text-purple-700 border border-purple-200' :
+                    user.role === 'ADMIN' ? 'bg-blue-100 text-blue-700 border border-blue-200' :
+                    user.role === 'MANAGER' ? 'bg-amber-100 text-amber-700 border border-amber-200' :
+                    user.role === 'SALES' ? 'bg-green-100 text-green-700 border border-green-200' :
+                    'bg-gray-100 text-gray-700 border border-gray-200'
+                  ]">
+                    <span class="w-1.5 h-1.5 rounded-full" :class="[
+                      user.role === 'SUPER_ADMIN' ? 'bg-purple-500' :
+                      user.role === 'ADMIN' ? 'bg-blue-500' :
+                      user.role === 'MANAGER' ? 'bg-amber-500' :
+                      user.role === 'SALES' ? 'bg-green-500' :
+                      'bg-gray-500'
+                    ]"></span>
+                    {{ user.role }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-sm text-on-surface-variant font-body">
+                  {{ user._count?.orders || 0 }}
+                </td>
+                <td class="px-6 py-4 text-sm text-on-surface-variant font-body">
+                  {{ user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '-' }}
+                </td>
+                <td class="px-6 py-4">
+                  <div class="flex items-center justify-end gap-2">
+                    <button
+                      @click="editUser(user)"
+                      class="p-2 text-on-surface-variant hover:text-primary hover:bg-primary/5 rounded-lg transition-colors"
+                      title="Edit User"
+                    >
+                      <span class="material-symbols-outlined text-sm">edit</span>
+                    </button>
+                    <button
+                      v-if="auth.user.value?.role === 'SUPER_ADMIN'"
+                      @click="confirmDelete(user)"
+                      class="p-2 text-on-surface-variant hover:text-error hover:bg-error/5 rounded-lg transition-colors"
+                      title="Delete User"
+                    >
+                      <span class="material-symbols-outlined text-sm">delete</span>
+                    </button>
                   </div>
-                </div>
-              </td>
-              <td class="px-6 py-4">
-                <span :class="[
-                  'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium',
-                  user.role === 'SUPER_ADMIN' ? 'bg-purple-100 text-purple-700 border border-purple-200' :
-                  user.role === 'ADMIN' ? 'bg-blue-100 text-blue-700 border border-blue-200' :
-                  user.role === 'MANAGER' ? 'bg-amber-100 text-amber-700 border border-amber-200' :
-                  user.role === 'SALES' ? 'bg-green-100 text-green-700 border border-green-200' :
-                  'bg-gray-100 text-gray-700 border border-gray-200'
-                ]">
-                  <span class="w-1.5 h-1.5 rounded-full" :class="[
-                    user.role === 'SUPER_ADMIN' ? 'bg-purple-500' :
-                    user.role === 'ADMIN' ? 'bg-blue-500' :
-                    user.role === 'MANAGER' ? 'bg-amber-500' :
-                    user.role === 'SALES' ? 'bg-green-500' :
-                    'bg-gray-500'
-                  ]"></span>
-                  {{ user.role }}
-                </span>
-              </td>
-              <td class="px-6 py-4 text-sm text-on-surface-variant font-body">
-                {{ user._count?.orders || 0 }}
-              </td>
-              <td class="px-6 py-4 text-sm text-on-surface-variant font-body">
-                {{ user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '-' }}
-              </td>
-              <td class="px-6 py-4">
-                <div class="flex items-center justify-end gap-2">
-                  <button
-                    @click="editUser(user)"
-                    class="p-2 text-on-surface-variant hover:text-primary hover:bg-primary/5 rounded-lg transition-colors"
-                    title="Edit User"
-                  >
-                    <span class="material-symbols-outlined text-sm">edit</span>
-                  </button>
-                  <button
-                    v-if="auth.user.value?.role === 'SUPER_ADMIN'"
-                    @click="confirmDelete(user)"
-                    class="p-2 text-on-surface-variant hover:text-error hover:bg-error/5 rounded-lg transition-colors"
-                    title="Delete User"
-                  >
-                    <span class="material-symbols-outlined text-sm">delete</span>
-                  </button>
-                </div>
-              </td>
-            </tr>
+                </td>
+              </tr>
+            </template>
           </tbody>
       </table>
     </div>
@@ -292,7 +294,7 @@ definePageMeta({
 })
 
 const { data: usersResponse, pending, error, refresh: refreshUsers } = await useApiFetch('/api/admin/users', {
-  default: () => ({ users: [] })
+  default: () => []
 })
 
 const auth = useAuth()
@@ -302,6 +304,7 @@ const showCreateModal = ref(false)
 const showEditModal = ref(false)
 const showDeleteModal = ref(false)
 const userToDelete = ref(null)
+const { toast } = useNotifications()
 
 const newUser = ref({
   name: '',
@@ -318,7 +321,7 @@ const editingUser = ref({
   role: 'USER'
 })
 
-const users = computed(() => usersResponse.value?.users || [])
+const users = computed(() => Array.isArray(usersResponse.value) ? usersResponse.value : (usersResponse.value?.users || []))
 
 const filteredUsers = computed(() => {
   if (!users.value || !Array.isArray(users.value)) return []
@@ -346,9 +349,10 @@ const createUser = async () => {
     })
     showCreateModal.value = false
     newUser.value = { name: '', email: '', password: '', role: 'USER' }
-    refreshUsers()
-  } catch (err) {
-    alert('Failed to create user')
+    await refreshUsers()
+    toast.success('User created successfully')
+  } catch (err: any) {
+    toast.error(err.data?.statusMessage || 'Failed to create user')
   }
 }
 
@@ -375,9 +379,10 @@ const updateUser = async () => {
       }
     })
     showEditModal.value = false
-    refreshUsers()
-  } catch (err) {
-    alert('Failed to update user')
+    await refreshUsers()
+    toast.success('User updated successfully')
+  } catch (err: any) {
+    toast.error(err.data?.statusMessage || 'Failed to update user')
   }
 }
 
@@ -393,9 +398,10 @@ const deleteUser = async () => {
     })
     showDeleteModal.value = false
     userToDelete.value = null
-    refreshUsers()
-  } catch (err) {
-    alert('Failed to delete user')
+    await refreshUsers()
+    toast.success('User deleted successfully')
+  } catch (err: any) {
+    toast.error(err.data?.statusMessage || 'Failed to delete user')
   }
 }
 </script>

@@ -42,39 +42,41 @@
                 <span class="text-on-surface-variant font-body">No categories found. Create your first category to get started.</span>
               </td>
             </tr>
-            <tr
-              v-for="category in filteredCategories"
-              :key="category.id"
-              class="hover:bg-surface-container-low/50 transition-colors group"
-            >
-              <td class="px-6 py-4">
-                <div class="font-medium text-on-surface font-body">{{ category.name }}</div>
-              </td>
-              <td class="px-6 py-4">
-                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                  {{ category._count?.products || 0 }} {{ $t('products.units') }}
-                </span>
-              </td>
-              <td class="px-6 py-4 text-sm text-on-surface-variant font-body">
-                {{ new Date(category.createdAt).toLocaleDateString() }}
-              </td>
-              <td class="px-6 py-4 text-right">
-                <div class="flex items-center justify-end gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-                  <button
-                    @click="openEditModal(category)"
-                    class="p-2 rounded-lg hover:bg-surface-container-low text-on-surface-variant hover:text-primary transition-colors"
-                  >
-                    <span class="material-symbols-outlined text-lg">edit</span>
-                  </button>
-                  <button
-                    @click="confirmDelete(category)"
-                    class="p-2 rounded-lg hover:bg-error/10 text-on-surface-variant hover:text-error transition-colors"
-                  >
-                    <span class="material-symbols-outlined text-lg">delete</span>
-                  </button>
-                </div>
-              </td>
-            </tr>
+            <template v-else>
+              <tr
+                v-for="category in filteredCategories"
+                :key="category.id"
+                class="hover:bg-surface-container-low/50 transition-colors group"
+              >
+                <td class="px-6 py-4">
+                  <div class="font-medium text-on-surface font-body">{{ category.name }}</div>
+                </td>
+                <td class="px-6 py-4">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                    {{ category._count?.products || 0 }} {{ $t('products.units') }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-sm text-on-surface-variant font-body">
+                  {{ new Date(category.createdAt).toLocaleDateString() }}
+                </td>
+                <td class="px-6 py-4 text-right">
+                  <div class="flex items-center justify-end gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                    <button
+                      @click="openEditModal(category)"
+                      class="p-2 rounded-lg hover:bg-surface-container-low text-on-surface-variant hover:text-primary transition-colors"
+                    >
+                      <span class="material-symbols-outlined text-lg">edit</span>
+                    </button>
+                    <button
+                      @click="confirmDelete(category)"
+                      class="p-2 rounded-lg hover:bg-error/10 text-on-surface-variant hover:text-error transition-colors"
+                    >
+                      <span class="material-symbols-outlined text-lg">delete</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </template>
           </tbody>
       </table>
     </div>

@@ -149,25 +149,32 @@
             </button>
 
             <!-- Dropdown -->
-            <div v-if="showNotifDropdown" class="absolute right-0 mt-2 w-80 bg-surface-container-lowest rounded-xl shadow-2xl border border-outline-variant z-[60] overflow-hidden">
-              <div class="p-4 border-b border-outline-variant flex items-center justify-between">
+            <div v-if="showNotifDropdown" class="absolute right-0 mt-2 w-80 bg-white/90 dark:bg-surface-container-lowest/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-outline-variant/20 z-[60] overflow-hidden transform transition-all">
+              <div class="p-4 bg-surface-container-lowest/50 border-b border-outline-variant/10 flex items-center justify-between">
                 <span class="font-bold text-sm text-on-surface">{{ $t('topbar.notifications') }}</span>
-                <button @click="markAllAsRead" class="text-[10px] uppercase font-bold text-primary hover:underline">{{ $t('topbar.markAllRead') }}</button>
+                <button @click="markAllAsRead" class="text-[10px] uppercase font-bold text-primary hover:text-primary/80 transition-colors">{{ $t('topbar.markAllRead') }}</button>
               </div>
-              <div class="max-h-96 overflow-y-auto">
-                <div v-if="notifications.length === 0" class="p-8 text-center text-on-surface-variant/50 text-sm">
-                  No notifications
+              <div class="max-h-96 overflow-y-auto scrollbar-custom">
+                <div v-if="notifications.length === 0" class="p-10 flex flex-col items-center text-center text-on-surface-variant/50">
+                  <span class="material-symbols-outlined text-4xl mb-3 opacity-50">notifications_off</span>
+                  <span class="text-sm font-medium">No notifications</span>
                 </div>
                 <div 
                   v-for="notif in notifications" 
                   :key="notif.id"
-                  class="p-4 border-b border-outline-variant/10 hover:bg-surface-container-low transition-colors cursor-pointer"
-                  :class="{ 'bg-primary/5': !notif.read }"
+                  class="group p-4 border-b border-outline-variant/5 hover:bg-surface-container-low/50 transition-all duration-300 cursor-pointer relative"
+                  :class="{ 'bg-primary/[0.03] dark:bg-primary/[0.08]': !notif.read }"
                   @click="markAsRead(notif.id)"
                 >
-                  <p class="font-bold text-xs mb-1 text-on-surface">{{ notif.title }}</p>
-                  <p class="text-xs text-on-surface-variant line-clamp-2">{{ notif.message }}</p>
-                  <p class="text-[9px] text-on-surface-variant/40 mt-2">{{ new Date(notif.createdAt).toLocaleTimeString() }}</p>
+                  <div v-if="!notif.read" class="absolute left-0 top-0 bottom-0 w-1 bg-primary rounded-r-full shadow-[0_0_8px_rgba(var(--color-primary),0.5)]"></div>
+                  <div class="flex items-start gap-3">
+                    <div class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" :class="notif.read ? 'bg-outline-variant/30' : 'bg-primary'"></div>
+                    <div>
+                      <p class="font-bold text-xs mb-1 text-on-surface group-hover:text-primary transition-colors">{{ notif.title }}</p>
+                      <p class="text-xs text-on-surface-variant line-clamp-2 leading-relaxed">{{ notif.message }}</p>
+                      <p class="text-[10px] text-on-surface-variant/50 mt-2 font-medium">{{ new Date(notif.createdAt).toLocaleTimeString() }}</p>
+                    </div>
+                  </div>
                 </div>
               </div>
               <!-- View All Link -->

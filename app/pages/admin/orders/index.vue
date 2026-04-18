@@ -62,40 +62,42 @@ class="appearance-none bg-surface-container-lowest border border-outline-variant
                 <span class="text-on-surface-variant font-body">No orders found.</span>
               </td>
             </tr>
-            <tr
-              v-for="(order, index) in filteredOrders"
-              :key="order.id || index"
-              class="hover:bg-surface-container-low/50 transition-colors"
-            >
-              <td class="px-6 py-4 font-mono text-sm text-on-surface">
-                #{{ order.id?.slice(-8).toUpperCase() || 'N/A' }}
-              </td>
-              <td class="px-6 py-4">
-                <div class="font-medium text-on-surface font-body">{{ order.user?.name || 'Guest' }}</div>
-                <div class="text-xs text-on-surface-variant">{{ order.user?.email }}</div>
-              </td>
-              <td class="px-6 py-4 text-sm text-on-surface-variant font-body">
-                {{ order.items?.length || 0 }} items
-              </td>
-              <td class="px-6 py-4 font-medium text-on-surface font-body">
-                ${{ order.totalAmount?.toFixed(2) || '0.00' }}
-              </td>
-              <td class="px-6 py-4">
-                <span :class="[
-                  'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium',
-                  order.status === 'DELIVERED' ? 'bg-success/10 text-success' :
-                  order.status === 'PAID' ? 'bg-primary/10 text-primary' :
-                  order.status === 'SHIPPED' ? 'bg-warning/10 text-warning' :
-                  order.status === 'CANCELLED' ? 'bg-error/10 text-error' :
-                  'bg-surface-container-high text-on-surface-variant'
-                ]">
-                  {{ order.status || 'UNKNOWN' }}
-                </span>
-              </td>
-              <td class="px-6 py-4 text-sm text-on-surface-variant font-body">
-                {{ order.createdAt ? new Date(order.createdAt).toLocaleDateString() : '-' }}
-              </td>
-            </tr>
+            <template v-else>
+              <tr
+                v-for="(order, index) in filteredOrders"
+                :key="order.id || index"
+                class="hover:bg-surface-container-low/50 transition-colors"
+              >
+                <td class="px-6 py-4 font-mono text-sm text-on-surface">
+                  #{{ order.id?.slice(-8).toUpperCase() || 'N/A' }}
+                </td>
+                <td class="px-6 py-4">
+                  <div class="font-medium text-on-surface font-body">{{ order.user?.name || 'Guest' }}</div>
+                  <div class="text-xs text-on-surface-variant">{{ order.user?.email }}</div>
+                </td>
+                <td class="px-6 py-4 text-sm text-on-surface-variant font-body">
+                  {{ order.items?.length || 0 }} items
+                </td>
+                <td class="px-6 py-4 font-medium text-on-surface font-body">
+                  ${{ order.totalAmount?.toFixed(2) || '0.00' }}
+                </td>
+                <td class="px-6 py-4">
+                  <span :class="[
+                    'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium',
+                    order.status === 'DELIVERED' ? 'bg-success/10 text-success' :
+                    order.status === 'PAID' ? 'bg-primary/10 text-primary' :
+                    order.status === 'SHIPPED' ? 'bg-warning/10 text-warning' :
+                    order.status === 'CANCELLED' ? 'bg-error/10 text-error' :
+                    'bg-surface-container-high text-on-surface-variant'
+                  ]">
+                    {{ order.status || 'UNKNOWN' }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-sm text-on-surface-variant font-body">
+                  {{ order.createdAt ? new Date(order.createdAt).toLocaleDateString() : '-' }}
+                </td>
+              </tr>
+            </template>
           </tbody>
       </table>
     </div>

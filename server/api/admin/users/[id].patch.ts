@@ -96,6 +96,10 @@ export default defineEventHandler(async (event) => {
       }
     })
 
+    // Invalidate dashboard cache
+    const { adminDashboardService } = await import('../../../domains/admin/services/AdminDashboardService')
+    await adminDashboardService.invalidateCache()
+
     return {
       success: true,
       message: 'User updated successfully',

@@ -67,87 +67,89 @@
               <span class="text-on-surface-variant font-body">No products found. Create your first product to get started.</span>
             </td>
           </tr>
-          <tr
-            v-for="product in filteredProducts"
-            :key="product.id"
-            class="hover:bg-surface-container-low/50 transition-colors group"
-          >
-            <td class="px-6 py-4">
-              <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-lg bg-surface-container-low overflow-hidden">
-                  <img
-                    v-if="product.images?.[0]"
-                    :src="product.images[0]"
-                    class="w-full h-full object-cover"
-                    alt=""
-                  />
-                  <div v-else class="w-full h-full flex items-center justify-center">
-                    <span class="material-symbols-outlined text-on-surface-variant/30">image</span>
+          <template v-else>
+            <tr
+              v-for="product in filteredProducts"
+              :key="product.id"
+              class="hover:bg-surface-container-low/50 transition-colors group"
+            >
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 rounded-lg bg-surface-container-low overflow-hidden">
+                    <img
+                      v-if="product.images?.[0]"
+                      :src="product.images[0]"
+                      class="w-full h-full object-cover"
+                      alt=""
+                    />
+                    <div v-else class="w-full h-full flex items-center justify-center">
+                      <span class="material-symbols-outlined text-on-surface-variant/30">image</span>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="font-medium text-on-surface font-body">{{ product.name }}</div>
+                    <div class="text-xs text-on-surface-variant">{{ product.slug }}</div>
                   </div>
                 </div>
-                <div>
-                  <div class="font-medium text-on-surface font-body">{{ product.name }}</div>
-                  <div class="text-xs text-on-surface-variant">{{ product.slug }}</div>
+              </td>
+              <td class="px-6 py-4">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-secondary/50 text-on-secondary">
+                  {{ product.category?.name || 'Uncategorized' }}
+                </span>
+              </td>
+              <td class="px-6 py-4 font-medium text-on-surface font-body">
+                ${{ (product.price ?? 0).toFixed(2) }}
+              </td>
+              <td class="px-6 py-4">
+                <span :class="[
+                  'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium',
+                  (product.stock ?? 0) > 10 ? 'bg-success/10 text-success' :
+                  (product.stock ?? 0) > 0 ? 'bg-warning/10 text-warning' :
+                  'bg-error/10 text-error'
+                ]">
+                  {{ (product.stock ?? 0) }} {{ $t('products.units') }}
+                </span>
+              </td>
+              <td class="px-6 py-4">
+                <span v-if="product.isFeatured" class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                  {{ $t('products.featured') }}
+                </span>
+                <span v-else class="text-on-surface-variant text-sm">-</span>
+              </td>
+              <td class="px-6 py-4 text-right">
+                <div class="flex items-center justify-end gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                  <NuxtLink
+                    :to="`/admin/products/${product.id}/edit`"
+                    class="p-2 rounded-lg hover:bg-surface-container-low text-on-surface-variant hover:text-primary transition-colors"
+                  >
+                    <span class="material-symbols-outlined text-lg">edit</span>
+                  </NuxtLink>
+                  <button
+                    v-if="!product.isDeleted"
+                    @click="confirmArchive(product)"
+                    class="p-2 rounded-lg hover:bg-warning/10 text-on-surface-variant hover:text-warning transition-colors"
+                  >
+                    <span class="material-symbols-outlined text-lg">archive</span>
+                  </button>
+                  <button
+                    v-else
+                    @click="restoreProduct(product)"
+                    class="p-2 rounded-lg hover:bg-success/10 text-on-surface-variant hover:text-success transition-colors"
+                  >
+                    <span class="material-symbols-outlined text-lg">restore_from_trash</span>
+                  </button>
+                  <!-- Permanent Delete Button -->
+                  <button
+                    @click="confirmPermanentDelete(product)"
+                    class="p-2 rounded-lg hover:bg-error/10 text-on-surface-variant hover:text-error transition-colors"
+                    title="Permanent Delete"
+                  >
+                    <span class="material-symbols-outlined text-lg">delete_forever</span>
+                  </button>
                 </div>
-              </div>
-            </td>
-            <td class="px-6 py-4">
-              <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-secondary/50 text-on-secondary">
-                {{ product.category?.name || 'Uncategorized' }}
-              </span>
-            </td>
-            <td class="px-6 py-4 font-medium text-on-surface font-body">
-              ${{ (product.price ?? 0).toFixed(2) }}
-            </td>
-            <td class="px-6 py-4">
-              <span :class="[
-                'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium',
-                (product.stock ?? 0) > 10 ? 'bg-success/10 text-success' :
-                (product.stock ?? 0) > 0 ? 'bg-warning/10 text-warning' :
-                'bg-error/10 text-error'
-              ]">
-                {{ (product.stock ?? 0) }} {{ $t('products.units') }}
-              </span>
-            </td>
-            <td class="px-6 py-4">
-              <span v-if="product.isFeatured" class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                {{ $t('products.featured') }}
-              </span>
-              <span v-else class="text-on-surface-variant text-sm">-</span>
-            </td>
-            <td class="px-6 py-4 text-right">
-              <div class="flex items-center justify-end gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-                <NuxtLink
-                  :to="`/admin/products/${product.id}/edit`"
-                  class="p-2 rounded-lg hover:bg-surface-container-low text-on-surface-variant hover:text-primary transition-colors"
-                >
-                  <span class="material-symbols-outlined text-lg">edit</span>
-                </NuxtLink>
-                <button
-                  v-if="!product.isDeleted"
-                  @click="confirmArchive(product)"
-                  class="p-2 rounded-lg hover:bg-warning/10 text-on-surface-variant hover:text-warning transition-colors"
-                >
-                  <span class="material-symbols-outlined text-lg">archive</span>
-                </button>
-                <button
-                  v-else
-                  @click="restoreProduct(product)"
-                  class="p-2 rounded-lg hover:bg-success/10 text-on-surface-variant hover:text-success transition-colors"
-                >
-                  <span class="material-symbols-outlined text-lg">restore_from_trash</span>
-                </button>
-                <!-- Permanent Delete Button -->
-                <button
-                  @click="confirmPermanentDelete(product)"
-                  class="p-2 rounded-lg hover:bg-error/10 text-on-surface-variant hover:text-error transition-colors"
-                  title="Permanent Delete"
-                >
-                  <span class="material-symbols-outlined text-lg">delete_forever</span>
-                </button>
-              </div>
-            </td>
-          </tr>
+              </td>
+            </tr>
+          </template>
         </tbody>
       </table>
     </div>

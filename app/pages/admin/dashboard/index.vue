@@ -325,49 +325,51 @@
                 No orders yet.
               </td>
             </tr>
-            <tr
-              v-for="(order, index) in recentOrders"
-              :key="order.id || index"
-              class="hover:bg-primary/5 transition-colors"
-            >
-              <td class="px-6 py-4 font-mono text-sm text-primary font-medium">
-                #{{ order.id?.slice(-8).toUpperCase() || 'N/A' }}
-              </td>
-              <td class="px-6 py-4 text-sm text-on-surface font-body">
-                <div class="flex items-center gap-2">
-                  <div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center">
-                    <span class="material-symbols-outlined text-on-surface-variant text-sm">person</span>
+            <template v-else>
+              <tr
+                v-for="(order, index) in recentOrders"
+                :key="order.id || index"
+                class="hover:bg-primary/5 transition-colors"
+              >
+                <td class="px-6 py-4 font-mono text-sm text-primary font-medium">
+                  #{{ order.id?.slice(-8).toUpperCase() || 'N/A' }}
+                </td>
+                <td class="px-6 py-4 text-sm text-on-surface font-body">
+                  <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center">
+                      <span class="material-symbols-outlined text-on-surface-variant text-sm">person</span>
+                    </div>
+                    {{ order.user?.name || 'Guest' }}
                   </div>
-                  {{ order.user?.name || 'Guest' }}
-                </div>
-              </td>
-              <td class="px-6 py-4 font-bold text-on-surface font-body">
-                {{ settings.currency }}{{ order.totalAmount?.toFixed(2) || '0.00' }}
-              </td>
-              <td class="px-6 py-4">
-                <span :class="[
-                  'inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold border',
-                  order.status === 'DELIVERED' ? 'bg-success/10 text-success border-success/20' :
-                  order.status === 'PAID' ? 'bg-primary/10 text-primary border-primary/20' :
-                  order.status === 'SHIPPED' ? 'bg-warning/10 text-warning border-warning/20' :
-                  order.status === 'CANCELLED' ? 'bg-error/10 text-error border-error/20' :
-                  'bg-surface-container-high text-on-surface-variant border-outline-variant/20'
-                ]">
-                  {{ order.status || 'UNKNOWN' }}
-                </span>
-              </td>
-              <td class="px-6 py-4">
-                <span :class="[
-                  'inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold border',
-                  order.paymentStatus === 'PAID' ? 'bg-success/10 text-success border-success/20' :
-                  order.paymentStatus === 'PENDING' ? 'bg-warning/10 text-warning border-warning/20' :
-                  order.paymentStatus === 'FAILED' ? 'bg-error/10 text-error border-error/20' :
-                  'bg-surface-container-high text-on-surface-variant border-outline-variant/20'
-                ]">
-                  {{ order.paymentStatus || 'UNKNOWN' }}
-                </span>
-              </td>
-            </tr>
+                </td>
+                <td class="px-6 py-4 font-bold text-on-surface font-body">
+                  {{ settings.currency }}{{ order.totalAmount?.toFixed(2) || '0.00' }}
+                </td>
+                <td class="px-6 py-4">
+                  <span :class="[
+                    'inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold border',
+                    order.status === 'DELIVERED' ? 'bg-success/10 text-success border-success/20' :
+                    order.status === 'PAID' ? 'bg-primary/10 text-primary border-primary/20' :
+                    order.status === 'SHIPPED' ? 'bg-warning/10 text-warning border-warning/20' :
+                    order.status === 'CANCELLED' ? 'bg-error/10 text-error border-error/20' :
+                    'bg-surface-container-high text-on-surface-variant border-outline-variant/20'
+                  ]">
+                    {{ order.status || 'UNKNOWN' }}
+                  </span>
+                </td>
+                <td class="px-6 py-4">
+                  <span :class="[
+                    'inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold border',
+                    order.paymentStatus === 'PAID' ? 'bg-success/10 text-success border-success/20' :
+                    order.paymentStatus === 'PENDING' ? 'bg-warning/10 text-warning border-warning/20' :
+                    order.paymentStatus === 'FAILED' ? 'bg-error/10 text-error border-error/20' :
+                    'bg-surface-container-high text-on-surface-variant border-outline-variant/20'
+                  ]">
+                    {{ order.paymentStatus || 'UNKNOWN' }}
+                  </span>
+                </td>
+              </tr>
+            </template>
           </tbody>
       </table>
     </div>
