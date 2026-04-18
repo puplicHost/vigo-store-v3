@@ -32,10 +32,12 @@ export default defineEventHandler(async (event) => {
       facebookUrl: settings.facebookUrl,
       instagramUrl: settings.instagramUrl,
       twitterUrl: settings.twitterUrl,
+      linkedinUrl: settings.linkedinUrl,
       shippingFee: settings.shippingFee,
       freeShippingThreshold: settings.freeShippingThreshold,
       isCodEnabled: settings.isCodEnabled,
       isStripeEnabled: settings.isStripeEnabled,
+      isPaymobEnabled: settings.isPaymobEnabled,
       // NOTE: We EXCLUDE stripeSecretKey, stripePublicKey, and isTestMode for security
     }
   } catch (error: any) {

@@ -32,6 +32,27 @@
           </label>
         </div>
 
+        <!-- Card Payments (Paymob Egypt) -->
+        <div class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-lg bg-orange-500/10 flex items-center justify-center">
+              <span class="material-symbols-outlined text-orange-600 text-2xl">account_balance</span>
+            </div>
+            <div>
+              <div class="font-medium text-on-surface font-body">Paymob (Egypt Cards)</div>
+              <div class="text-sm text-on-surface-variant">Accept local cards via Paymob gateway</div>
+            </div>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input
+              v-model="settings.isPaymobEnabled"
+              type="checkbox"
+              class="sr-only peer"
+            />
+            <div class="w-14 h-8 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-orange-500/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-orange-500"></div>
+          </label>
+        </div>
+
         <!-- Card Payments (Stripe) -->
         <div class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg">
           <div class="flex items-center gap-4">
@@ -39,8 +60,8 @@
               <span class="material-symbols-outlined text-primary text-2xl">credit_card</span>
             </div>
             <div>
-              <div class="font-medium text-on-surface font-body">Card Payments</div>
-              <div class="text-sm text-on-surface-variant">Accept credit/debit cards via Stripe</div>
+              <div class="font-medium text-on-surface font-body">Global Card Payments</div>
+              <div class="text-sm text-on-surface-variant">Accept international cards via Stripe</div>
             </div>
           </div>
           <label class="relative inline-flex items-center cursor-pointer">
@@ -51,6 +72,54 @@
             />
             <div class="w-14 h-8 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary"></div>
           </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paymob Configuration -->
+    <div v-if="settings.isPaymobEnabled" class="bg-white rounded-xl border border-outline-variant/10 shadow-sm shadow-primary/5 p-6 mb-6">
+      <h2 class="font-serif italic text-xl text-on-surface mb-6">Paymob Configuration</h2>
+      
+      <div class="space-y-6">
+        <div>
+          <label class="block text-sm font-body text-on-surface-variant mb-1">Paymob API Key</label>
+          <input
+            v-model="settings.paymobApiKey"
+            type="password"
+            class="w-full border border-outline-variant/20 rounded-lg px-4 py-2.5 text-sm font-body focus:outline-none focus:border-primary/50"
+            placeholder="api_key_..."
+          />
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-body text-on-surface-variant mb-1">Integration ID</label>
+            <input
+              v-model="settings.paymobIntegrationId"
+              type="text"
+              class="w-full border border-outline-variant/20 rounded-lg px-4 py-2.5 text-sm font-body focus:outline-none focus:border-primary/50"
+              placeholder="123456"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-body text-on-surface-variant mb-1">Iframe ID</label>
+            <input
+              v-model="settings.paymobIframeId"
+              type="text"
+              class="w-full border border-outline-variant/20 rounded-lg px-4 py-2.5 text-sm font-body focus:outline-none focus:border-primary/50"
+              placeholder="789012"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-body text-on-surface-variant mb-1">HMAC Secret</label>
+          <input
+            v-model="settings.paymobHmacSecret"
+            type="password"
+            class="w-full border border-outline-variant/20 rounded-lg px-4 py-2.5 text-sm font-body focus:outline-none focus:border-primary/50"
+            placeholder="hmac_..."
+          />
         </div>
       </div>
     </div>
@@ -83,7 +152,7 @@
         <div class="flex items-center justify-between p-4 bg-warning/10 rounded-lg">
           <div>
             <div class="font-medium text-on-surface font-body">Test Mode</div>
-            <div class="text-sm text-on-surface-variant">Use Stripe test keys for development</div>
+            <div class="text-sm text-on-surface-variant">Use test environment keys</div>
           </div>
           <label class="relative inline-flex items-center cursor-pointer">
             <input
@@ -105,13 +174,11 @@
       
       <ClientOnly>
         <template #fallback>
-          <div class="p-12 text-center">
-            <span class="text-on-surface-variant font-body">Loading...</span>
-          </div>
+          <div class="p-12 text-center text-on-surface-variant font-body">Loading history...</div>
         </template>
 
-        <div v-if="pending" class="p-12 text-center">
-          <span class="material-symbols-outlined text-3xl animate-spin text-on-surface-variant">progress_activity</span>
+        <div v-if="pending" class="p-12 text-center text-on-surface-variant">
+          <span class="material-symbols-outlined text-3xl animate-spin">progress_activity</span>
         </div>
 
         <div v-else-if="!transactions?.length" class="p-12 text-center text-on-surface-variant font-body">
@@ -140,12 +207,12 @@
               <td class="px-6 py-4 text-sm text-on-surface font-body">
                 #{{ transaction.id?.slice(-8).toUpperCase() || 'N/A' }}
               </td>
-              <td class="px-6 py-4 font-medium text-on-surface font-body">
-                {{ settings.currency }}{{ transaction.totalAmount?.toFixed(2) || '0.00' }}
+              <td class="px-6 py-4 font-medium text-on-surface font-body font-semibold">
+                {{ settings.currency }} {{ transaction.totalAmount?.toFixed(2) || '0.00' }}
               </td>
               <td class="px-6 py-4">
                 <span :class="[
-                  'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium',
+                  'inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider',
                   transaction.paymentStatus === 'PAID' ? 'bg-success/10 text-success' :
                   transaction.paymentStatus === 'FAILED' ? 'bg-error/10 text-error' :
                   transaction.paymentStatus === 'REFUNDED' ? 'bg-warning/10 text-warning' :
@@ -167,11 +234,11 @@
     <div class="flex justify-end gap-3 mt-8">
       <button
         @click="saveSettings"
-        :disabled="saving"
-        class="px-6 py-2.5 bg-primary text-white rounded-lg font-body text-sm hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+        :disabled="isSubmitting"
+        class="px-10 py-3 bg-stone-900 text-white rounded-lg font-label uppercase tracking-widest text-[11px] font-bold hover:bg-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3 shadow-xl shadow-stone-950/20"
       >
-        <span v-if="saving" class="material-symbols-outlined text-sm animate-spin">progress_activity</span>
-        {{ saving ? 'Saving...' : 'Save Changes' }}
+        <span v-if="isSubmitting" class="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+        {{ isSubmitting ? 'Finalizing...' : 'Save Configuration' }}
       </button>
     </div>
   </div>
@@ -184,7 +251,6 @@ definePageMeta({
   permission: 'MANAGE_SETTINGS'
 })
 
-const auth = useAuth()
 const isSubmitting = ref(false)
 const { toast } = useNotifications()
 
@@ -193,44 +259,49 @@ const settings = ref({
   isStripeEnabled: false,
   stripePublicKey: '',
   stripeSecretKey: '',
+  isPaymobEnabled: false,
+  paymobApiKey: '',
+  paymobIntegrationId: '',
+  paymobIframeId: '',
+  paymobHmacSecret: '',
   isTestMode: true,
   currency: 'EGP'
 })
 
-const { data: fetchedSettings, pending, refresh } = await useApiFetch('/api/admin/settings', {
+const { data: fetchedSettings, pending, refresh } = await useApiFetch<any>('/api/admin/settings', {
   default: () => null
 })
 
-const { data: orders, pending: ordersPending } = await useApiFetch('/api/admin/orders', {
-  default: () => []
+const { data: ordersData } = await useApiFetch<any>('/api/admin/orders', {
+  default: () => ({ orders: [] })
 })
 
 watch(() => fetchedSettings.value, (newSettings) => {
-  if (newSettings) {
-    settings.value = { ...settings.value, ...newSettings }
+  if (newSettings?.settings) {
+    settings.value = { ...settings.value, ...newSettings.settings }
   }
 }, { immediate: true })
 
 const transactions = computed(() => {
-  const ordersArray = Array.isArray(orders.value) ? orders.value : []
-  // Filter orders that have payment intent or transaction ID
+  const ordersArray = ordersData.value?.orders || []
   return ordersArray
-    .filter(o => o.paymentIntentId || o.transactionId)
+    .filter((o: any) => o.paymentIntentId || o.transactionId)
     .slice(0, 20)
 })
 
 const saveSettings = async () => {
   isSubmitting.value = true
   try {
-    await $apiFetch('/api/settings/payment', {
-      method: 'POST',
+    await $apiFetch('/api/admin/settings', {
+      method: 'PATCH',
       body: settings.value
     })
     
-    toast.success('Payment settings saved successfully', 'Saved')
+    toast.success('Payment configuration updated successfully', 'Success')
+    refresh()
   } catch (error) {
-    console.error('Failed to save settings:', error)
-    toast.error('Failed to save payment settings', 'Error')
+    console.error('[Payment Settings Error]:', error)
+    toast.error('Failed to update payment configuration', 'Configuration Error')
   } finally {
     isSubmitting.value = false
   }

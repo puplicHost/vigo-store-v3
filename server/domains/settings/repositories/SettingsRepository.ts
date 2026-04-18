@@ -45,11 +45,19 @@ export class SettingsRepository {
     if (data.instagramUrl !== undefined) prismaData.instagramUrl = data.instagramUrl || null
     if (data.linkedinUrl !== undefined) prismaData.linkedinUrl = data.linkedinUrl || null
     if (data.stripePublicKey !== undefined) prismaData.stripePublicKey = data.stripePublicKey || null
+    if (data.isCodEnabled !== undefined) prismaData.isCodEnabled = Boolean(data.isCodEnabled)
+    if (data.isStripeEnabled !== undefined) prismaData.isStripeEnabled = Boolean(data.isStripeEnabled)
+    if (data.isPaymobEnabled !== undefined) prismaData.isPaymobEnabled = Boolean(data.isPaymobEnabled)
+    if (data.paymobApiKey !== undefined) prismaData.paymobApiKey = data.paymobApiKey || null
+    if (data.paymobIntegrationId !== undefined) prismaData.paymobIntegrationId = data.paymobIntegrationId || null
+    if (data.paymobIframeId !== undefined) prismaData.paymobIframeId = data.paymobIframeId || null
+    if (data.paymobHmacSecret !== undefined) prismaData.paymobHmacSecret = data.paymobHmacSecret || null
 
     const settings = await prisma.settings.upsert({
-      where: { id: 1 },
+      where: { id: 'settings_default' }, // using a fixed ID for singleton
       update: prismaData,
       create: {
+        id: 'settings_default',
         ...this.getDefaultPrismaSettings(),
         ...prismaData
       }
@@ -65,7 +73,7 @@ export class SettingsRepository {
     return {
       shippingFee: 0,
       freeShippingThreshold: 0,
-      currency: 'USD',
+      currency: 'EGP',
       contactEmail: '',
       contactPhone: null,
       contactAddress: null,
@@ -80,6 +88,9 @@ export class SettingsRepository {
       instagramUrl: null,
       linkedinUrl: null,
       stripePublicKey: null,
+      isCodEnabled: true,
+      isStripeEnabled: false,
+      isPaymobEnabled: false,
       updatedAt: new Date().toISOString()
     }
   }
@@ -91,7 +102,7 @@ export class SettingsRepository {
     return {
       shippingFee: 0,
       freeShippingThreshold: 0,
-      currency: 'USD',
+      currency: 'EGP',
       contactEmail: '',
       contactPhone: null,
       contactAddress: null,
@@ -105,7 +116,10 @@ export class SettingsRepository {
       twitterUrl: null,
       instagramUrl: null,
       linkedinUrl: null,
-      stripePublicKey: null
+      stripePublicKey: null,
+      isCodEnabled: true,
+      isStripeEnabled: false,
+      isPaymobEnabled: false
     }
   }
 
@@ -131,6 +145,13 @@ export class SettingsRepository {
       instagramUrl: settings.instagramUrl,
       linkedinUrl: settings.linkedinUrl,
       stripePublicKey: settings.stripePublicKey,
+      isCodEnabled: settings.isCodEnabled,
+      isStripeEnabled: settings.isStripeEnabled,
+      isPaymobEnabled: settings.isPaymobEnabled,
+      paymobApiKey: settings.paymobApiKey,
+      paymobIntegrationId: settings.paymobIntegrationId,
+      paymobIframeId: settings.paymobIframeId,
+      paymobHmacSecret: settings.paymobHmacSecret,
       updatedAt: settings.updatedAt.toISOString()
     }
   }

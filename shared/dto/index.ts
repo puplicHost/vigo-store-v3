@@ -169,5 +169,12 @@ export interface SettingsDTO {
   instagramUrl: string | null
   linkedinUrl: string | null
   stripePublicKey: string | null
+  isCodEnabled: boolean
+  isStripeEnabled: boolean
+  isPaymobEnabled: boolean
+  paymobApiKey?: string | null
+  paymobIntegrationId?: string | null
+  paymobIframeId?: string | null
+  paymobHmacSecret?: string | null
   updatedAt: string
 }

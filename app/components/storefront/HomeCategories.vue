@@ -35,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-const { data: categories } = await useApiFetch<any[]>('/api/admin/categories')
+const { data: categories } = await useApiFetch<any[]>('/api/categories')
 
 const displayCategories = computed(() => {
   return categories.value?.slice(0, 3) || []

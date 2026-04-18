@@ -27,7 +27,7 @@ const handleLogin = async () => {
   loading.value = true
   
   try {
-    const data = await $fetch<LoginResponse>('/api/auth/login', {
+    const data = await $apiFetch<LoginResponse>('/api/auth/login', {
       method: 'POST',
       body: {
         email: email.value,

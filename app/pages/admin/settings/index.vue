@@ -222,7 +222,7 @@
               </label>
             </div>
 
-            <div class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg">
+            <div class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg mt-6">
               <div>
                 <div class="font-medium text-on-surface font-body">Card Payments (Stripe)</div>
                 <div class="text-sm text-on-surface-variant">Accept credit/debit cards via Stripe</div>
@@ -273,6 +273,63 @@
                 </label>
               </div>
             </div>
+
+            <div class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg mt-6">
+              <div>
+                <div class="font-medium text-on-surface font-body">Card Settings (Paymob)</div>
+                <div class="text-sm text-on-surface-variant">Accept payments locally via Paymob</div>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input
+                  v-model="settings.isPaymobEnabled"
+                  type="checkbox"
+                  class="sr-only peer"
+                />
+                <div class="w-14 h-8 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary"></div>
+              </label>
+            </div>
+
+            <div v-if="settings.isPaymobEnabled" class="space-y-4 p-4 bg-surface-container-low rounded-lg">
+              <div>
+                <label class="block text-sm font-body text-on-surface-variant mb-1">Paymob API Key</label>
+                <input
+                  v-model="settings.paymobApiKey"
+                  type="password"
+                  class="w-full border border-outline-variant/20 rounded-lg px-4 py-2.5 text-sm font-body focus:outline-none focus:border-primary/50"
+                  placeholder="ZXlK..."
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-body text-on-surface-variant mb-1">Paymob HMAC</label>
+                <input
+                  v-model="settings.paymobHmac"
+                  type="password"
+                  class="w-full border border-outline-variant/20 rounded-lg px-4 py-2.5 text-sm font-body focus:outline-none focus:border-primary/50"
+                  placeholder="Enter HMAC Secret"
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-body text-on-surface-variant mb-1">Integration ID (Card)</label>
+                <input
+                  v-model="settings.paymobIntegrationId"
+                  type="text"
+                  class="w-full border border-outline-variant/20 rounded-lg px-4 py-2.5 text-sm font-body focus:outline-none focus:border-primary/50"
+                  placeholder="Ex: 4543212"
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-body text-on-surface-variant mb-1">Iframe ID</label>
+                <input
+                  v-model="settings.paymobIframeId"
+                  type="text"
+                  class="w-full border border-outline-variant/20 rounded-lg px-4 py-2.5 text-sm font-body focus:outline-none focus:border-primary/50"
+                  placeholder="Ex: 853232"
+                />
+              </div>
+            </div>
           </div>
 
           <!-- Save Button -->
@@ -318,6 +375,18 @@ const tabs = [
   { id: 'social', label: 'Social Media' },
   { id: 'payment', label: 'Payment' }
 ]
+
+// Fetch full admin settings including secure keys
+onMounted(async () => {
+  try {
+    const response = await $apiFetch<any>('/api/admin/settings')
+    if (response?.settings) {
+      Object.assign(settings.value, response.settings)
+    }
+  } catch (err) {
+    console.error('Failed to load full admin settings:', err)
+  }
+})
 
 const saveSettings = async () => {
   saving.value = true

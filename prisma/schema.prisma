@@ -41,6 +41,7 @@ enum Permission {
 // 3. نظام حالات الطلب
 enum OrderStatus {
   PENDING
+  PROCESSING
   PAID
   SHIPPED
   DELIVERED
@@ -124,6 +125,8 @@ model Order {
   totalAmount     Float
   status          OrderStatus   @default(PENDING)
   paymentStatus   PaymentStatus @default(PENDING)
+  paymentMethod   String        @default("COD")
+  shippingAddress String?
   paymentIntentId String?       @unique
   transactionId   String?
   createdAt       DateTime      @default(now())
@@ -172,12 +175,21 @@ model Settings {
   facebookUrl       String?
   instagramUrl      String?
   twitterUrl        String?
+  linkedinUrl       String?
   
   // Payment Configuration
   isCodEnabled      Boolean  @default(true)
   isStripeEnabled   Boolean  @default(false)
   stripePublicKey   String?
   stripeSecretKey   String?
+  
+  // Paymob Configuration (Egypt Card Payments)
+  isPaymobEnabled   Boolean  @default(false)
+  paymobApiKey      String?
+  paymobIntegrationId String?
+  paymobIframeId    String?
+  paymobHmacSecret  String?
+  
   isTestMode        Boolean  @default(true)
   
   createdAt         DateTime @default(now())

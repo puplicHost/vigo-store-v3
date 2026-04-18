@@ -21,6 +21,7 @@ export default defineEventHandler(async (event) => {
       settings = await prisma.settings.create({
         data: {
           shippingFee: body.shippingFee ?? 0,
+          freeShippingThreshold: body.freeShippingThreshold ?? 0,
           currency: body.currency ?? 'EGP',
           contactEmail: body.contactEmail,
           contactPhone: body.contactPhone,
@@ -33,7 +34,18 @@ export default defineEventHandler(async (event) => {
           siteKeywords: body.siteKeywords,
           facebookUrl: body.facebookUrl,
           instagramUrl: body.instagramUrl,
-          twitterUrl: body.twitterUrl
+          twitterUrl: body.twitterUrl,
+          linkedinUrl: body.linkedinUrl,
+          isCodEnabled: body.isCodEnabled ?? true,
+          isStripeEnabled: body.isStripeEnabled ?? false,
+          stripePublicKey: body.stripePublicKey,
+          stripeSecretKey: body.stripeSecretKey,
+          isTestMode: body.isTestMode ?? false,
+          isPaymobEnabled: body.isPaymobEnabled ?? false,
+          paymobApiKey: body.paymobApiKey,
+          paymobHmac: body.paymobHmac,
+          paymobIntegrationId: body.paymobIntegrationId,
+          paymobIframeId: body.paymobIframeId
         }
       })
     } else {
@@ -42,6 +54,7 @@ export default defineEventHandler(async (event) => {
         where: { id: settings.id },
         data: {
           ...(body.shippingFee !== undefined && { shippingFee: body.shippingFee }),
+          ...(body.freeShippingThreshold !== undefined && { freeShippingThreshold: body.freeShippingThreshold }),
           ...(body.currency !== undefined && { currency: body.currency }),
           ...(body.contactEmail !== undefined && { contactEmail: body.contactEmail }),
           ...(body.contactPhone !== undefined && { contactPhone: body.contactPhone }),
@@ -54,7 +67,18 @@ export default defineEventHandler(async (event) => {
           ...(body.siteKeywords !== undefined && { siteKeywords: body.siteKeywords }),
           ...(body.facebookUrl !== undefined && { facebookUrl: body.facebookUrl }),
           ...(body.instagramUrl !== undefined && { instagramUrl: body.instagramUrl }),
-          ...(body.twitterUrl !== undefined && { twitterUrl: body.twitterUrl })
+          ...(body.twitterUrl !== undefined && { twitterUrl: body.twitterUrl }),
+          ...(body.linkedinUrl !== undefined && { linkedinUrl: body.linkedinUrl }),
+          ...(body.isCodEnabled !== undefined && { isCodEnabled: body.isCodEnabled }),
+          ...(body.isStripeEnabled !== undefined && { isStripeEnabled: body.isStripeEnabled }),
+          ...(body.stripePublicKey !== undefined && { stripePublicKey: body.stripePublicKey }),
+          ...(body.stripeSecretKey !== undefined && { stripeSecretKey: body.stripeSecretKey }),
+          ...(body.isTestMode !== undefined && { isTestMode: body.isTestMode }),
+          ...(body.isPaymobEnabled !== undefined && { isPaymobEnabled: body.isPaymobEnabled }),
+          ...(body.paymobApiKey !== undefined && { paymobApiKey: body.paymobApiKey }),
+          ...(body.paymobHmac !== undefined && { paymobHmac: body.paymobHmac }),
+          ...(body.paymobIntegrationId !== undefined && { paymobIntegrationId: body.paymobIntegrationId }),
+          ...(body.paymobIframeId !== undefined && { paymobIframeId: body.paymobIframeId })
         }
       })
     }

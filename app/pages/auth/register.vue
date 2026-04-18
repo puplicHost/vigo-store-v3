@@ -37,7 +37,7 @@ const handleRegister = async () => {
   loading.value = true
   
   try {
-    const data = await $fetch<RegisterResponse>('/api/auth/register', {
+    const data = await $apiFetch<RegisterResponse>('/api/auth/register', {
       method: 'POST',
       body: {
         name: name.value,

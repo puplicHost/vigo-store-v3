@@ -32,15 +32,30 @@
                 </div>
               </label>
 
-              <!-- Visa / Card Payment -->
-              <label :class="['relative flex flex-col items-center gap-4 p-8 rounded-2xl cursor-pointer border-2 transition-all duration-300', paymentMethod === 'stripe' ? 'border-primary bg-primary/5 shadow-lg shadow-primary/10' : 'border-outline-variant/20 bg-surface-container-low hover:border-primary/30']">
-                <input v-model="paymentMethod" value="stripe" class="sr-only" name="payment" type="radio"/>
-                <div :class="['w-16 h-16 rounded-2xl flex items-center justify-center transition-colors', paymentMethod === 'stripe' ? 'bg-primary/10' : 'bg-surface-container']">
-                  <span class="material-symbols-outlined text-3xl" :class="paymentMethod === 'stripe' ? 'text-primary' : 'text-secondary'">credit_card</span>
+              <!-- Paymob (Egypt Card Payment) -->
+              <label :class="['relative flex flex-col items-center gap-4 p-8 rounded-2xl cursor-pointer border-2 transition-all duration-300', paymentMethod === 'paymob' ? 'border-primary bg-primary/5 shadow-lg shadow-primary/10' : 'border-outline-variant/20 bg-surface-container-low hover:border-primary/30']">
+                <input v-model="paymentMethod" value="paymob" class="sr-only" name="payment" type="radio"/>
+                <div :class="['w-16 h-16 rounded-2xl flex items-center justify-center transition-colors', paymentMethod === 'paymob' ? 'bg-primary/10' : 'bg-surface-container']">
+                  <span class="material-symbols-outlined text-3xl" :class="paymentMethod === 'paymob' ? 'text-primary' : 'text-secondary'">account_balance</span>
                 </div>
                 <div class="text-center">
-                  <span class="block text-sm font-bold">Visa / Card</span>
-                  <span class="block text-xs text-secondary mt-1">Pay securely online</span>
+                  <span class="block text-sm font-bold">Credit/Debit Card</span>
+                  <span class="block text-xs text-secondary mt-1">Pay via Paymob (Egypt)</span>
+                </div>
+                <div v-if="paymentMethod === 'paymob'" class="absolute top-3 right-3">
+                  <span class="material-symbols-outlined text-primary text-xl">check_circle</span>
+                </div>
+              </label>
+
+              <!-- Stripe (Global) -->
+              <label v-if="settings?.isStripeEnabled" :class="['relative flex flex-col items-center gap-4 p-8 rounded-2xl cursor-pointer border-2 transition-all duration-300', paymentMethod === 'stripe' ? 'border-primary bg-primary/5 shadow-lg shadow-primary/10' : 'border-outline-variant/20 bg-surface-container-low hover:border-primary/30']">
+                <input v-model="paymentMethod" value="stripe" class="sr-only" name="payment" type="radio"/>
+                <div :class="['w-16 h-16 rounded-2xl flex items-center justify-center transition-colors', paymentMethod === 'stripe' ? 'bg-primary/10' : 'bg-surface-container']">
+                  <span class="material-symbols-outlined text-3xl" :class="paymentMethod === 'stripe' ? 'text-primary' : 'text-secondary'">public</span>
+                </div>
+                <div class="text-center">
+                  <span class="block text-sm font-bold">Global Card</span>
+                  <span class="block text-xs text-secondary mt-1">Accept international cards</span>
                 </div>
                 <div v-if="paymentMethod === 'stripe'" class="absolute top-3 right-3">
                   <span class="material-symbols-outlined text-primary text-xl">check_circle</span>
@@ -156,9 +171,14 @@
               <span class="material-symbols-outlined text-base">arrow_back</span>
               Return to Shop
             </NuxtLink>
-            <button @click="proceedToPayment" class="checkout-gradient text-on-primary px-10 py-4 rounded-xl text-sm font-bold uppercase tracking-widest hover:opacity-90 transition-all shadow-lg flex items-center gap-3">
-              <span class="material-symbols-outlined text-lg">{{ paymentMethod === 'cod' ? 'local_shipping' : 'lock' }}</span>
-              {{ paymentMethod === 'cod' ? 'Place Order' : 'Pay Now' }}
+            <button 
+              @click="proceedToPayment" 
+              :disabled="isProcessing"
+              class="checkout-gradient text-on-primary px-10 py-4 rounded-xl text-sm font-bold uppercase tracking-widest hover:opacity-90 transition-all shadow-lg flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span v-if="isProcessing" class="material-symbols-outlined text-lg animate-spin">progress_activity</span>
+              <span v-else class="material-symbols-outlined text-lg">{{ paymentMethod === 'cod' ? 'local_shipping' : 'lock' }}</span>
+              {{ isProcessing ? 'Processing...' : (paymentMethod === 'cod' ? 'Place Order' : 'Pay Now') }}
             </button>
           </div>
         </div>
@@ -245,7 +265,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const { isAuthenticated, user } = useAuth()
 const { settings } = useSettings()
 const { toast } = useNotifications()
@@ -311,51 +331,33 @@ const total = computed(() => {
 })
 
 
+const isProcessing = ref(false)
+
 const proceedToPayment = () => {
   // Validate shipping form
   if (!shipping.value.firstName || !shipping.value.lastName || !shipping.value.address || !shipping.value.city || !shipping.value.phone) {
-    toast.warning('Please complete all shipping information.')
+    toast.warning('Please complete all shipping information.', 'Incomplete Form')
     return
-  }
-
-  // Validate payment method selection
-  if (!paymentMethod.value) {
-    toast.warning('Please select a payment method')
-    return
-  }
-
-  // Validate card details if Visa is selected
-  if (paymentMethod.value === 'stripe') {
-    if (!cardDetails.value.name || !cardDetails.value.number || !cardDetails.value.expiry || !cardDetails.value.cvv) {
-      toast.warning('Please fill in all card details.')
-      return
-    }
-    if (cardDetails.value.number.replace(/\s/g, '').length < 16) {
-      toast.warning('Please enter a valid card number.')
-      return
-    }
-    if (cardDetails.value.cvv.length < 3) {
-      toast.warning('Please enter a valid CVV.')
-      return
-    }
   }
 
   // Validate cart
   if (!cartItems.value.length) {
-    toast.warning('Your shopping bag is empty.')
+    toast.warning('Your shopping bag is empty.', 'Empty Cart')
     return
   }
 
   // Process payment based on selected method
   if (paymentMethod.value === 'cod') {
     createOrder('PENDING')
+  } else if (paymentMethod.value === 'paymob') {
+    createOrder('PENDING') // Server will return payment URL
   } else if (paymentMethod.value === 'stripe') {
-    // For now, create order with card payment status
     createOrder('PAID')
   }
 }
 
 const createOrder = async (paymentStatus) => {
+  isProcessing.value = true
   try {
     const orderData = {
       items: cartItems.value.map(item => ({
@@ -377,16 +379,25 @@ const createOrder = async (paymentStatus) => {
       paymentStatus
     }
 
-    const response = await $apiFetch('/api/orders', {
+    const response = await $apiFetch<any>('/api/orders', {
       method: 'POST',
       body: orderData
     })
 
-    toast.success('Your order has been placed successfully!')
+    if (response?.paymentUrl) {
+      // Redirect to Paymob Iframe
+      window.location.href = response.paymentUrl
+      return
+    }
+
+    toast.success('Your order has been placed successfully!', 'Order Success')
     clearCart()
     navigateTo('/', { replace: true })
-  } catch (error) {
-    toast.error(error.message || 'Failed to place order')
+  } catch (error: any) {
+    console.error('[Checkout Error]:', error)
+    toast.error(error.data?.statusMessage || 'Failed to place order', 'Payment Error')
+  } finally {
+    isProcessing.value = false
   }
 }
 </script>

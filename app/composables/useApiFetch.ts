@@ -76,7 +76,7 @@ export const useApiFetch = (url: string | (() => string), options: any = {}) => 
  * $fetch wrapper for mutations (POST, PATCH, DELETE)
  * Automatically includes JWT token and standardized error handling
  */
-export const $apiFetch = async (url: string, options: any = {}) => {
+export const $apiFetch = async <T = any>(url: string, options: any = {}): Promise<T> => {
   const { token } = useAuth()
 
   const headers: Record<string, string> = {
@@ -97,7 +97,7 @@ export const $apiFetch = async (url: string, options: any = {}) => {
   }
 
   try {
-    return await $fetch(url, {
+    return await $fetch<T>(url, {
       ...options,
       headers
     })
