@@ -10,14 +10,14 @@
     <!-- Sidebar -->
     <aside 
       :class="[
-        'fixed lg:relative z-50 lg:z-auto bg-surface-container-lowest border-r border-outline-variant flex flex-col transition-all duration-300 ease-in-out',
+        'fixed lg:relative z-50 lg:z-auto bg-surface-container-lowest/80 backdrop-blur-2xl border-r border-outline-variant/30 flex flex-col transition-all duration-300 ease-in-out shadow-[4px_0_24px_rgba(0,0,0,0.02)] dark:shadow-[4px_0_24px_rgba(0,0,0,0.2)]',
         'lg:w-64',
         isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
       ]"
     >
       <!-- Logo -->
       <div class="p-8 border-b border-outline-variant/10 flex items-center justify-between">
-        <h1 class="font-serif italic text-2xl tracking-[0.15em] text-on-surface">
+        <h1 class="font-serif italic text-2xl tracking-[0.15em] text-on-surface bg-gradient-to-r from-primary to-primary-container bg-clip-text text-transparent">
           {{ settings?.siteName || 'THE ATELIER' }}
         </h1>
         <!-- Close button for mobile -->
@@ -80,7 +80,7 @@
     <!-- Main Content -->
     <div class="flex-1 flex flex-col lg:ml-0">
       <!-- Top Bar -->
-      <header class="h-16 bg-surface-container-lowest border-b border-outline-variant flex items-center justify-between px-4 lg:px-8 transition-colors duration-300">
+      <header class="h-16 glass-surface border-b border-outline-variant/30 flex items-center justify-between px-4 lg:px-8 transition-colors duration-300 sticky top-0 z-40 shadow-[0_4px_24px_rgba(0,0,0,0.02)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.2)]">
         <!-- Left: Hamburger + Search -->
         <div class="flex items-center gap-4 flex-1">
           <!-- Hamburger Menu (Mobile only) -->

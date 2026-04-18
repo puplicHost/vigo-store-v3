@@ -1,428 +1,328 @@
 <template>
-  <div>
+  <div class="space-y-6">
     <!-- Header -->
-    <div class="mb-8">
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="font-serif italic text-4xl text-on-surface mb-2">{{ $t('dashboard.title') }}</h1>
-          <p class="text-on-surface-variant/70 text-sm font-body">{{ $t('dashboard.subtitle') }}</p>
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-outline-variant/10 pb-6">
+      <div>
+        <h1 class="font-serif italic text-4xl text-on-surface mb-2">{{ $t('dashboard.title') }}</h1>
+        <p class="text-on-surface-variant/70 text-sm font-body">{{ $t('dashboard.subtitle') }}</p>
+      </div>
+      <div class="flex items-center gap-4">
+        <div class="text-right rtl:text-left hidden md:block">
+          <p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">{{ $t('dashboard.lastUpdated') }}</p>
+          <p class="text-sm font-medium text-on-surface font-body">{{ new Date().toLocaleDateString(locale === 'ar' ? 'ar-EG' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' }) }}</p>
         </div>
-        <div class="flex items-center gap-4">
-          <div class="text-right rtl:text-left">
-            <p class="text-xs text-on-surface-variant font-body">{{ $t('dashboard.lastUpdated') }}</p>
-            <p class="text-sm font-medium text-on-surface font-body">{{ new Date().toLocaleDateString(locale === 'ar' ? 'ar-EG' : 'en-US') }}</p>
-          </div>
-          <button
-            v-if="auth.user.value?.role === 'SUPER_ADMIN'"
-            @click="seedDatabase"
-            :disabled="seeding"
-            class="bg-primary text-on-primary px-4 py-2 rounded-lg font-body text-sm hover:opacity-90 transition-colors flex items-center gap-2 disabled:opacity-50"
-          >
-            <span v-if="seeding" class="material-symbols-outlined text-sm animate-spin">progress_activity</span>
-            <span v-else class="material-symbols-outlined text-sm">database</span>
-            {{ seeding ? $t('dashboard.seeding') : $t('dashboard.seedData') }}
-          </button>
-        </div>
+        <button
+          v-if="auth.user.value?.role === 'SUPER_ADMIN'"
+          @click="seedDatabase"
+          :disabled="seeding"
+          class="btn-gradient text-[#000] dark:text-[#000] px-5 py-2.5 rounded-xl font-label text-[11px] uppercase tracking-widest hover:opacity-90 transition-all shadow-lg shadow-primary/20 flex items-center gap-2 disabled:opacity-50"
+        >
+          <span v-if="seeding" class="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+          <span v-else class="material-symbols-outlined text-sm">database</span>
+          {{ seeding ? $t('dashboard.seeding') : $t('dashboard.seedData') }}
+        </button>
       </div>
     </div>
 
-    <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 animate-stagger">
+    <!-- Quick Links Mini Grid -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 animate-stagger mb-2">
+      <NuxtLink to="/admin" class="flex items-center gap-3 p-3 rounded-xl bg-surface-container-lowest border border-outline-variant/50 hover:border-primary/50 transition-colors group">
+         <div class="w-8 h-8 rounded-lg bg-primary-soft flex items-center justify-center group-hover:scale-110 transition-transform"><span class="material-symbols-outlined text-primary-solid text-sm">inventory_2</span></div>
+         <span class="text-xs font-semibold text-on-surface uppercase tracking-wider">Products</span>
+      </NuxtLink>
+      <NuxtLink to="/admin/categories" class="flex items-center gap-3 p-3 rounded-xl bg-surface-container-lowest border border-outline-variant/50 hover:border-secondary/50 transition-colors group">
+         <div class="w-8 h-8 rounded-lg bg-secondary-soft flex items-center justify-center group-hover:scale-110 transition-transform"><span class="material-symbols-outlined text-secondary-solid text-sm">folder</span></div>
+         <span class="text-xs font-semibold text-on-surface uppercase tracking-wider">Categories</span>
+      </NuxtLink>
+      <NuxtLink to="/admin/users" class="flex items-center gap-3 p-3 rounded-xl bg-surface-container-lowest border border-outline-variant/50 hover:border-info/50 transition-colors group">
+         <div class="w-8 h-8 rounded-lg bg-info-soft flex items-center justify-center group-hover:scale-110 transition-transform"><span class="material-symbols-outlined text-info-solid text-sm">people</span></div>
+         <span class="text-xs font-semibold text-on-surface uppercase tracking-wider">Users</span>
+      </NuxtLink>
+      <NuxtLink to="/admin/settings" class="flex items-center gap-3 p-3 rounded-xl bg-surface-container-lowest border border-outline-variant/50 hover:border-warning/50 transition-colors group">
+         <div class="w-8 h-8 rounded-lg bg-warning-soft flex items-center justify-center group-hover:scale-110 transition-transform"><span class="material-symbols-outlined text-warning-solid text-sm">settings</span></div>
+         <span class="text-xs font-semibold text-on-surface uppercase tracking-wider">Settings</span>
+      </NuxtLink>
+    </div>
+
+    <!-- Main Stats Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 animate-stagger">
       <!-- Products -->
-      <div class="card-premium p-6">
-        <div class="flex items-center justify-between mb-4">
-          <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
-            <span class="material-symbols-outlined text-on-primary text-2xl">inventory_2</span>
+      <div class="card-premium p-5 flex flex-col justify-between min-h-[140px]">
+        <div class="flex items-center justify-between mb-2">
+          <div class="w-10 h-10 rounded-xl bg-primary-soft flex items-center justify-center group-hover:scale-110 transition-transform">
+            <span class="material-symbols-outlined text-primary-solid text-xl">inventory_2</span>
           </div>
-          <span class="text-xs font-semibold text-success bg-success/10 px-3 py-1.5 rounded-full border border-success/20">+12%</span>
+          <span class="text-[10px] font-bold text-success-solid bg-success-soft px-2 py-1 rounded-full border border-success/20">+12%</span>
         </div>
-        <p class="font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant mb-1">{{ $t('dashboard.stats.totalProducts') }}</p>
-        <p class="text-4xl font-bold text-on-surface">{{ stats.products }}</p>
-        <div class="mt-3 h-1.5 bg-surface-container-low rounded-full overflow-hidden">
-          <div class="h-full bg-gradient-to-r from-primary to-primary/60 rounded-full" style="width: 75%"></div>
+        <div>
+          <p class="font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant mb-1">{{ $t('dashboard.stats.totalProducts') }}</p>
+          <p class="text-3xl font-bold text-on-surface font-serif italic">{{ stats.products }}</p>
         </div>
       </div>
 
       <!-- Categories -->
-      <div class="card-premium p-6">
-        <div class="flex items-center justify-between mb-4">
-          <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center shadow-lg shadow-secondary/20 group-hover:scale-110 transition-transform">
-            <span class="material-symbols-outlined text-on-secondary text-2xl">folder</span>
+      <div class="card-premium p-5 flex flex-col justify-between min-h-[140px]">
+        <div class="flex items-center justify-between mb-2">
+          <div class="w-10 h-10 rounded-xl bg-secondary-soft flex items-center justify-center group-hover:scale-110 transition-transform">
+            <span class="material-symbols-outlined text-secondary-solid text-xl">folder</span>
           </div>
         </div>
-        <p class="font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant mb-1">Categories</p>
-        <p class="text-4xl font-bold text-on-surface">{{ stats.categories }}</p>
-        <div class="mt-3 h-1.5 bg-surface-container-low rounded-full overflow-hidden">
-          <div class="h-full bg-gradient-to-r from-secondary to-secondary/60 rounded-full" style="width: 60%"></div>
+        <div>
+           <p class="font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant mb-1">Categories</p>
+           <p class="text-3xl font-bold text-on-surface font-serif italic">{{ stats.categories }}</p>
         </div>
       </div>
 
       <!-- Orders -->
-      <div class="card-premium p-6">
-        <div class="flex items-center justify-between mb-4">
-          <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-warning to-warning/80 flex items-center justify-center shadow-lg shadow-warning/20 group-hover:scale-110 transition-transform">
-            <span class="material-symbols-outlined text-on-warning text-2xl">shopping_bag</span>
+      <div class="card-premium p-5 flex flex-col justify-between min-h-[140px]">
+        <div class="flex items-center justify-between mb-2">
+          <div class="w-10 h-10 rounded-xl bg-warning-soft flex items-center justify-center group-hover:scale-110 transition-transform">
+            <span class="material-symbols-outlined text-warning-solid text-xl">shopping_bag</span>
           </div>
-          <span class="text-xs font-semibold text-success bg-success/10 px-3 py-1.5 rounded-full border border-success/20">+5%</span>
+          <span class="text-[10px] font-bold text-success-solid bg-success-soft px-2 py-1 rounded-full border border-success/20">+5%</span>
         </div>
-        <p class="font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant mb-1">Total Orders</p>
-        <p class="text-4xl font-bold text-on-surface">{{ stats.orders }}</p>
-        <div class="mt-3 h-1.5 bg-surface-container-low rounded-full overflow-hidden">
-          <div class="h-full bg-gradient-to-r from-warning to-warning/60 rounded-full" style="width: 85%"></div>
+        <div>
+          <p class="font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant mb-1">Total Orders</p>
+          <p class="text-3xl font-bold text-on-surface font-serif italic">{{ stats.orders }}</p>
         </div>
       </div>
 
       <!-- Users -->
-      <div class="card-premium p-6">
-        <div class="flex items-center justify-between mb-4">
-          <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-info to-info/80 flex items-center justify-center shadow-lg shadow-info/20 group-hover:scale-110 transition-transform">
-            <span class="material-symbols-outlined text-on-info text-2xl">people</span>
+      <div class="card-premium p-5 flex flex-col justify-between min-h-[140px]">
+        <div class="flex items-center justify-between mb-2">
+          <div class="w-10 h-10 rounded-xl bg-info-soft flex items-center justify-center group-hover:scale-110 transition-transform">
+            <span class="material-symbols-outlined text-info-solid text-xl">people</span>
           </div>
-          <span class="text-xs font-semibold text-success bg-success/10 px-3 py-1.5 rounded-full border border-success/20">+3%</span>
-        </div>
-        <p class="font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant mb-1">Total Users</p>
-        <p class="text-4xl font-bold text-on-surface">{{ stats.users }}</p>
-        <div class="mt-3 h-1.5 bg-surface-container-low rounded-full overflow-hidden">
-          <div class="h-full bg-gradient-to-r from-info to-info/60 rounded-full" style="width: 90%"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Low Stock Alert -->
-    <div v-if="lowStockProducts.length > 0" class="bg-error/5 border border-error/30 rounded-2xl p-6 mb-8 shadow-lg shadow-error/5">
-      <div class="flex items-center gap-4 mb-4">
-        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-error to-error/80 flex items-center justify-center shadow-lg shadow-error/20 animate-pulse">
-          <span class="material-symbols-outlined text-on-error text-2xl">warning</span>
+          <span class="text-[10px] font-bold text-success-solid bg-success-soft px-2 py-1 rounded-full border border-success/20">+3%</span>
         </div>
         <div>
-          <h3 class="font-semibold text-error font-body text-lg">{{ $t('dashboard.alerts.lowStock') }}</h3>
-          <p class="text-sm text-on-surface-variant">{{ lowStockProducts.length }} {{ $t('dashboard.alerts.productsLeft') }}</p>
+           <p class="font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant mb-1">Total Users</p>
+           <p class="text-3xl font-bold text-on-surface font-serif italic">{{ stats.users }}</p>
         </div>
       </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-        <div v-for="product in lowStockProducts.slice(0, 6)" :key="product.id" class="flex items-center justify-between bg-surface-container-lowest rounded-xl p-4 border border-error/10 hover:border-error/30 transition-colors duration-300">
+    </div>
+
+    <!-- Charts Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Revenue Chart (Spans 2 cols) -->
+      <div class="lg:col-span-2 card-premium p-6">
+        <div class="flex items-center justify-between mb-6">
           <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-lg bg-error/10 flex items-center justify-center">
-              <span class="material-symbols-outlined text-error text-lg">inventory_2</span>
+            <div class="w-10 h-10 rounded-xl bg-primary-soft flex items-center justify-center">
+              <span class="material-symbols-outlined text-primary-solid text-xl">show_chart</span>
             </div>
             <div>
-              <p class="text-sm font-semibold text-on-surface">{{ product.name }}</p>
-              <p class="text-xs text-error font-medium">{{ product.stock }} {{ $t('products.units') }}</p>
+              <p class="font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">{{ $t('dashboard.charts.revenueTrend') }}</p>
+              <p class="text-sm font-bold text-on-surface font-serif italic">{{ settings.currency }}{{ stats.revenue.toFixed(2) }}</p>
             </div>
           </div>
-          <NuxtLink :to="`/admin/products/${product.id}/edit`" class="px-3 py-2 bg-error text-on-error rounded-lg text-xs font-semibold hover:opacity-90 transition-opacity">
-            {{ $t('dashboard.alerts.restock') }}
+          <div class="flex gap-2">
+            <button
+              @click="selectedPeriod = 'weekly'"
+              :class="[
+                'px-3 py-1.5 text-xs font-bold uppercase tracking-wider rounded-lg transition-colors',
+                selectedPeriod === 'weekly' ? 'bg-primary/10 text-primary' : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high'
+              ]"
+            >
+              {{ $t('dashboard.charts.weekly') }}
+            </button>
+            <button
+              @click="selectedPeriod = 'monthly'"
+              :class="[
+                'px-3 py-1.5 text-xs font-bold uppercase tracking-wider rounded-lg transition-colors',
+                selectedPeriod === 'monthly' ? 'bg-primary/10 text-primary' : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high'
+              ]"
+            >
+              {{ $t('dashboard.charts.monthly') }}
+            </button>
+          </div>
+        </div>
+        <ClientOnly>
+          <template #fallback>
+            <div class="h-64 flex items-center justify-center">
+              <span class="text-on-surface-variant font-body text-sm">{{ $t('common.loading') }}</span>
+            </div>
+          </template>
+          <div class="h-64">
+            <VueApexCharts
+              type="area"
+              :options="revenueChartOptions"
+              :series="revenueChartSeries"
+              height="256"
+            />
+          </div>
+        </ClientOnly>
+      </div>
+
+      <!-- Orders Chart (Donut) -->
+      <div class="lg:col-span-1 card-premium p-6">
+        <div class="flex items-center justify-between mb-6">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-warning-soft flex items-center justify-center">
+              <span class="material-symbols-outlined text-warning-solid text-xl">pie_chart</span>
+            </div>
+            <div>
+              <p class="font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Orders by Status</p>
+              <p class="text-xs text-on-surface-variant">Current distribution</p>
+            </div>
+          </div>
+        </div>
+        <ClientOnly>
+          <template #fallback>
+            <div class="h-64 flex items-center justify-center">
+              <span class="text-on-surface-variant text-sm">Loading chart...</span>
+            </div>
+          </template>
+          <div class="h-64">
+            <VueApexCharts
+              type="donut"
+              :options="ordersChartOptions"
+              :series="ordersChartSeries"
+              height="256"
+            />
+          </div>
+        </ClientOnly>
+      </div>
+    </div>
+
+    <!-- Bottom Row (Recent Orders & Extra Details) -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- Recent Orders List (Spans 2 cols) -->
+      <div class="lg:col-span-2 card-premium overflow-hidden flex flex-col">
+        <div class="p-6 border-b border-outline-variant/10 flex items-center justify-between bg-surface-container-low/30">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-primary-soft flex items-center justify-center">
+              <span class="material-symbols-outlined text-primary-solid">receipt_long</span>
+            </div>
+            <h2 class="font-serif italic text-xl text-on-surface">{{ $t('dashboard.orders.recent') }}</h2>
+          </div>
+          <NuxtLink to="/admin/orders" class="px-3 py-1.5 border border-primary/20 text-primary rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-primary/5 transition-colors flex items-center gap-2">
+            <span>{{ $t('dashboard.orders.viewAll') }}</span>
           </NuxtLink>
         </div>
-      </div>
-    </div>
-
-    <!-- Revenue Chart -->
-    <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant shadow-lg shadow-primary/5 p-6 mb-8 transition-colors duration-300">
-      <div class="flex items-center justify-between mb-6">
-        <div class="flex items-center gap-4">
-          <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg shadow-primary/20">
-            <span class="material-symbols-outlined text-on-primary text-2xl">show_chart</span>
-          </div>
-          <div>
-            <p class="font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">{{ $t('dashboard.charts.revenueTrend') }}</p>
-            <p class="text-sm text-on-surface-variant">{{ selectedPeriod === 'weekly' ? $t('dashboard.charts.weekly') : $t('dashboard.charts.monthly') }}</p>
-          </div>
-        </div>
-        <div class="flex gap-2">
-          <button
-            @click="selectedPeriod = 'weekly'"
-            :class="[
-              'px-3 py-1.5 text-xs font-medium rounded-lg transition-colors',
-              selectedPeriod === 'weekly' ? 'bg-primary/10 text-primary' : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high'
-            ]"
-          >
-            {{ $t('dashboard.charts.weekly') }}
-          </button>
-          <button
-            @click="selectedPeriod = 'monthly'"
-            :class="[
-              'px-3 py-1.5 text-xs font-medium rounded-lg transition-colors',
-              selectedPeriod === 'monthly' ? 'bg-primary/10 text-primary' : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high'
-            ]"
-          >
-            {{ $t('dashboard.charts.monthly') }}
-          </button>
-        </div>
-      </div>
-      <ClientOnly>
-        <template #fallback>
-          <div class="h-64 flex items-center justify-center">
-            <span class="text-on-surface-variant font-body">{{ $t('common.loading') }}</span>
-          </div>
-        </template>
-        <div class="h-64">
-          <VueApexCharts
-            type="area"
-            :options="revenueChartOptions"
-            :series="revenueChartSeries"
-            height="256"
-          />
-        </div>
-      </ClientOnly>
-    </div>
-
-    <!-- Orders Chart -->
-    <div class="bg-gradient-to-br from-white to-surface-container-low rounded-2xl border border-outline-variant/10 shadow-lg shadow-primary/10 p-6 mb-8">
-      <div class="flex items-center justify-between mb-6">
-        <div class="flex items-center gap-4">
-          <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-warning to-warning/80 flex items-center justify-center shadow-lg shadow-warning/20">
-            <span class="material-symbols-outlined text-white text-2xl">bar_chart</span>
-          </div>
-          <div>
-            <p class="font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Orders by Status</p>
-            <p class="text-sm text-on-surface-variant">Current distribution</p>
-          </div>
-        </div>
-      </div>
-      <ClientOnly>
-        <template #fallback>
-          <div class="h-64 flex items-center justify-center">
-            <span class="text-on-surface-variant">Loading chart...</span>
-          </div>
-        </template>
-        <div class="h-64">
-          <VueApexCharts
-            type="donut"
-            :options="ordersChartOptions"
-            :series="ordersChartSeries"
-            height="256"
-          />
-        </div>
-      </ClientOnly>
-    </div>
-
-    <!-- Revenue & Quick Stats -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-      <!-- Revenue Card -->
-      <div class="bg-gradient-to-br from-success/5 to-success/10 rounded-2xl border border-success/20 p-6 shadow-lg shadow-success/10">
-        <div class="flex items-center justify-between mb-6">
-          <div class="flex items-center gap-4">
-            <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-success to-success/80 flex items-center justify-center shadow-lg shadow-success/20">
-              <span class="material-symbols-outlined text-white text-2xl">payments</span>
-            </div>
-            <div>
-              <p class="font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Total Revenue</p>
-              <p class="text-4xl font-bold text-on-surface">{{ settings.currency }}{{ stats.revenue.toFixed(2) }}</p>
-            </div>
-          </div>
-          <span class="text-xs font-semibold text-success bg-success/10 px-3 py-1.5 rounded-full border border-success/20">+8%</span>
-        </div>
-        <div class="space-y-3">
-          <div class="flex items-center justify-between p-3 bg-surface-container-lowest rounded-lg">
-            <div class="flex items-center gap-2">
-              <div class="w-2 h-2 rounded-full bg-success"></div>
-              <span class="text-sm text-on-surface-variant">Paid Orders</span>
-            </div>
-            <span class="text-sm font-bold text-on-surface">{{ stats.paidOrders }}</span>
-          </div>
-          <div class="flex items-center justify-between p-3 bg-surface-container-lowest rounded-lg">
-            <div class="flex items-center gap-2">
-              <div class="w-2 h-2 rounded-full bg-warning"></div>
-              <span class="text-sm text-on-surface-variant">Pending Orders</span>
-            </div>
-            <span class="text-sm font-bold text-on-surface">{{ stats.pendingOrders }}</span>
-          </div>
-          <div class="flex items-center justify-between p-3 bg-surface-container-lowest rounded-lg">
-            <div class="flex items-center gap-2">
-              <div class="w-2 h-2 rounded-full bg-primary"></div>
-              <span class="text-sm text-on-surface-variant">Average Order Value</span>
-            </div>
-            <span class="text-sm font-bold text-on-surface">{{ settings.currency }}{{ stats.averageOrderValue.toFixed(2) }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- User Distribution -->
-      <div class="bg-gradient-to-br from-primary/5 to-primary/10 rounded-2xl border border-primary/20 p-6 shadow-lg shadow-primary/10">
-        <div class="flex items-center gap-4 mb-6">
-          <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg shadow-primary/20">
-            <span class="material-symbols-outlined text-white text-2xl">pie_chart</span>
-          </div>
-          <div>
-            <p class="font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">User Distribution</p>
-            <p class="text-sm text-on-surface-variant">By Role</p>
-          </div>
-        </div>
-        <div class="space-y-4">
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <div class="flex items-center gap-2">
-                <div class="w-3 h-3 rounded-full bg-primary"></div>
-                <span class="text-sm font-medium text-on-surface">Admins</span>
-              </div>
-              <span class="text-sm font-bold text-on-surface">{{ stats.adminUsers }}</span>
-            </div>
-            <div class="h-2 bg-surface-container-low rounded-full overflow-hidden">
-              <div class="h-full bg-gradient-to-r from-primary to-primary/60 rounded-full" :style="{ width: `${(stats.adminUsers / stats.users) * 100}%` }"></div>
-            </div>
-          </div>
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <div class="flex items-center gap-2">
-                <div class="w-3 h-3 rounded-full bg-success"></div>
-                <span class="text-sm font-medium text-on-surface">Customers</span>
-              </div>
-              <span class="text-sm font-bold text-on-surface">{{ stats.customerUsers }}</span>
-            </div>
-            <div class="h-2 bg-surface-container-low rounded-full overflow-hidden">
-              <div class="h-full bg-gradient-to-r from-success to-success/60 rounded-full" :style="{ width: `${(stats.customerUsers / stats.users) * 100}%` }"></div>
-            </div>
-          </div>
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <div class="flex items-center gap-2">
-                <div class="w-3 h-3 rounded-full bg-warning"></div>
-                <span class="text-sm font-medium text-on-surface">Staff</span>
-              </div>
-              <span class="text-sm font-bold text-on-surface">{{ stats.staffUsers }}</span>
-            </div>
-            <div class="h-2 bg-surface-container-low rounded-full overflow-hidden">
-              <div class="h-full bg-gradient-to-r from-warning to-warning/60 rounded-full" :style="{ width: `${(stats.staffUsers / stats.users) * 100}%` }"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Recent Orders -->
-    <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant shadow-lg shadow-primary/5 overflow-hidden transition-colors duration-300">
-      <div class="p-6 border-b border-outline-variant/10 flex items-center justify-between bg-primary/5">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg shadow-primary/20">
-            <span class="material-symbols-outlined text-on-primary">shopping_bag</span>
-          </div>
-          <h2 class="font-serif italic text-xl text-on-surface">{{ $t('dashboard.orders.recent') }}</h2>
-        </div>
-        <NuxtLink to="/admin/orders" class="px-4 py-2 bg-primary text-on-primary rounded-lg text-xs font-semibold hover:opacity-90 transition-opacity flex items-center gap-2">
-          <span>{{ $t('dashboard.orders.viewAll') }}</span>
-          <span class="material-symbols-outlined text-sm rtl:rotate-180">arrow_forward</span>
-        </NuxtLink>
-      </div>
-      <table class="w-full">
-        <thead class="bg-surface-container-low/50">
-          <tr>
-            <th class="text-left px-6 py-4 font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant rtl:text-right">{{ $t('dashboard.orders.orderId') }}</th>
-            <th class="text-left px-6 py-4 font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant rtl:text-right">{{ $t('dashboard.orders.customer') }}</th>
-            <th class="text-left px-6 py-4 font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant rtl:text-right">{{ $t('dashboard.orders.total') }}</th>
-            <th class="text-left px-6 py-4 font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant rtl:text-right">{{ $t('dashboard.orders.status') }}</th>
-            <th class="text-left px-6 py-4 font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant rtl:text-right">{{ $t('dashboard.orders.payment') }}</th>
-          </tr>
-        </thead>
-          <tbody class="divide-y divide-outline-variant/10">
-            <tr v-if="pending" class="hover:bg-surface-container-low/50 transition-colors">
-              <td colspan="5" class="px-6 py-8 text-center text-on-surface-variant">
-                <span class="material-symbols-outlined text-2xl animate-spin">progress_activity</span>
-              </td>
-            </tr>
-            <tr v-else-if="!recentOrders?.length" class="hover:bg-surface-container-low/50 transition-colors">
-              <td colspan="5" class="px-6 py-8 text-center text-on-surface-variant font-body">
-                No orders yet.
-              </td>
-            </tr>
-            <template v-else>
-              <tr
-                v-for="(order, index) in recentOrders"
-                :key="order.id || index"
-                class="hover:bg-primary/5 transition-colors"
-              >
-                <td class="px-6 py-4 font-mono text-sm text-primary font-medium">
-                  #{{ order.id?.slice(-8).toUpperCase() || 'N/A' }}
-                </td>
-                <td class="px-6 py-4 text-sm text-on-surface font-body">
-                  <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center">
-                      <span class="material-symbols-outlined text-on-surface-variant text-sm">person</span>
-                    </div>
-                    {{ order.user?.name || 'Guest' }}
-                  </div>
-                </td>
-                <td class="px-6 py-4 font-bold text-on-surface font-body">
-                  {{ settings.currency }}{{ order.totalAmount?.toFixed(2) || '0.00' }}
-                </td>
-                <td class="px-6 py-4">
-                  <span :class="[
-                    'inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold border',
-                    order.status === 'DELIVERED' ? 'bg-success/10 text-success border-success/20' :
-                    order.status === 'PAID' ? 'bg-primary/10 text-primary border-primary/20' :
-                    order.status === 'SHIPPED' ? 'bg-warning/10 text-warning border-warning/20' :
-                    order.status === 'CANCELLED' ? 'bg-error/10 text-error border-error/20' :
-                    'bg-surface-container-high text-on-surface-variant border-outline-variant/20'
-                  ]">
-                    {{ order.status || 'UNKNOWN' }}
-                  </span>
-                </td>
-                <td class="px-6 py-4">
-                  <span :class="[
-                    'inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold border',
-                    order.paymentStatus === 'PAID' ? 'bg-success/10 text-success border-success/20' :
-                    order.paymentStatus === 'PENDING' ? 'bg-warning/10 text-warning border-warning/20' :
-                    order.paymentStatus === 'FAILED' ? 'bg-error/10 text-error border-error/20' :
-                    'bg-surface-container-high text-on-surface-variant border-outline-variant/20'
-                  ]">
-                    {{ order.paymentStatus || 'UNKNOWN' }}
-                  </span>
+        <div class="overflow-x-auto scrollbar-custom pb-2">
+          <table class="w-full min-w-[700px] text-left border-collapse">
+            <thead>
+              <tr class="border-b border-outline-variant/10 bg-surface-container-low/30">
+                <th class="px-6 py-3 font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant whitespace-nowrap">{{ $t('dashboard.orders.orderId') }}</th>
+                <th class="px-6 py-3 font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant whitespace-nowrap">{{ $t('dashboard.orders.customer') }}</th>
+                <th class="px-6 py-3 font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant whitespace-nowrap">{{ $t('dashboard.orders.total') }}</th>
+                <th class="px-6 py-3 font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant whitespace-nowrap">{{ $t('dashboard.orders.status') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-if="pending" class="animate-pulse">
+                <td colspan="4" class="px-6 py-8 text-center text-on-surface-variant">
+                  <span class="material-symbols-outlined animate-spin text-2xl mb-2">progress_activity</span>
+                  <p class="text-sm">Loading recent orders...</p>
                 </td>
               </tr>
-            </template>
-          </tbody>
-      </table>
-    </div>
+              <tr v-else-if="!recentOrders?.length" class="hover:bg-surface-container-low/50 transition-colors">
+                <td colspan="4" class="px-6 py-8 text-center text-on-surface-variant font-body">
+                  No orders yet.
+                </td>
+              </tr>
+              <template v-else>
+                <tr
+                  v-for="(order, index) in recentOrders.slice(0, 5)"
+                  :key="order.id || index"
+                  class="hover:bg-primary/5 transition-colors border-b border-outline-variant/5 last:border-0"
+                >
+                  <td class="px-6 py-4 font-mono text-xs text-primary-solid font-medium">
+                    #{{ order.id?.slice(-8).toUpperCase() || 'N/A' }}
+                  </td>
+                  <td class="px-6 py-4 text-sm text-on-surface font-body">
+                    <div class="flex items-center gap-2">
+                      <div class="w-6 h-6 rounded-full bg-surface-container-high flex items-center justify-center">
+                        <span class="material-symbols-outlined text-on-surface-variant text-[10px]">person</span>
+                      </div>
+                      {{ order.user?.name || 'Guest' }}
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 font-bold text-on-surface font-body text-sm">
+                    {{ settings.currency }}{{ order.totalAmount?.toFixed(2) || '0.00' }}
+                  </td>
+                  <td class="px-6 py-4">
+                    <span :class="[
+                      'inline-flex items-center px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider',
+                      order.status === 'DELIVERED' ? 'bg-success-soft text-success-solid' :
+                      order.status === 'PAID' ? 'bg-primary-soft text-primary-solid' :
+                      order.status === 'SHIPPED' ? 'bg-warning-soft text-warning-solid' :
+                      order.status === 'CANCELLED' ? 'bg-error-soft text-error-solid' :
+                      'bg-surface-container-high text-on-surface-variant'
+                    ]">
+                      {{ order.status || 'UNKNOWN' }}
+                    </span>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-    <!-- Quick Links -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
-      <NuxtLink to="/admin" class="bg-gradient-to-br from-white to-primary/5 rounded-2xl border border-primary/10 p-6 shadow-lg shadow-primary/10 hover:shadow-xl hover:shadow-primary/20 transition-all duration-300 group">
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
-            <span class="material-symbols-outlined text-white text-xl">inventory_2</span>
-          </div>
-          <div>
-            <p class="font-semibold text-on-surface font-body">Manage Products</p>
-            <p class="text-xs text-on-surface-variant">Add, edit, or remove products</p>
+      <!-- Right Column -->
+      <div class="lg:col-span-1 space-y-6">
+
+        <!-- Revenue Details Mini Card -->
+        <div class="card-premium p-6">
+          <p class="font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant mb-4">Financial Overview</p>
+          <div class="space-y-4">
+            <div class="flex items-center justify-between p-3 bg-surface-container-low rounded-xl border border-outline-variant/30">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-success-soft flex items-center justify-center">
+                  <span class="material-symbols-outlined text-success-solid text-sm">payments</span>
+                </div>
+                <span class="text-sm font-semibold text-on-surface">Paid Orders</span>
+              </div>
+              <span class="text-sm font-bold text-on-surface">{{ stats.paidOrders }}</span>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-surface-container-low rounded-xl border border-outline-variant/30">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-warning-soft flex items-center justify-center">
+                  <span class="material-symbols-outlined text-warning-solid text-sm">pending_actions</span>
+                </div>
+                <span class="text-sm font-semibold text-on-surface">Pending</span>
+              </div>
+              <span class="text-sm font-bold text-on-surface">{{ stats.pendingOrders }}</span>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-surface-container-low rounded-xl border border-outline-variant/30">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-primary-soft flex items-center justify-center">
+                  <span class="material-symbols-outlined text-primary-solid text-sm">calculate</span>
+                </div>
+                <span class="text-xs font-semibold text-on-surface">Avg Order Value</span>
+              </div>
+              <span class="text-sm font-bold text-on-surface">{{ settings.currency }}{{ stats.averageOrderValue.toFixed(2) }}</span>
+            </div>
           </div>
         </div>
-      </NuxtLink>
 
-      <NuxtLink to="/admin/categories" class="bg-gradient-to-br from-white to-secondary/5 rounded-2xl border border-secondary/10 p-6 shadow-lg shadow-secondary/10 hover:shadow-xl hover:shadow-secondary/20 transition-all duration-300 group">
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center shadow-lg shadow-secondary/20 group-hover:scale-110 transition-transform">
-            <span class="material-symbols-outlined text-white text-xl">folder</span>
+        <!-- Low Stock Alerts -->
+        <div v-if="lowStockProducts.length > 0" class="card-premium p-6 border-error/30 bg-gradient-to-br from-error/5 to-surface-container-lowest">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-8 h-8 rounded-lg bg-error-soft flex items-center justify-center animate-pulse">
+              <span class="material-symbols-outlined text-error-solid text-sm">warning</span>
+            </div>
+            <div>
+              <h3 class="font-bold text-error-solid text-sm">{{ $t('dashboard.alerts.lowStock') }}</h3>
+              <p class="text-[10px] uppercase font-bold tracking-widest text-on-surface-variant">{{ lowStockProducts.length }} {{ $t('dashboard.alerts.productsLeft') }}</p>
+            </div>
           </div>
-          <div>
-            <p class="font-semibold text-on-surface font-body">Manage Categories</p>
-            <p class="text-xs text-on-surface-variant">Organize your catalog</p>
+          <div class="space-y-3 max-h-48 overflow-y-auto scrollbar-custom pr-2">
+            <div v-for="product in lowStockProducts.slice(0, 5)" :key="product.id" class="flex items-center justify-between border-b border-error/10 pb-2 last:border-0 last:pb-0">
+              <div>
+                <p class="text-xs font-semibold text-on-surface truncate max-w-[150px]">{{ product.name }}</p>
+                <p class="text-[10px] text-error font-medium">{{ product.stock }} {{ $t('products.units') }}</p>
+              </div>
+              <NuxtLink :to="`/admin/products/${product.id}/edit`" class="text-[10px] font-bold text-error uppercase hover:underline">
+                {{ $t('dashboard.alerts.restock') }}
+              </NuxtLink>
+            </div>
           </div>
         </div>
-      </NuxtLink>
-
-      <NuxtLink to="/admin/users" class="bg-gradient-to-br from-white to-info/5 rounded-2xl border border-info/10 p-6 shadow-lg shadow-info/10 hover:shadow-xl hover:shadow-info/20 transition-all duration-300 group">
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-info to-info/80 flex items-center justify-center shadow-lg shadow-info/20 group-hover:scale-110 transition-transform">
-            <span class="material-symbols-outlined text-white text-xl">people</span>
-          </div>
-          <div>
-            <p class="font-semibold text-on-surface font-body">Manage Users</p>
-            <p class="text-xs text-on-surface-variant">Admin, staff & customers</p>
-          </div>
-        </div>
-      </NuxtLink>
-
-      <NuxtLink to="/admin/settings" class="bg-gradient-to-br from-white to-warning/5 rounded-2xl border border-warning/10 p-6 shadow-lg shadow-warning/10 hover:shadow-xl hover:shadow-warning/20 transition-all duration-300 group">
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-warning to-warning/80 flex items-center justify-center shadow-lg shadow-warning/20 group-hover:scale-110 transition-transform">
-            <span class="material-symbols-outlined text-white text-xl">settings</span>
-          </div>
-          <div>
-            <p class="font-semibold text-on-surface font-body">Store Settings</p>
-            <p class="text-xs text-on-surface-variant">Configure your store</p>
-          </div>
-        </div>
-      </NuxtLink>
+      </div>
     </div>
   </div>
 </template>
