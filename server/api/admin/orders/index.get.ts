@@ -42,9 +42,11 @@ export default defineEventHandler(async (event) => {
     ])
 
     return {
+      success: true,
       items: orders,
       total,
       page,
+      limit,
       totalPages: Math.ceil(total / limit)
     }
   } catch (error: any) {

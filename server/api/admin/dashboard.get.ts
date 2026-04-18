@@ -14,7 +14,10 @@ export default defineEventHandler(async (event) => {
     // Get dashboard data using service
     const dashboardData = await adminDashboardService.getDashboardData()
 
-    return dashboardData
+    return {
+      success: true,
+      data: dashboardData
+    }
   } catch (error: any) {
     // Pass through known errors
     if (error.statusCode === 401 || error.statusCode === 403) {

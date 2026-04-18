@@ -1,6 +1,8 @@
 import prisma from '../../../utils/prisma'
 import { requireAdmin } from '../../../utils/admin'
 import { logger } from '../../../utils/logger'
+import { adminDashboardService } from '../../../domains/admin/services/AdminDashboardService'
+import { productsService } from '../../../domains/catalog/services/ProductsService'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -12,6 +14,8 @@ export default defineEventHandler(async (event) => {
     const query = getQuery(event)
     const permanent = query.permanent === 'true'
 
+    console.log('Deleting product in API:', id, 'permanent:', permanent)
+
     if (!id) {
       throw createError({
         statusCode: 400,
@@ -19,29 +23,39 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Check if product exists
-    const product = await prisma.product.findUnique({
-      where: { id }
-    })
-
-    if (!product) {
-      throw createError({
-        statusCode: 404,
-        statusMessage: 'Product not found'
-      })
-    }
-
     if (permanent) {
-      // Hard delete from database
-      await prisma.product.delete({
+      // Idempotent hard delete: duplicate requests should not fail with 404
+      const result = await prisma.product.deleteMany({
         where: { id }
       })
-      logger.audit(event.context.user.userId, 'PERMANENT_DELETE_PRODUCT', id)
+      const alreadyDeleted = result.count === 0
+      logger.audit(event.context.user.userId, 'PERMANENT_DELETE_PRODUCT', id, {
+        alreadyDeleted
+      })
+      await adminDashboardService.invalidateCache()
+      await productsService.invalidateProductsCache()
+      await productsService.invalidateProductCache(id)
       return {
         success: true,
-        message: 'Product permanently deleted'
+        message: alreadyDeleted ? 'Product already deleted' : 'Product permanently deleted',
+        alreadyDeleted
       }
     } else {
+      // Check if product exists before archive
+      const product = await prisma.product.findFirst({
+        where: { id },
+        include: {
+          _count: true
+        }
+      })
+
+      if (!product) {
+        throw createError({
+          statusCode: 404,
+          statusMessage: 'Product not found'
+        })
+      }
+
       // Soft delete (archive) the product
       await prisma.product.update({
         where: { id },
@@ -51,7 +65,11 @@ export default defineEventHandler(async (event) => {
           deletedAt: new Date()
         }
       })
+      console.log('Product archived:', id)
       logger.audit(event.context.user.userId, 'ARCHIVE_PRODUCT', id)
+      await adminDashboardService.invalidateCache()
+      await productsService.invalidateProductsCache()
+      await productsService.invalidateProductCache(id)
       return {
         success: true,
         message: 'Product archived successfully'

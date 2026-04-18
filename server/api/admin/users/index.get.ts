@@ -24,33 +24,40 @@ export default defineEventHandler(async (event) => {
       where.role = role
     }
 
-    // Fetch all users with their order count
-    const users = await prisma.user.findMany({
-      where,
-      take: limit,
-      skip,
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        image: true,
-        createdAt: true,
-        _count: {
-          select: {
-            orders: true
+    // Fetch paginated users + accurate total count
+    const [users, total] = await Promise.all([
+      prisma.user.findMany({
+        where,
+        take: limit,
+        skip,
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          image: true,
+          createdAt: true,
+          _count: {
+            select: {
+              orders: true
+            }
           }
+        },
+        orderBy: {
+          createdAt: 'desc'
         }
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    })
+      }),
+      prisma.user.count({ where })
+    ])
 
     return {
       success: true,
+      items: users,
       users,
-      total: users.length
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit)
     }
   } catch (error: any) {
     logger.error('[Users GET Error]', error)

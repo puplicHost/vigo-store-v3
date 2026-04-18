@@ -320,10 +320,10 @@
           </button>
           <button
             @click="deleteProductPermanently"
-            :disabled="deleting"
+            :disabled="deletingProducts[permanentDeleteModal.product?.id] || deleting"
             class="flex-1 bg-error text-white py-3 rounded-lg font-label text-[11px] uppercase tracking-[0.15em] hover:opacity-90 transition-opacity disabled:opacity-50"
           >
-            {{ deleting ? 'Deleting...' : 'Delete Permanently' }}
+            {{ deletingProducts[permanentDeleteModal.product?.id] || deleting ? 'Deleting...' : 'Delete Permanently' }}
           </button>
         </div>
       </div>
@@ -451,6 +451,7 @@ const createProduct = async () => {
 const deleteModal = ref({ show: false, product: null as any })
 const permanentDeleteModal = ref({ show: false, product: null as any })
 const deleting = ref(false)
+const deletingProducts = ref<Record<string, boolean>>({})
 
 const confirmArchive = (product: any) => {
   deleteModal.value = { show: true, product }
@@ -461,18 +462,62 @@ const confirmPermanentDelete = (product: any) => {
 }
 
 const deleteProductPermanently = async () => {
-  if (!permanentDeleteModal.value.product?.id) return
+  const productId = permanentDeleteModal.value.product?.id
+  if (!productId) return
+  
+  // Loading guard to prevent duplicate requests
+  if (deletingProducts.value[productId]) {
+    console.log('Delete already in progress for product:', productId)
+    return
+  }
+  
+  deletingProducts.value[productId] = true
   deleting.value = true
+  
+  console.log('Deleting product:', productId)
+  
   try {
-    await $apiFetch(`/api/admin/products/${permanentDeleteModal.value.product.id}?permanent=true`, {
+    await $apiFetch(`/api/admin/products/${productId}?permanent=true`, {
       method: 'DELETE'
     })
+    console.log('Delete success:', productId)
+    
+    // Remove product from local list immediately
+    if ((productsData.value as any)?.items) {
+      productsData.value = {
+        ...(productsData.value as any),
+        items: (productsData.value as any).items.filter((p: any) => p.id !== productId)
+      }
+    } else if (Array.isArray(productsData.value)) {
+      productsData.value = productsData.value.filter((p: any) => p.id !== productId)
+    }
+    
     toast.success(`Product deleted permanently`)
     permanentDeleteModal.value.show = false
     await refreshProducts()
   } catch (err: any) {
+    console.log('Delete error:', productId, err)
+    
+    // If 404, product was already deleted - remove from local list
+    if (err?.statusCode === 404) {
+      console.log('Product already deleted, removing from local list:', productId)
+      if ((productsData.value as any)?.items) {
+        productsData.value = {
+          ...(productsData.value as any),
+          items: (productsData.value as any).items.filter((p: any) => p.id !== productId)
+        }
+      } else if (Array.isArray(productsData.value)) {
+        productsData.value = productsData.value.filter((p: any) => p.id !== productId)
+      }
+      
+      toast.success('Product deleted permanently')
+      permanentDeleteModal.value.show = false
+      return
+    }
+    
     toast.error(err?.data?.statusMessage || err?.message || 'Failed to delete product')
   } finally {
+    deletingProducts.value[productId] = false
     deleting.value = false
   }
 }

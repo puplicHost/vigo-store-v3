@@ -10,6 +10,7 @@
   },
   "topbar": {
     "search": "بحث...",
+    "viewStore": "زيارة المتجر",
     "notifications": "الإشعارات",
     "markAllRead": "تحديد الكل كمقروء",
     "viewAll": "عرض كل الإشعارات"
@@ -21,6 +22,7 @@
     "active": "نشط",
     "archived": "مؤرشف",
     "allCategories": "كل الأقسام",
+    "selectCategory": "اختر القسم",
     "product": "المنتج",
     "category": "القسم",
     "price": "السعر",

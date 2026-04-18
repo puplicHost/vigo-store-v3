@@ -94,6 +94,7 @@ export class ProductsService {
     search?: string
     categoryId?: string
     isFeatured?: boolean
+    showArchived?: boolean
   }, forceRefresh: boolean = false): Promise<ProductListDTO> {
     const cacheKey = CACHE_KEYS.PRODUCTS_LIST(JSON.stringify(params))
 

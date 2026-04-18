@@ -15,7 +15,8 @@ export default defineEventHandler(async (event) => {
     // Fetch products using service
     const result = await productsService.listProducts({
       page,
-      limit
+      limit,
+      showArchived
     })
 
     // Return standardized format
@@ -24,7 +25,8 @@ export default defineEventHandler(async (event) => {
       items: result.products,
       total: result.total,
       page: result.page,
-      limit: result.limit
+      limit: result.limit,
+      totalPages: Math.ceil(result.total / result.limit)
     }
   } catch (error: any) {
     console.error('[Products Error]:', error)

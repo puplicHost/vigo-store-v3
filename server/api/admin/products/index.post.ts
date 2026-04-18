@@ -1,6 +1,8 @@
 import prisma from '../../../utils/prisma'
 import { requireAdmin, generateSlug } from '../../../utils/admin'
 import { ProductSchema } from '../../../utils/validators'
+import { productsService } from '../../../domains/catalog/services/ProductsService'
+import { adminDashboardService } from '../../../domains/admin/services/AdminDashboardService'
 import { logger } from '../../../utils/logger'
 
 export default defineEventHandler(async (event) => {
@@ -67,29 +69,22 @@ export default defineEventHandler(async (event) => {
     }
 
     // Create product
-    const product = await prisma.product.create({
-      data: {
-        name: name.trim(),
-        slug,
-        description: description || null,
-        price: price,
-        discount: discount || null,
-        stock: stock,
-        categoryId,
-        images: images || [],
-        sizes: sizes || [],
-        colors: colors || [],
-        isFeatured: isFeatured || false
-      },
-      include: {
-        category: {
-          select: {
-            id: true,
-            name: true
-          }
-        }
-      }
-    })
+    const product = await productsService.createProduct({
+      name: name.trim(),
+      slug,
+      description: description || undefined,
+      price: price,
+      discount: discount || undefined,
+      stock: stock,
+      categoryId,
+      images: images || [],
+      sizes: sizes || [],
+      colors: colors || [],
+      isFeatured: isFeatured || false
+    }, event.context.user?.userId || 'system', event.context.user?.role || 'ADMIN', event)
+
+    // Invalidate dashboard cache
+    await adminDashboardService.invalidateCache()
 
     return {
       success: true,

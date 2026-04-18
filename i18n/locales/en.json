@@ -10,6 +10,7 @@
   },
   "topbar": {
     "search": "Search...",
+    "viewStore": "View Store",
     "notifications": "Notifications",
     "markAllRead": "Mark all read",
     "viewAll": "View All Notifications"
@@ -21,6 +22,7 @@
     "active": "Active",
     "archived": "Archived",
     "allCategories": "All Categories",
+    "selectCategory": "Select Category",
     "product": "Product",
     "category": "Category",
     "price": "Price",

@@ -1,6 +1,8 @@
 import prisma from '../../../utils/prisma'
 import { requireAdmin, generateSlug } from '../../../utils/admin'
 import { UpdateProductSchema } from '../../../utils/validators'
+import { productsService } from '../../../domains/catalog/services/ProductsService'
+import { adminDashboardService } from '../../../domains/admin/services/AdminDashboardService'
 import { logger } from '../../../utils/logger'
 
 export default defineEventHandler(async (event) => {
@@ -102,18 +104,16 @@ export default defineEventHandler(async (event) => {
     }
 
     // Update product
-    const product = await prisma.product.update({
-      where: { id },
-      data: updateData,
-      include: {
-        category: {
-          select: {
-            id: true,
-            name: true
-          }
-        }
-      }
-    })
+    const product = await productsService.updateProduct(
+      id,
+      updateData,
+      event.context.user?.userId || 'system',
+      event.context.user?.role || 'ADMIN',
+      event
+    )
+
+    // Invalidate dashboard cache
+    await adminDashboardService.invalidateCache()
 
     return {
       success: true,

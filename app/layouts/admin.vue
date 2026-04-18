@@ -109,6 +109,16 @@
 
         <!-- Right Actions -->
         <div class="flex items-center gap-4">
+          <!-- View Store Button -->
+          <NuxtLink 
+            to="/" 
+            target="_blank"
+            class="hidden md:flex items-center gap-2 px-3 py-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors text-[10px] font-bold uppercase tracking-widest"
+          >
+            <span class="material-symbols-outlined text-lg">storefront</span>
+            {{ $t('topbar.viewStore') }}
+          </NuxtLink>
+
           <!-- Language Toggle -->
           <button 
             @click="toggleLocale" 

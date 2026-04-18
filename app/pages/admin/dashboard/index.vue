@@ -314,16 +314,6 @@
             <th class="text-left px-6 py-4 font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant rtl:text-right">{{ $t('dashboard.orders.payment') }}</th>
           </tr>
         </thead>
-        <ClientOnly>
-          <template #fallback>
-            <tbody class="divide-y divide-outline-variant/10">
-              <tr class="hover:bg-surface-container-low/50 transition-colors">
-                <td colspan="5" class="px-6 py-8 text-center">
-                  <span class="text-on-surface-variant font-body">Loading...</span>
-                </td>
-              </tr>
-            </tbody>
-          </template>
           <tbody class="divide-y divide-outline-variant/10">
             <tr v-if="pending" class="hover:bg-surface-container-low/50 transition-colors">
               <td colspan="5" class="px-6 py-8 text-center text-on-surface-variant">
@@ -379,7 +369,6 @@
               </td>
             </tr>
           </tbody>
-        </ClientOnly>
       </table>
     </div>
 

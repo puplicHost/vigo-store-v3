@@ -26,16 +26,6 @@
             <th class="text-right px-6 py-4 font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant rtl:text-left">{{ $t('products.actions') }}</th>
           </tr>
         </thead>
-        <ClientOnly>
-          <template #fallback>
-            <tbody class="divide-y divide-outline-variant/10">
-              <tr class="hover:bg-surface-container-low/50 transition-colors">
-                <td colspan="4" class="px-6 py-12 text-center">
-                  <span class="text-on-surface-variant font-body">Loading...</span>
-                </td>
-              </tr>
-            </tbody>
-          </template>
           <tbody class="divide-y divide-outline-variant/10">
             <tr v-if="pending" class="hover:bg-surface-container-low/50 transition-colors">
               <td colspan="4" class="px-6 py-12 text-center">
@@ -86,7 +76,6 @@
               </td>
             </tr>
           </tbody>
-        </ClientOnly>
       </table>
     </div>
 
@@ -132,9 +121,14 @@
       <div class="bg-surface-container-lowest rounded-2xl shadow-2xl w-full max-w-md p-8 text-center transition-colors duration-300">
         <span class="material-symbols-outlined text-5xl text-error mb-4">warning</span>
         <h2 class="font-serif italic text-2xl text-on-surface mb-2">{{ $t('common.confirm') }}</h2>
-        <p class="text-on-surface-variant mb-6 font-body">
-          {{ $t('common.error') }}? "{{ deleteModal.category?.name }}"
+        <p class="text-on-surface-variant mb-4 font-body">
+          Are you sure you want to delete "{{ deleteModal.category?.name }}"?
         </p>
+        <div v-if="(deleteModal.category?._count?.products || deleteModal.category?.products?.length || 0) > 0" class="mb-6 p-4 bg-error/10 border border-error/20 rounded-lg">
+          <p class="text-error font-bold text-xs uppercase tracking-widest text-center">
+            Warning: This action will permanently delete {{ deleteModal.category?._count?.products || deleteModal.category?.products?.length }} associated product(s).
+          </p>
+        </div>
         <div class="flex gap-3">
           <button
             @click="deleteModal.show = false"
@@ -259,7 +253,7 @@ const updateCategory = async () => {
   updating.value = true
   try {
     await $apiFetch(`/api/admin/categories/${editModal.value.id}`, {
-      method: 'PUT',
+      method: 'PATCH',
       body: { name: editModal.value.name }
     })
     toast.success('Category updated')
@@ -280,7 +274,7 @@ const deleteCategory = async () => {
   if (!deleteModal.value.category?.id) return
   deleting.value = true
   try {
-    await $apiFetch(`/api/admin/categories/${deleteModal.value.category.id}`, {
+    await $apiFetch(`/api/admin/categories/${deleteModal.value.category.id}?force=true`, {
       method: 'DELETE'
     })
     toast.success('Category deleted')

@@ -1,8 +1,9 @@
-import prisma from '../../../utils/prisma'
 import { requireAdmin } from '../../../utils/admin'
+import { catalogService } from '../../../domains/catalog/services/CatalogService'
+import { ErrorMapper } from '../../../shared/error/ErrorMapper'
 
 export default defineEventHandler(async (event) => {
-  try {
+  return await ErrorMapper.withErrorMapping(async () => {
     // Verify admin access
     requireAdmin(event)
 
@@ -10,46 +11,18 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event)
     const { name } = body
 
-    // Validation
-    if (!name || typeof name !== 'string' || name.trim().length === 0) {
-      throw createError({
-        statusCode: 400,
-        statusMessage: 'Category name is required'
-      })
-    }
-
-    const trimmedName = name.trim()
-
-    // Check if category already exists
-    const existing = await prisma.category.findUnique({
-      where: { name: trimmedName }
-    })
-
-    if (existing) {
-      throw createError({
-        statusCode: 400,
-        statusMessage: 'Category with this name already exists'
-      })
-    }
-
-    // Create category
-    const category = await prisma.category.create({
-      data: { name: trimmedName }
-    })
+    // Create category through service
+    const category = await catalogService.createCategory(
+      { name: name ? name.trim() : '' },
+      event.context.user.userId,
+      event.context.user.role, 
+      event
+    )
 
     return {
       success: true,
       message: 'Category created successfully',
       data: category
     }
-  } catch (error: any) {
-    if (error.statusCode) {
-      throw error
-    }
-    console.error('[Category POST Error]', error)
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Failed to create category'
-    })
-  }
+  })
 })

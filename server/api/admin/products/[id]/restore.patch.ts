@@ -1,5 +1,6 @@
 import prisma from '../../../../utils/prisma'
 import { requireAdmin } from '../../../../utils/admin'
+import { adminDashboardService } from '../../../../domains/admin/services/AdminDashboardService'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -36,6 +37,7 @@ export default defineEventHandler(async (event) => {
         deletedAt: null
       }
     })
+    await adminDashboardService.invalidateCache()
 
     return {
       success: true,

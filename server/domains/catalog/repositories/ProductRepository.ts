@@ -56,14 +56,17 @@ export class ProductRepository {
     search?: string
     categoryId?: string
     isFeatured?: boolean
+    showArchived?: boolean
   }): Promise<ProductListDTO> {
-    const { page, limit, search, categoryId, isFeatured } = params
+    const { page, limit, search, categoryId, isFeatured, showArchived } = params
     const skip = (page - 1) * limit
 
-    const where: Record<string, unknown> = {
-      isDeleted: false,
-      isActive: true
-    }
+    const where: Record<string, unknown> = showArchived
+      ? { isDeleted: true }
+      : {
+          isDeleted: false,
+          isActive: true
+        }
 
     if (categoryId) {
       where.categoryId = categoryId
