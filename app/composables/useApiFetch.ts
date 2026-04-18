@@ -24,6 +24,14 @@ export const useApiFetch = (url: string | (() => string), options: any = {}) => 
       h.Authorization = `Bearer ${token.value}`
     }
 
+    // Add CSRF token from cookie
+    if (import.meta.client) {
+      const csrfToken = useCookie('csrf_token').value
+      if (csrfToken) {
+        h['x-csrf-token'] = csrfToken
+      }
+    }
+
     return h
   })
 
@@ -78,6 +86,14 @@ export const $apiFetch = async (url: string, options: any = {}) => {
 
   if (token.value) {
     headers.Authorization = `Bearer ${token.value}`
+  }
+
+  // Add CSRF token from cookie
+  if (import.meta.client) {
+    const csrfToken = useCookie('csrf_token').value
+    if (csrfToken) {
+      headers['x-csrf-token'] = csrfToken
+    }
   }
 
   try {

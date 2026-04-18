@@ -67,7 +67,7 @@
           <!-- Price -->
           <div class="space-y-2">
             <label class="block font-label text-[10px] uppercase tracking-[0.15em] text-on-surface-variant">
-              Price ($) *
+              Price (EGP) *
             </label>
             <input
               v-model="form.price"
@@ -80,6 +80,23 @@
             />
           </div>
 
+          <!-- Discount -->
+          <div class="space-y-2">
+            <label class="block font-label text-[10px] uppercase tracking-[0.15em] text-on-surface-variant">
+              Discount (%)
+            </label>
+            <input
+              v-model="form.discount"
+              type="number"
+              min="0"
+              max="100"
+              class="w-full bg-surface-container-low border border-outline-variant/20 rounded-lg py-3 px-4 text-on-surface font-body focus:outline-none focus:border-primary/50 transition-colors"
+              placeholder="0"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <!-- Stock -->
           <div class="space-y-2">
             <label class="block font-label text-[10px] uppercase tracking-[0.15em] text-on-surface-variant">
@@ -94,23 +111,88 @@
               placeholder="0"
             />
           </div>
+
+          <!-- Category -->
+          <div class="space-y-2">
+            <label class="block font-label text-[10px] uppercase tracking-[0.15em] text-on-surface-variant">
+              Category *
+            </label>
+            <select
+              v-model="form.categoryId"
+              required
+              class="w-full bg-surface-container-low border border-outline-variant/20 rounded-lg py-3 px-4 text-on-surface font-body focus:outline-none focus:border-primary/50 transition-colors appearance-none cursor-pointer"
+            >
+              <option value="">Select a category</option>
+              <option v-for="cat in categories" :key="cat.id" :value="cat.id">
+                {{ cat.name }}
+              </option>
+            </select>
+          </div>
         </div>
 
-        <!-- Category -->
-        <div class="space-y-2">
-          <label class="block font-label text-[10px] uppercase tracking-[0.15em] text-on-surface-variant">
-            Category *
-          </label>
-          <select
-            v-model="form.categoryId"
-            required
-            class="w-full bg-surface-container-low border border-outline-variant/20 rounded-lg py-3 px-4 text-on-surface font-body focus:outline-none focus:border-primary/50 transition-colors appearance-none cursor-pointer"
-          >
-            <option value="">Select a category</option>
-            <option v-for="cat in categories" :key="cat.id" :value="cat.id">
-              {{ cat.name }}
-            </option>
-          </select>
+        <!-- Sizes Selection -->
+        <div class="space-y-4">
+          <label class="block font-label text-[10px] uppercase tracking-[0.15em] text-on-surface-variant">Available Sizes</label>
+          <div class="flex flex-wrap gap-2">
+            <button
+              v-for="size in availableSizes"
+              :key="size"
+              type="button"
+              @click="toggleSize(size)"
+              :class="['px-4 py-2 rounded-lg text-xs font-label uppercase tracking-widest border-2 transition-all duration-200', form.sizes.includes(size) ? 'border-primary bg-primary/10 text-primary font-bold' : 'border-outline-variant/30 text-on-surface-variant hover:border-primary/30']"
+            >
+              {{ size }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Colors Selection -->
+        <div class="space-y-4">
+          <label class="block font-label text-[10px] uppercase tracking-[0.15em] text-on-surface-variant">Available Colors</label>
+          <div class="flex flex-wrap items-center gap-3 mb-3">
+            <div v-for="(color, index) in form.colors" :key="index" class="flex items-center gap-2 bg-surface-container-low rounded-full pl-1 pr-3 py-1 border border-outline-variant/20">
+              <span class="w-6 h-6 rounded-full border border-outline-variant/30" :style="{ backgroundColor: color }"></span>
+              <span class="text-xs font-body text-on-surface">{{ color }}</span>
+              <button type="button" @click="removeColor(index)" class="text-on-surface-variant hover:text-error transition-colors ml-1">
+                <span class="material-symbols-outlined text-sm">close</span>
+              </button>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 max-w-md">
+            <input type="color" v-model="newColorValue" class="w-10 h-10 rounded-lg cursor-pointer border-0 bg-transparent flex-shrink-0"/>
+            <input
+              v-model="newColorName"
+              type="text"
+              placeholder="Color name (e.g. Black)"
+              class="flex-1 bg-surface-container-low border border-outline-variant/20 rounded-lg py-2.5 px-4 focus:outline-none focus:border-primary/50 transition-colors font-body text-sm text-on-surface"
+              @keydown.enter.prevent="addColor"
+            />
+            <button type="button" @click="addColor" class="px-4 py-2.5 rounded-lg bg-primary/10 text-primary font-label text-[11px] uppercase tracking-widest hover:bg-primary/20 transition-colors">
+              Add
+            </button>
+          </div>
+        </div>
+
+        <!-- Visibility & Status -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-surface-container-low/50 rounded-xl border border-outline-variant/10">
+          <div class="flex items-center gap-3">
+            <input
+              v-model="form.isFeatured"
+              type="checkbox"
+              id="isFeatured"
+              class="w-5 h-5 accent-primary"
+            />
+            <label for="isFeatured" class="font-body text-sm text-on-surface cursor-pointer">Featured Product</label>
+          </div>
+          <div class="flex items-center gap-3">
+            <input
+              v-model="form.isActive"
+              type="checkbox"
+              id="isActive"
+              class="w-5 h-5 accent-primary"
+            />
+            <label for="isActive" class="font-body text-sm text-on-surface cursor-pointer">Active / Visible in Store</label>
+          </div>
         </div>
 
         <!-- Images -->
@@ -207,11 +289,37 @@ const form = reactive({
   description: '',
   price: 0,
   stock: 0,
+  discount: 0,
   categoryId: '',
   isActive: true,
   isFeatured: false,
-  images: [] as string[]
+  images: [] as string[],
+  sizes: [] as string[],
+  colors: [] as string[]
 })
+
+const availableSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL']
+const newColorValue = ref('#000000')
+const newColorName = ref('')
+
+const toggleSize = (size: string) => {
+  const idx = form.sizes.indexOf(size)
+  if (idx >= 0) step: form.sizes.splice(idx, 1)
+  else form.sizes.push(size)
+}
+
+const addColor = () => {
+  const colorLabel = newColorName.value.trim() || newColorValue.value
+  if (colorLabel && !form.colors.includes(colorLabel)) {
+    form.colors.push(colorLabel)
+    newColorName.value = ''
+    newColorValue.value = '#000000'
+  }
+}
+
+const removeColor = (index: number) => {
+  form.colors.splice(index, 1)
+}
 
 const saving = ref(false)
 const fileInput = ref<HTMLInputElement | null>(null)
@@ -223,10 +331,13 @@ watch(() => product.value, (p) => {
     form.description = p.description || ''
     form.price = p.price || 0
     form.stock = p.stock || 0
+    form.discount = p.discount || 0
     form.categoryId = p.categoryId || ''
     form.isActive = p.isActive !== false
     form.isFeatured = p.isFeatured || false
     form.images = Array.isArray(p.images) ? [...p.images] : []
+    form.sizes = Array.isArray(p.sizes) ? [...p.sizes] : []
+    form.colors = Array.isArray(p.colors) ? [...p.colors] : []
   }
 }, { immediate: true })
 

@@ -1,28 +1,5 @@
 <template>
   <div class="min-h-screen bg-surface text-on-surface">
-    <!-- TopNavBar -->
-    <header class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl shadow-[0_20px_40px_rgba(28,27,27,0.04)]">
-      <nav class="flex justify-between items-center px-12 py-6 w-full max-w-screen-2xl mx-auto">
-        <NuxtLink to="/" class="text-2xl font-serif italic text-stone-900 tracking-tight">VIGO</NuxtLink>
-        <div class="hidden md:flex items-center gap-10">
-          <NuxtLink to="/" exact-active-class="text-primary border-b border-primary/30 pb-1" class="text-stone-600 hover:text-stone-900 transition-colors font-serif tracking-tight">Home</NuxtLink>
-          <NuxtLink to="/products" active-class="text-primary border-b border-primary/30 pb-1" class="text-stone-600 hover:text-stone-900 transition-colors font-serif tracking-tight">Shop All</NuxtLink>
-          <NuxtLink to="/about" active-class="text-primary border-b border-primary/30 pb-1" class="text-stone-600 hover:text-stone-900 transition-colors font-serif tracking-tight">About Us</NuxtLink>
-        </div>
-        <div class="flex items-center space-x-6">
-          <NuxtLink :to="isAuthenticated ? '/account' : '/auth/login'" class="hover:opacity-80 transition-all duration-300 text-stone-600">
-            <span class="material-symbols-outlined">person</span>
-          </NuxtLink>
-          <NuxtLink v-if="isAuthenticated && ['SUPERADMIN', 'ADMIN', 'MANAGER'].includes(user?.role)" to="/admin" title="Dashboard" class="hover:opacity-80 transition-all duration-300 text-stone-600">
-            <span class="material-symbols-outlined">dashboard</span>
-          </NuxtLink>
-          <NuxtLink v-if="isAuthenticated" to="/cart" class="hover:opacity-80 transition-all duration-300 text-stone-600 relative">
-            <span class="material-symbols-outlined">shopping_bag</span>
-          </NuxtLink>
-        </div>
-      </nav>
-    </header>
-
     <main class="pt-32 pb-20 px-12 max-w-screen-2xl mx-auto">
       <!-- Header Section -->
       <section class="mb-12">
@@ -159,39 +136,6 @@
         </div>
       </div>
     </main>
-
-    <!-- Footer -->
-    <footer class="w-full pt-20 pb-10 bg-stone-100 font-body text-sm leading-relaxed tracking-wide">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-12 px-12 max-w-screen-2xl mx-auto">
-        <div class="col-span-1 md:col-span-1">
-          <span class="font-serif text-xl mb-4 block italic">VIGO ATELIER</span>
-          <p class="text-stone-500 font-body text-sm leading-relaxed tracking-wide mb-6">Redefining modern luxury through artisanal craftsmanship and sustainable innovation.</p>
-        </div>
-        <div class="flex flex-col space-y-3">
-          <h4 class="text-xs font-label uppercase tracking-widest text-stone-900 mb-2">Service</h4>
-          <a class="text-stone-500 font-body text-sm leading-relaxed tracking-wide hover:underline decoration-amber-700/50 underline-offset-4">Shipping & Returns</a>
-          <a class="text-stone-500 font-body text-sm leading-relaxed tracking-wide hover:underline decoration-amber-700/50 underline-offset-4">Privacy Policy</a>
-          <a class="text-stone-500 font-body text-sm leading-relaxed tracking-wide hover:underline decoration-amber-700/50 underline-offset-4">Contact Us</a>
-        </div>
-        <div class="flex flex-col space-y-3">
-          <h4 class="text-xs font-label uppercase tracking-widest text-stone-900 mb-2">About</h4>
-          <a class="text-stone-500 font-body text-sm leading-relaxed tracking-wide hover:underline decoration-amber-700/50 underline-offset-4">Sustainability</a>
-          <a class="text-stone-500 font-body text-sm leading-relaxed tracking-wide hover:underline decoration-amber-700/50 underline-offset-4">Wholesale</a>
-          <a class="text-stone-500 font-body text-sm leading-relaxed tracking-wide hover:underline decoration-amber-700/50 underline-offset-4">Careers</a>
-        </div>
-        <div class="flex flex-col space-y-3">
-          <h4 class="text-xs font-label uppercase tracking-widest text-stone-900 mb-2">Newsletter</h4>
-          <p class="text-xs text-stone-500 mb-4">Subscribe to receive editorial updates and collection launches.</p>
-          <div class="relative">
-            <input class="w-full bg-transparent border-b border-stone-300 py-2 text-sm focus:border-primary transition-all outline-none" placeholder="Email Address" type="email"/>
-            <button class="absolute right-0 bottom-2 text-primary font-label text-xs uppercase tracking-widest">Join</button>
-          </div>
-        </div>
-      </div>
-      <div class="mt-20 px-12 max-w-screen-2xl mx-auto border-t border-stone-200/50 pt-10 text-center">
-        <span class="text-stone-500 font-body text-sm leading-relaxed tracking-wide">© 2024 VIGO ATELIER. ALL RIGHTS RESERVED.</span>
-      </div>
-    </footer>
   </div>
 </template>
 

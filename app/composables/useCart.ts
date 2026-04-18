@@ -11,8 +11,26 @@ export interface CartItem {
 
 export const useCart = () => {
   // Using useState to persist cart state across the client session
+  // We initialize with an empty array. Hydration will happen later.
   const cartItems = useState<CartItem[]>('cart_items', () => []);
   const isCartOpen = useState<boolean>('cart_open', () => false);
+
+  // Load from localStorage on client side only
+  if (import.meta.client) {
+    const savedCart = localStorage.getItem('vigo_cart');
+    if (savedCart && cartItems.value.length === 0) {
+      try {
+        cartItems.value = JSON.parse(savedCart);
+      } catch (e) {
+        console.error('Failed to parse cart from localStorage', e);
+      }
+    }
+
+    // Watch for changes and sync back to localStorage
+    watch(cartItems, (newItems) => {
+      localStorage.setItem('vigo_cart', JSON.stringify(newItems));
+    }, { deep: true });
+  }
 
   const cartTotal = computed(() => {
     return cartItems.value.reduce((total, item) => total + (item.price * item.quantity), 0);

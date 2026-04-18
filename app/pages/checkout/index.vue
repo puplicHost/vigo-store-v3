@@ -1,24 +1,5 @@
 <template>
   <div class="min-h-screen bg-surface text-on-surface">
-    <!-- TopNavBar -->
-    <header class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl shadow-[0_20px_40px_rgba(28,27,27,0.04)]">
-      <div class="flex justify-between items-center px-12 py-6 w-full max-w-screen-2xl mx-auto">
-        <div class="flex items-center gap-12">
-          <NuxtLink to="/" class="text-2xl font-serif italic text-stone-900 tracking-tight">VIGO</NuxtLink>
-          <nav class="hidden md:flex gap-10 items-center">
-            <NuxtLink to="/" exact-active-class="text-primary border-b border-primary/30 pb-1" class="text-stone-600 hover:text-stone-900 transition-colors font-serif tracking-tight">Home</NuxtLink>
-            <NuxtLink to="/products" active-class="text-primary border-b border-primary/30 pb-1" class="text-stone-600 hover:text-stone-900 transition-colors font-serif tracking-tight">Shop All</NuxtLink>
-            <NuxtLink to="/about" active-class="text-primary border-b border-primary/30 pb-1" class="text-stone-600 hover:text-stone-900 transition-colors font-serif tracking-tight">About Us</NuxtLink>
-          </nav>
-        </div>
-        <div class="flex items-center gap-6">
-          <NuxtLink :to="isAuthenticated ? '/account' : '/auth/login'" class="material-symbols-outlined text-stone-600 hover:opacity-80 transition-all duration-300">person</NuxtLink>
-          <NuxtLink v-if="isAuthenticated && ['SUPERADMIN', 'ADMIN', 'MANAGER'].includes(user?.role)" to="/admin" title="Dashboard" class="material-symbols-outlined text-stone-600 hover:opacity-80 transition-all duration-300">dashboard</NuxtLink>
-          <NuxtLink v-if="isAuthenticated" to="/cart" class="material-symbols-outlined text-stone-600 hover:opacity-80 transition-all duration-300">shopping_bag</NuxtLink>
-        </div>
-      </div>
-    </header>
-
     <main class="pt-32 pb-24 px-12 max-w-screen-2xl mx-auto min-h-screen">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
         <!-- Left Column: Checkout Flow -->
@@ -261,46 +242,6 @@
         </aside>
       </div>
     </main>
-
-    <!-- Footer -->
-    <footer class="bg-stone-100 w-full pt-20 pb-10">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-12 px-12 max-w-screen-2xl mx-auto font-body text-sm leading-relaxed tracking-wide">
-        <div class="col-span-1">
-          <span class="font-serif text-xl mb-4 block">VIGO ATELIER</span>
-          <p class="text-stone-500">Crafting timeless garments for the modern visionary since 2024.</p>
-        </div>
-        <div>
-          <h4 class="text-stone-900 font-semibold mb-6">Explore</h4>
-          <ul class="space-y-3">
-            <li><NuxtLink to="/products" class="text-stone-500 hover:underline decoration-amber-700/50 underline-offset-4 transition-all">Collections</NuxtLink></li>
-            <li><a class="text-stone-500 hover:underline decoration-amber-700/50 underline-offset-4 transition-all">Sourcing</a></li>
-            <li><a class="text-stone-500 hover:underline decoration-amber-700/50 underline-offset-4 transition-all">Lookbook</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4 class="text-stone-900 font-semibold mb-6">Assistance</h4>
-          <ul class="space-y-3">
-            <li><a class="text-stone-500 hover:underline decoration-amber-700/50 underline-offset-4 transition-all">Shipping & Returns</a></li>
-            <li><a class="text-stone-500 hover:underline decoration-amber-700/50 underline-offset-4 transition-all">Sustainability</a></li>
-            <li><a class="text-stone-500 hover:underline decoration-amber-700/50 underline-offset-4 transition-all">Contact Us</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4 class="text-stone-900 font-semibold mb-6">Newsletter</h4>
-          <div class="flex border-b border-stone-300 pb-2">
-            <input class="bg-transparent border-none focus:ring-0 text-sm w-full" placeholder="Your email address" type="email"/>
-            <button class="material-symbols-outlined text-amber-700">arrow_forward</button>
-          </div>
-        </div>
-      </div>
-      <div class="mt-20 px-12 max-w-screen-2xl mx-auto border-t border-stone-200 pt-8 flex flex-col md:flex-row justify-between gap-4">
-        <span class="text-stone-400 text-xs">© 2024 VIGO ATELIER. ALL RIGHTS RESERVED.</span>
-        <div class="flex gap-6 text-xs text-stone-400">
-          <a class="hover:text-stone-900 transition-colors">Privacy Policy</a>
-          <a class="hover:text-stone-900 transition-colors">Wholesale</a>
-        </div>
-      </div>
-    </footer>
   </div>
 </template>
 
