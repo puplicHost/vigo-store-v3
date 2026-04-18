@@ -4,22 +4,21 @@
     <header class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl shadow-[0_20px_40px_rgba(28,27,27,0.04)]">
       <nav class="flex justify-between items-center px-12 py-6 w-full max-w-screen-2xl mx-auto">
         <NuxtLink to="/" class="text-2xl font-serif italic text-stone-900 tracking-tight">VIGO</NuxtLink>
-        <div class="hidden md:flex items-center space-x-10">
-          <NuxtLink to="/products" class="text-primary border-b border-primary/30 pb-1 font-serif tracking-tight transition-all duration-300">Collections</NuxtLink>
-          <a class="text-stone-600 hover:text-stone-900 transition-colors font-serif tracking-tight">New Arrivals</a>
-          <a class="text-stone-600 hover:text-stone-900 transition-colors font-serif tracking-tight">Lookbook</a>
-          <a class="text-stone-600 hover:text-stone-900 transition-colors font-serif tracking-tight">Our Story</a>
+        <div class="hidden md:flex items-center gap-10">
+          <NuxtLink to="/" exact-active-class="text-primary border-b border-primary/30 pb-1" class="text-stone-600 hover:text-stone-900 transition-colors font-serif tracking-tight">Home</NuxtLink>
+          <NuxtLink to="/products" active-class="text-primary border-b border-primary/30 pb-1" class="text-stone-600 hover:text-stone-900 transition-colors font-serif tracking-tight">Shop All</NuxtLink>
+          <NuxtLink to="/about" active-class="text-primary border-b border-primary/30 pb-1" class="text-stone-600 hover:text-stone-900 transition-colors font-serif tracking-tight">About Us</NuxtLink>
         </div>
         <div class="flex items-center space-x-6">
-          <NuxtLink v-if="!isAuthenticated" to="/auth/login" class="hover:opacity-80 transition-all duration-300 text-stone-600">
+          <NuxtLink :to="isAuthenticated ? '/account' : '/auth/login'" class="hover:opacity-80 transition-all duration-300 text-stone-600">
             <span class="material-symbols-outlined">person</span>
           </NuxtLink>
-          <NuxtLink v-else to="/admin" class="hover:opacity-80 transition-all duration-300 text-stone-600">
+          <NuxtLink v-if="isAuthenticated && ['SUPERADMIN', 'ADMIN', 'MANAGER'].includes(user?.role)" to="/admin" title="Dashboard" class="hover:opacity-80 transition-all duration-300 text-stone-600">
             <span class="material-symbols-outlined">dashboard</span>
           </NuxtLink>
-          <button class="hover:opacity-80 transition-all duration-300 text-stone-600">
+          <NuxtLink v-if="isAuthenticated" to="/cart" class="hover:opacity-80 transition-all duration-300 text-stone-600 relative">
             <span class="material-symbols-outlined">shopping_bag</span>
-          </button>
+          </NuxtLink>
         </div>
       </nav>
     </header>
@@ -130,7 +129,7 @@
                     v-if="product.images?.[0]" 
                     :src="product.images[0]" 
                     :alt="product.name"
-                    class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    class="w-full h-full object-contain p-4 transition-transform duration-700 group-hover:scale-105"
                   />
                   <div v-else class="w-full h-full flex items-center justify-center bg-surface-container">
                     <span class="material-symbols-outlined text-on-surface-variant/30">image</span>
@@ -144,7 +143,7 @@
                     <h3 class="font-serif text-lg group-hover:text-primary transition-colors">{{ product.name }}</h3>
                     <p class="text-sm text-secondary font-body mt-1">{{ product.category?.name || 'Uncategorized' }}</p>
                   </div>
-                  <p class="font-body text-sm font-semibold tracking-tight text-on-surface">${{ (product.price ?? 0).toFixed(2) }}</p>
+                  <p class="font-body text-sm font-semibold tracking-tight text-on-surface">{{ settings?.currency || 'EGP' }} {{ (product.price ?? 0).toFixed(2) }}</p>
                 </div>
                 <div v-if="product.colors?.length" class="mt-4 flex gap-2">
                   <span 
@@ -197,7 +196,8 @@
 </template>
 
 <script setup lang="ts">
-const { isAuthenticated } = useAuth()
+const { isAuthenticated, user } = useAuth()
+const { settings } = useSettings()
 const { lastRefreshEvent } = useDataRefresh()
 
 // Size filter state

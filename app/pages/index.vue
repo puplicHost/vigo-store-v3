@@ -5,21 +5,20 @@
       <div class="flex justify-between items-center px-12 py-6 w-full max-w-screen-2xl mx-auto">
         <NuxtLink to="/" class="text-2xl font-serif italic text-stone-900 tracking-tight">VIGO</NuxtLink>
         <div class="hidden md:flex items-center gap-10">
-          <NuxtLink to="/products" class="text-primary border-b border-primary/30 pb-1 font-serif tracking-tight">Collections</NuxtLink>
-          <a class="text-stone-600 hover:text-stone-900 transition-colors font-serif tracking-tight">New Arrivals</a>
-          <a class="text-stone-600 hover:text-stone-900 transition-colors font-serif tracking-tight">Lookbook</a>
-          <a class="text-stone-600 hover:text-stone-900 transition-colors font-serif tracking-tight">Our Story</a>
+          <NuxtLink to="/" exact-active-class="text-primary border-b border-primary/30 pb-1" class="text-stone-600 hover:text-stone-900 transition-colors font-serif tracking-tight">Home</NuxtLink>
+          <NuxtLink to="/products" active-class="text-primary border-b border-primary/30 pb-1" class="text-stone-600 hover:text-stone-900 transition-colors font-serif tracking-tight">Shop All</NuxtLink>
+          <NuxtLink to="/about" active-class="text-primary border-b border-primary/30 pb-1" class="text-stone-600 hover:text-stone-900 transition-colors font-serif tracking-tight">About Us</NuxtLink>
         </div>
         <div class="flex items-center gap-6">
-          <NuxtLink v-if="!isAuthenticated" to="/auth/login" class="hover:opacity-80 transition-all duration-300 text-primary">
+          <NuxtLink :to="isAuthenticated ? '/account' : '/auth/login'" class="hover:opacity-80 transition-all duration-300 text-primary">
             <span class="material-symbols-outlined">person</span>
           </NuxtLink>
-          <NuxtLink v-else to="/admin" class="hover:opacity-80 transition-all duration-300 text-primary">
+          <NuxtLink v-if="isAuthenticated && ['SUPERADMIN', 'ADMIN', 'MANAGER'].includes(user?.role)" to="/admin" title="Dashboard" class="hover:opacity-80 transition-all duration-300 text-primary">
             <span class="material-symbols-outlined">dashboard</span>
           </NuxtLink>
-          <button class="hover:opacity-80 transition-all duration-300 text-primary">
+          <NuxtLink v-if="isAuthenticated" to="/cart" class="hover:opacity-80 transition-all duration-300 text-primary relative">
             <span class="material-symbols-outlined">shopping_bag</span>
-          </button>
+          </NuxtLink>
         </div>
       </div>
     </nav>
@@ -51,52 +50,13 @@
         </div>
       </section>
 
-      <!-- Featured Collections (Asymmetric Grid) -->
-      <section class="py-32 px-12 max-w-screen-2xl mx-auto">
-        <div class="grid grid-cols-12 gap-8 items-end">
-          <div class="col-span-12 md:col-span-7 mb-12">
-            <div class="relative group cursor-pointer overflow-hidden rounded-xl">
-              <img 
-                alt="Winter Collection" 
-                class="w-full aspect-[4/5] object-cover transition-transform duration-700 group-hover:scale-105" 
-                src="https://images.unsplash.com/photo-1445205170230-053b83016050?w=800&q=80"
-              />
-              <div class="absolute bottom-8 left-8">
-                <span class="label-md uppercase tracking-[0.2em] text-white/90 text-xs mb-2 block">Curation 01</span>
-                <h3 class="text-4xl text-white font-serif">The Winter Collection</h3>
-              </div>
-            </div>
-          </div>
-          <div class="col-span-12 md:col-span-5 flex flex-col gap-8">
-            <div class="relative group cursor-pointer overflow-hidden rounded-xl">
-              <img 
-                alt="Accessories" 
-                class="w-full aspect-square object-cover transition-transform duration-700 group-hover:scale-105" 
-                src="https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600&q=80"
-              />
-              <div class="absolute bottom-8 left-8">
-                <span class="label-md uppercase tracking-[0.2em] text-white/90 text-xs mb-2 block">Leather Goods</span>
-                <h3 class="text-3xl text-white font-serif">Essential Accessories</h3>
-              </div>
-            </div>
-            <div class="bg-surface-container-low p-12 rounded-xl h-full flex flex-col justify-center">
-              <h2 class="text-3xl font-serif mb-6">Designed to endure.</h2>
-              <p class="font-body text-on-surface-variant leading-relaxed">
-                Our philosophy centers on the longevity of style. Each piece is a testament to the atelier's commitment to quality over trend.
-              </p>
-              <a class="mt-8 text-primary font-semibold underline underline-offset-8 decoration-1 decoration-primary/30 hover:decoration-primary transition-all">Discover Our Process</a>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- New Arrivals (Product Grid) -->
+      <!-- The Collection (Product Grid) -->
       <section class="py-24 bg-surface-container-low">
         <div class="max-w-screen-2xl mx-auto px-12">
           <div class="flex justify-between items-end mb-16">
             <div>
-              <span class="uppercase tracking-[0.2em] text-xs font-label text-primary font-bold">Latest Releases</span>
-              <h2 class="text-5xl font-serif mt-4">New Arrivals</h2>
+              <span class="uppercase tracking-[0.2em] text-xs font-label text-primary font-bold">Curated Selection</span>
+              <h2 class="text-5xl font-serif mt-4">The Collection</h2>
             </div>
             <NuxtLink to="/products" class="font-label text-sm uppercase tracking-widest border-b border-primary pb-2">View All Pieces</NuxtLink>
           </div>
@@ -127,7 +87,7 @@
                       v-if="product.images?.[0]" 
                       :src="product.images[0]" 
                       :alt="product.name"
-                      class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      class="w-full h-full object-contain p-4 transition-transform duration-500 group-hover:scale-105"
                     />
                     <div v-else class="w-full h-full flex items-center justify-center bg-surface-container">
                       <span class="material-symbols-outlined text-on-surface-variant/30">image</span>
@@ -135,62 +95,11 @@
                     <div v-if="product.isFeatured" class="absolute top-4 right-4 bg-white/60 backdrop-blur-md px-3 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold">New</div>
                   </div>
                   <h4 class="font-body text-base font-medium">{{ product.name }}</h4>
-                  <p class="font-body text-sm text-on-surface-variant mt-1">${{ (product.price ?? 0).toFixed(2) }}</p>
+                  <p class="font-body text-sm text-on-surface-variant mt-1">{{ settings?.currency || 'EGP' }} {{ (product.price ?? 0).toFixed(2) }}</p>
                 </NuxtLink>
               </div>
             </div>
           </ClientOnly>
-        </div>
-      </section>
-
-      <!-- Brand Story (Editorial Layout) -->
-      <section class="py-32 px-12 max-w-screen-2xl mx-auto overflow-hidden">
-        <div class="flex flex-col md:flex-row items-center gap-20">
-          <div class="w-full md:w-1/2 relative">
-            <div class="absolute -top-10 -left-10 w-64 h-64 bg-surface-container rounded-full mix-blend-multiply opacity-50"></div>
-            <img 
-              alt="The Atelier" 
-              class="relative z-10 rounded-xl shadow-xl w-full" 
-              src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=80"
-            />
-          </div>
-          <div class="w-full md:w-1/2">
-            <span class="uppercase tracking-[0.3em] text-[10px] font-label font-bold text-primary mb-6 block">Our Legacy</span>
-            <h2 class="text-5xl font-serif mb-8 leading-tight">The Vigo Ethos</h2>
-            <p class="text-on-surface-variant font-body text-lg leading-loose mb-10">
-              Founded in 2024, VIGO began as a vision to bring luxury fashion to the digital age. Today, we remain an independent house dedicated to the intersection of ancestral craft and futuristic silhouettes. Our materials are sourced exclusively from regenerative artisans who share our vision for a slower, more intentional world.
-            </p>
-            <div class="flex gap-12">
-              <div>
-                <span class="block text-3xl font-serif text-primary">100%</span>
-                <span class="text-xs uppercase tracking-widest font-label mt-2 block opacity-60">Traceable Materials</span>
-              </div>
-              <div>
-                <span class="block text-3xl font-serif text-primary">12</span>
-                <span class="text-xs uppercase tracking-widest font-label mt-2 block opacity-60">Master Craftsmen</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Newsletter Signup -->
-      <section class="py-32 bg-stone-900 text-stone-100">
-        <div class="max-w-screen-lg mx-auto px-12 text-center">
-          <h2 class="text-4xl font-serif mb-6">Join the Inner Circle</h2>
-          <p class="text-stone-400 font-body mb-12 max-w-xl mx-auto">
-            Be the first to access our private seasonal edits and receive invitations to exclusive atelier showcases.
-          </p>
-          <form class="flex flex-col md:flex-row gap-4 max-w-md mx-auto">
-            <input 
-              class="flex-grow bg-transparent border-b border-stone-700 py-3 px-1 focus:outline-none focus:border-amber-500 transition-colors font-body text-stone-100 placeholder:text-stone-600" 
-              placeholder="Enter your email" 
-              type="email"
-            />
-            <button class="bg-amber-700 hover:bg-amber-600 px-8 py-3 rounded text-sm font-semibold tracking-[0.15em] uppercase transition-colors" type="submit">
-              Subscribe
-            </button>
-          </form>
         </div>
       </section>
     </main>
@@ -203,16 +112,15 @@
           <p class="text-stone-500 mb-6 max-w-xs">{{ settings?.siteDescription || 'An exploration of aesthetic permanence and refined contemporary luxury.' }}</p>
         </div>
         <div class="flex flex-col gap-3">
-          <span class="text-stone-900 font-semibold mb-2">Shop</span>
-          <NuxtLink to="/products" class="text-stone-500 hover:underline decoration-amber-700/50 underline-offset-4 transition-opacity">Collections</NuxtLink>
-          <a class="text-stone-500 hover:underline decoration-amber-700/50 underline-offset-4 transition-opacity">New Arrivals</a>
-          <a class="text-stone-500 hover:underline decoration-amber-700/50 underline-offset-4 transition-opacity">Lookbook</a>
+          <span class="text-stone-900 font-semibold mb-2">Explore</span>
+          <NuxtLink to="/" class="text-stone-500 hover:underline decoration-amber-700/50 underline-offset-4 transition-opacity">Home</NuxtLink>
+          <NuxtLink to="/products" class="text-stone-500 hover:underline decoration-amber-700/50 underline-offset-4 transition-opacity">Shop All</NuxtLink>
+          <NuxtLink to="/about" class="text-stone-500 hover:underline decoration-amber-700/50 underline-offset-4 transition-opacity">About Us</NuxtLink>
         </div>
         <div class="flex flex-col gap-3">
           <span class="text-stone-900 font-semibold mb-2">Service</span>
           <a class="text-stone-500 hover:underline decoration-amber-700/50 underline-offset-4 transition-opacity">Shipping & Returns</a>
           <a class="text-stone-500 hover:underline decoration-amber-700/50 underline-offset-4 transition-opacity">Privacy Policy</a>
-          <a class="text-stone-500 hover:underline decoration-amber-700/50 underline-offset-4 transition-opacity">Sustainability</a>
         </div>
         <div class="flex flex-col gap-3">
           <span class="text-stone-900 font-semibold mb-2">Contact</span>
@@ -243,7 +151,7 @@
 </template>
 
 <script setup lang="ts">
-const { isAuthenticated } = useAuth()
+const { isAuthenticated, user } = useAuth()
 const { lastRefreshEvent } = useDataRefresh()
 const { settings } = useSettings()
 

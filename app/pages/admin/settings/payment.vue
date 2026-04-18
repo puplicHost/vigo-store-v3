@@ -185,7 +185,8 @@ definePageMeta({
 })
 
 const auth = useAuth()
-const saving = ref(false)
+const isSubmitting = ref(false)
+const { toast } = useNotifications()
 
 const settings = ref({
   isCodEnabled: true,
@@ -219,18 +220,19 @@ const transactions = computed(() => {
 })
 
 const saveSettings = async () => {
-  saving.value = true
+  isSubmitting.value = true
   try {
-    await $apiFetch('/api/admin/settings', {
-      method: 'PATCH',
+    await $apiFetch('/api/settings/payment', {
+      method: 'POST',
       body: settings.value
     })
-    await refresh()
-    alert('Payment settings saved successfully')
-  } catch (err) {
-    alert('Failed to save payment settings')
+    
+    toast.success('Payment settings saved successfully', 'Saved')
+  } catch (error) {
+    console.error('Failed to save settings:', error)
+    toast.error('Failed to save payment settings', 'Error')
   } finally {
-    saving.value = false
+    isSubmitting.value = false
   }
 }
 </script>

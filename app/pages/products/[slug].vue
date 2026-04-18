@@ -4,23 +4,22 @@
     <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl shadow-[0_20px_40px_rgba(28,27,27,0.04)]">
       <div class="flex justify-between items-center px-12 py-6 w-full max-w-screen-2xl mx-auto">
         <NuxtLink to="/" class="text-2xl font-serif italic text-stone-900 tracking-tight">VIGO</NuxtLink>
-        <div class="hidden md:flex items-center gap-10 font-serif tracking-tight">
-          <NuxtLink to="/products" class="text-stone-600 hover:text-stone-900 transition-colors">Collections</NuxtLink>
-          <a class="text-stone-600 hover:text-stone-900 transition-colors">New Arrivals</a>
-          <a class="text-stone-600 hover:text-stone-900 transition-colors">Lookbook</a>
-          <a class="text-stone-600 hover:text-stone-900 transition-colors">Our Story</a>
+        <div class="hidden md:flex items-center gap-10">
+          <NuxtLink to="/" exact-active-class="text-primary border-b border-primary/30 pb-1" class="text-stone-600 hover:text-stone-900 transition-colors font-serif tracking-tight">Home</NuxtLink>
+          <NuxtLink to="/products" active-class="text-primary border-b border-primary/30 pb-1" class="text-stone-600 hover:text-stone-900 transition-colors font-serif tracking-tight">Shop All</NuxtLink>
+          <NuxtLink to="/about" active-class="text-primary border-b border-primary/30 pb-1" class="text-stone-600 hover:text-stone-900 transition-colors font-serif tracking-tight">About Us</NuxtLink>
         </div>
         <div class="flex items-center gap-6">
-          <NuxtLink v-if="!isAuthenticated" to="/auth/login" class="hover:opacity-80 transition-all duration-300">
+          <NuxtLink :to="isAuthenticated ? '/account' : '/auth/login'" class="hover:opacity-80 transition-all duration-300 text-stone-600">
             <span class="material-symbols-outlined">person</span>
           </NuxtLink>
-          <NuxtLink v-else to="/admin" class="hover:opacity-80 transition-all duration-300">
+          <NuxtLink v-if="isAuthenticated && ['SUPERADMIN', 'ADMIN', 'MANAGER'].includes(user?.role)" to="/admin" title="Dashboard" class="hover:opacity-80 transition-all duration-300 text-stone-600">
             <span class="material-symbols-outlined">dashboard</span>
           </NuxtLink>
-          <button class="hover:opacity-80 transition-all duration-300 relative">
+          <NuxtLink v-if="isAuthenticated" to="/cart" class="hover:opacity-80 transition-all duration-300 relative text-stone-600">
             <span class="material-symbols-outlined">shopping_bag</span>
             <span class="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full"></span>
-          </button>
+          </NuxtLink>
         </div>
       </div>
     </nav>
@@ -70,18 +69,18 @@
             <div class="lg:col-span-7 grid grid-cols-12 gap-4">
               <!-- Thumbnails Column -->
               <div class="hidden md:flex col-span-2 flex-col gap-4">
-                <div v-for="(image, index) in product.images" :key="index" class="aspect-[3/4] rounded-lg overflow-hidden cursor-pointer hover:ring-1 ring-primary transition-all">
-                  <img :src="image" :alt="product.name" class="w-full h-full object-cover" />
+                <div v-for="(image, index) in product.images" :key="index" @click="activeImage = image" :class="['aspect-[3/4] rounded-lg overflow-hidden cursor-pointer transition-all bg-surface-container-low flex items-center justify-center p-2', activeImage === image ? 'ring-2 ring-primary ring-offset-2' : 'hover:ring-1 ring-primary/50']">
+                  <img :src="image" :alt="product.name" class="w-full h-full object-contain" />
                 </div>
               </div>
               <!-- Primary Image -->
               <div class="col-span-12 md:col-span-10 relative group">
-                <div class="aspect-[3/4] rounded-lg overflow-hidden bg-surface-container-low shadow-[0_20px_40px_rgba(28,27,27,0.04)]">
+                <div class="aspect-[3/4] rounded-lg overflow-hidden bg-surface-container-low shadow-[0_20px_40px_rgba(28,27,27,0.04)] flex items-center justify-center p-6">
                   <img 
-                    v-if="product.images?.[0]" 
-                    :src="product.images[0]" 
+                    v-if="activeImage" 
+                    :src="activeImage" 
                     :alt="product.name"
-                    class="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-105"
+                    class="w-full h-full object-contain transform transition-transform duration-700 group-hover:scale-105"
                   />
                   <div v-else class="w-full h-full flex items-center justify-center">
                     <span class="material-symbols-outlined text-on-surface-variant/30 text-6xl">image</span>
@@ -103,7 +102,7 @@
               </div>
               <h1 class="font-serif text-4xl md:text-5xl lg:text-6xl text-on-surface tracking-tight mb-6 italic leading-tight">{{ product.name }}</h1>
               <div class="flex items-baseline gap-4 mb-8">
-                <p class="text-2xl font-body text-on-surface">${{ (product.price ?? 0).toFixed(2) }}</p>
+                <p class="text-2xl font-body text-on-surface">{{ settings?.currency || 'EGP' }} {{ (product.price ?? 0).toFixed(2) }}</p>
                 <p class="text-sm font-label text-on-surface-variant uppercase tracking-wider">Taxes & Duties Included</p>
               </div>
               <div class="mb-10 text-on-surface-variant leading-relaxed font-body text-base max-w-md">
@@ -113,13 +112,14 @@
               <!-- Selection: Color -->
               <div v-if="product.colors?.length" class="mb-10">
                 <div class="flex justify-between items-center mb-4">
-                  <span class="text-xs font-label uppercase tracking-widest text-on-surface font-bold">Color — {{ product.colors[0] }}</span>
+                  <span class="text-xs font-label uppercase tracking-widest text-on-surface font-bold">Color — <span class="capitalize">{{ selectedColor }}</span></span>
                 </div>
                 <div class="flex gap-4">
                   <button 
                     v-for="(color, index) in product.colors" 
                     :key="index"
-                    class="w-8 h-8 rounded-full hover:scale-110 transition-all"
+                    @click="selectedColor = color"
+                    :class="['w-8 h-8 rounded-full hover:scale-110 transition-all border border-outline-variant/20', selectedColor === color ? 'ring-2 ring-primary ring-offset-2' : '']"
                     :style="{ backgroundColor: color }"
                   ></button>
                 </div>
@@ -135,7 +135,8 @@
                   <button 
                     v-for="size in product.sizes" 
                     :key="size"
-                    class="py-3 border border-outline-variant/30 text-xs font-label uppercase tracking-widest hover:bg-surface-container-low transition-colors"
+                    @click="selectedSize = size"
+                    :class="['py-3 border text-xs font-label uppercase tracking-widest transition-colors', selectedSize === size ? 'border-primary bg-primary/5 text-primary' : 'border-outline-variant/30 hover:bg-surface-container-low']"
                   >
                     {{ size }}
                   </button>
@@ -144,7 +145,7 @@
 
               <!-- Actions -->
               <div class="flex flex-col gap-4 mb-16">
-                <button class="w-full py-5 bg-gradient-to-tr from-primary to-primary-container text-on-primary rounded-xl font-label uppercase tracking-[0.2em] text-sm font-bold shadow-lg shadow-primary/10 hover:opacity-90 transition-all transform active:scale-[0.98]">
+                <button @click="handleAddToCart" class="w-full py-5 bg-gradient-to-tr from-primary to-primary-container text-on-primary rounded-xl font-label uppercase tracking-[0.2em] text-sm font-bold shadow-lg shadow-primary/10 hover:opacity-90 transition-all transform active:scale-[0.98]">
                   Add to Bag
                 </button>
                 <button class="w-full py-5 border border-outline-variant/30 text-on-surface rounded-xl font-label uppercase tracking-[0.2em] text-sm flex items-center justify-center gap-3 hover:bg-surface-container-low transition-colors">
@@ -218,7 +219,7 @@
                   </div>
                 </div>
                 <h3 class="font-serif text-lg italic mb-2">{{ relatedProduct.name }}</h3>
-                <p class="text-on-surface-variant font-body text-sm">${{ (relatedProduct.price ?? 0).toFixed(2) }}</p>
+                <p class="font-body text-sm mt-1 group-hover:text-primary transition-colors">{{ settings?.currency || 'EGP' }} {{ (relatedProduct.price ?? 0).toFixed(2) }}</p>
               </NuxtLink>
             </div>
           </section>
@@ -272,14 +273,49 @@
 
 <script setup lang="ts">
 const route = useRoute()
-const { isAuthenticated } = useAuth()
+const { isAuthenticated, user } = useAuth()
+const { settings } = useSettings()
+const { addToCart } = useCart()
 const { lastRefreshEvent } = useDataRefresh()
+const { toast } = useNotifications()
 const slug = route.params.slug
+
+// Product details state
+const activeImage = ref('')
+const selectedColor = ref('')
+const selectedSize = ref('')
+
+const handleAddToCart = () => {
+  if (!product.value) return
+  if (product.value.sizes?.length && !selectedSize.value) {
+    toast.warning('Please select a size before adding to bag.', 'Selection Required')
+    return
+  }
+  if (product.value.colors?.length && !selectedColor.value) {
+    toast.warning('Please select a color before adding to bag.', 'Selection Required')
+    return
+  }
+  addToCart(product.value, 1, selectedSize.value, selectedColor.value)
+  toast.success('Item added to your shopping bag!', 'Success')
+  navigateTo('/cart')
+}
 
 // Fetch product by slug
 const { data: product, pending, error, refresh } = await useFetch<any>(`/api/products/${slug}`, {
   default: () => null
 })
+
+// Initialize image and defaults when product loads
+watch(product, (newProduct) => {
+  if (newProduct) {
+    if (newProduct.images?.length && !activeImage.value) {
+      activeImage.value = newProduct.images[0]
+    }
+    if (newProduct.colors?.length && !selectedColor.value) {
+      selectedColor.value = newProduct.colors[0]
+    }
+  }
+}, { immediate: true })
 
 // Fetch all products for related section
 const { data: productsData } = await useFetch<any>('/api/products', {

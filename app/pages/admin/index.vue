@@ -225,9 +225,53 @@
               <p v-else class="text-xs text-on-surface-variant/60 mt-2">{{ $t('products.clickToUpload') }}</p>
             </div>
           </div>
+
+          <!-- Sizes Selection -->
+          <div>
+            <label class="block font-label text-[10px] uppercase tracking-[0.15em] text-on-surface-variant mb-3">Available Sizes</label>
+            <div class="flex flex-wrap gap-2">
+              <button
+                v-for="size in availableSizes"
+                :key="size"
+                type="button"
+                @click="toggleSize(size)"
+                :class="['px-4 py-2.5 rounded-lg text-xs font-label uppercase tracking-widest border-2 transition-all duration-200', newProduct.sizes.includes(size) ? 'border-primary bg-primary/10 text-primary font-bold' : 'border-outline-variant/30 text-on-surface-variant hover:border-primary/30']"
+              >
+                {{ size }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Colors -->
+          <div>
+            <label class="block font-label text-[10px] uppercase tracking-[0.15em] text-on-surface-variant mb-3">Colors</label>
+            <div class="flex flex-wrap items-center gap-3 mb-3">
+              <div v-for="(color, index) in newProduct.colors" :key="index" class="flex items-center gap-2 bg-surface-container-low rounded-full pl-1 pr-3 py-1 border border-outline-variant/20">
+                <span class="w-6 h-6 rounded-full border border-outline-variant/30" :style="{ backgroundColor: color }"></span>
+                <span class="text-xs font-body text-on-surface">{{ color }}</span>
+                <button type="button" @click="removeColor(index)" class="text-on-surface-variant hover:text-error transition-colors ml-1">
+                  <span class="material-symbols-outlined text-sm">close</span>
+                </button>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <input type="color" v-model="newColorValue" class="w-10 h-10 rounded-lg cursor-pointer border-0 bg-transparent"/>
+              <input
+                v-model="newColorName"
+                type="text"
+                placeholder="Color name (e.g. Black, Navy)"
+                class="flex-1 bg-transparent border border-outline-variant/30 rounded-lg py-2.5 px-4 focus:outline-none focus:border-primary transition-colors font-body text-sm text-on-surface"
+                @keydown.enter.prevent="addColor"
+              />
+              <button type="button" @click="addColor" class="px-4 py-2.5 rounded-lg bg-primary/10 text-primary font-label text-[11px] uppercase tracking-widest hover:bg-primary/20 transition-colors">
+                Add
+              </button>
+            </div>
+          </div>
+
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <label class="block font-label text-[10px] uppercase tracking-[0.15em] text-on-surface-variant mb-2">{{ $t('products.price') }} ($)</label>
+              <label class="block font-label text-[10px] uppercase tracking-[0.15em] text-on-surface-variant mb-2">{{ $t('products.price') }} (EGP)</label>
               <input
                 v-model.number="newProduct.price"
                 type="number"
@@ -398,6 +442,33 @@ const newProduct = ref({
   sizes: [] as string[],
   colors: [] as string[]
 })
+
+// Clothing sizes & colors helpers
+const availableSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL']
+const newColorValue = ref('#000000')
+const newColorName = ref('')
+
+const toggleSize = (size: string) => {
+  const idx = newProduct.value.sizes.indexOf(size)
+  if (idx >= 0) {
+    newProduct.value.sizes.splice(idx, 1)
+  } else {
+    newProduct.value.sizes.push(size)
+  }
+}
+
+const addColor = () => {
+  const colorLabel = newColorName.value.trim() || newColorValue.value
+  if (colorLabel && !newProduct.value.colors.includes(colorLabel)) {
+    newProduct.value.colors.push(colorLabel)
+    newColorName.value = ''
+    newColorValue.value = '#000000'
+  }
+}
+
+const removeColor = (index: number) => {
+  newProduct.value.colors.splice(index, 1)
+}
 
 const filteredProducts = computed(() => {
   const productsArray = Array.isArray(products.value) ? products.value : []
