@@ -42,7 +42,7 @@ onUnmounted(() => {
   <div class="min-h-screen bg-surface text-on-surface overflow-x-hidden">
     <main>
       <!-- Hero Slider Section -->
-      <section class="relative h-screen bg-stone-900 group">
+      <section class="relative h-screen bg-stone-900 overflow-hidden group">
         <div 
           v-for="(slide, index) in slides" 
           :key="index"
@@ -57,9 +57,9 @@ onUnmounted(() => {
             :class="{ 'scale-110': currentSlide === index }"
             alt="Hero Background"
           />
-          <!-- Strategic Overlay for Readability -->
-          <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60"></div>
-          <div class="absolute inset-0 bg-black/20 mix-blend-overlay"></div>
+          <!-- Strategic Overlay for Readability - Fixed Full Coverage -->
+          <div class="absolute inset-x-0 inset-y-0 bg-black/50"></div>
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40"></div>
           
           <div class="absolute inset-0 flex flex-col justify-center items-center text-center px-6 md:px-24 max-w-5xl mx-auto">
             <div class="overflow-hidden mb-8">
@@ -70,7 +70,7 @@ onUnmounted(() => {
               ></h1>
             </div>
             <p 
-              class="font-body text-base md:text-xl text-stone-200 max-w-2xl mb-14 leading-relaxed transition-all duration-1000 delay-500"
+              class="font-body text-base md:text-xl text-white max-w-2xl mb-14 leading-relaxed transition-all duration-1000 delay-500"
               :class="currentSlide === index ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'"
             >
               {{ slide.description }}
@@ -129,7 +129,4 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-.font-serif {
-  font-family: 'Playfair Display', serif;
-}
 </style>

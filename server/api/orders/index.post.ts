@@ -49,10 +49,10 @@ export default defineEventHandler(async (event) => {
     // 3. Handle Paymob Logic
     if (paymentMethod.toUpperCase() === 'PAYMOB' && gateway.config) {
       const config = gateway.config as any
-      
+
       const authToken = await paymobService.authenticate(config.apiKey)
       const amountCents = Math.round(totalAmount * 100)
-      
+
       const paymobOrderId = await paymobService.registerOrder(
         authToken,
         amountCents,

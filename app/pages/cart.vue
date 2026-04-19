@@ -1,125 +1,155 @@
 <template>
-  <div class="min-h-screen bg-surface text-on-surface flex flex-col">
-    <main class="pt-32 pb-24 px-6 md:px-12 max-w-screen-xl mx-auto flex-1 w-full">
-      <h1 class="text-4xl md:text-5xl font-serif tracking-tight text-on-surface mb-12">Your Shopping Bag</h1>
+  <div class="min-h-screen bg-stone-50 text-stone-900 selection:bg-primary/20">
+    <main class="pt-32 pb-24 px-8 md:px-16 max-w-screen-2xl mx-auto flex-1 w-full">
+      
+      <!-- Page Narrative -->
+      <header class="mb-20">
+        <nav class="mb-8 flex items-center gap-4 text-[10px] uppercase tracking-[0.3em] text-stone-400 font-bold">
+          <NuxtLink to="/products" class="hover:text-stone-900 transition-colors italic">Collections</NuxtLink>
+          <span class="w-1 h-1 rounded-full bg-stone-200"></span>
+          <span class="text-stone-900 italic font-medium">Your Selection Portfolio</span>
+        </nav>
+        <h1 class="text-6xl md:text-8xl font-serif font-bold tracking-tight text-stone-900 italic leading-none">Your Bag</h1>
+      </header>
 
-      <div v-if="cartItems.length === 0" class="text-center py-24 bg-surface-container-low rounded-2xl border border-outline-variant/10">
-        <div class="relative inline-block mb-12">
-            <span class="material-symbols-outlined text-8xl text-stone-200">shopping_bag</span>
-            <span class="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full animate-ping"></span>
+      <!-- Vacant State -->
+      <div v-if="cartItems.length === 0" class="flex flex-col items-center justify-center py-40 text-center border-y border-stone-200">
+        <div class="relative mb-12">
+            <span class="material-symbols-outlined text-9xl text-stone-100 font-light italic">inventory_2</span>
+            <span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-primary/20 rounded-full animate-ping"></span>
         </div>
-        <h2 class="text-3xl font-serif mb-4 italic">The bag is currently vacant.</h2>
-        <p class="text-stone-400 font-body mb-10 max-w-sm mx-auto">Discover our curated selection of archetypal silhouettes and modern essentials.</p>
-        <NuxtLink to="/products" class="inline-flex items-center gap-3 px-10 py-4 bg-stone-900 text-stone-100 rounded font-label uppercase tracking-widest text-[11px] font-bold hover:bg-primary transition-all duration-500 shadow-xl shadow-stone-950/10 active:scale-95">
-          Begin Exploring
+        <h2 class="text-4xl font-serif font-bold mb-6 italic tracking-tight">Your portfolio is currently vacant.</h2>
+        <p class="text-stone-400 font-body text-lg mb-12 max-w-md mx-auto italic">
+          Discover our curated editorial selection of artisanal heritage and contemporary silhouettes.
+        </p>
+        <NuxtLink to="/products" class="inline-flex items-center gap-6 px-14 py-6 bg-stone-900 text-white rounded-full font-label uppercase tracking-[0.4em] text-[11px] font-bold hover:bg-primary transition-all duration-700 shadow-2xl shadow-stone-900/10 hover:scale-105 active:scale-95">
+          Begin Exploration
           <span class="material-symbols-outlined text-sm">arrow_forward</span>
         </NuxtLink>
       </div>
 
-      <div v-else class="grid grid-cols-1 lg:grid-cols-12 gap-16">
-        <!-- Cart Items List -->
-        <div class="lg:col-span-8 flex flex-col">
-          <div class="flex justify-between items-center pb-6 border-b border-stone-100 mb-8">
-            <h3 class="text-xs uppercase tracking-[0.3em] font-bold text-stone-400">Bag Inventory</h3>
-            <button @click="clearCart" class="text-xs uppercase tracking-[0.2em] font-label text-error/60 hover:text-error transition-colors flex items-center gap-2">
-              <span class="material-symbols-outlined text-sm">delete_sweep</span>
-              Empty Bag
+      <div v-else class="grid grid-cols-1 lg:grid-cols-12 gap-20 xl:gap-32">
+        <!-- List of Pieces -->
+        <div class="lg:col-span-8">
+          <div class="flex justify-between items-end pb-10 border-b border-stone-200 mb-12">
+            <div>
+              <h3 class="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-400 mb-2">SELECTION INVENTORY</h3>
+              <p class="text-2xl font-serif italic text-stone-900">{{ cartItemCount }} Items Curated</p>
+            </div>
+            <button @click="clearCart" class="text-[9px] uppercase tracking-[0.3em] font-bold text-stone-400 hover:text-red-500 transition-colors flex items-center gap-3 border-b border-stone-100 pb-1">
+              Reset Collection
             </button>
           </div>
 
-          <div class="space-y-4">
-            <div v-for="item in cartItems" :key="item.id" class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center py-8 border-b border-stone-50 group last:border-0 hover:bg-stone-50/50 transition-colors px-4 rounded-xl">
-              <div class="md:col-span-7 flex gap-8">
-                <div class="w-28 h-36 bg-white rounded overflow-hidden flex-shrink-0 relative shadow-sm border border-stone-100 p-1">
-                  <img v-if="item.image" :src="item.image" :alt="item.name" class="w-full h-full object-cover"/>
-                  <div v-else class="w-full h-full flex items-center justify-center bg-stone-50"><span class="material-symbols-outlined text-stone-200">image</span></div>
-                </div>
-                <div class="flex flex-col justify-center">
-                  <NuxtLink :to="`/products/${item.productId}`" class="font-serif text-xl tracking-tight hover:text-primary transition-all mb-2 italic">{{ item.name }}</NuxtLink>
-                  <div class="text-[10px] uppercase tracking-widest text-stone-400 font-label flex flex-wrap gap-x-4 gap-y-2 mb-4">
-                    <span v-if="item.size" class="flex items-center gap-1.5 ring-1 ring-stone-100 px-2 py-1 rounded">Size: <strong class="text-stone-900">{{ item.size }}</strong></span>
-                    <span v-if="item.color" class="flex items-center gap-1.5 ring-1 ring-stone-100 px-2 py-1 rounded">Color: <span class="w-2 h-2 rounded-full border border-stone-200" :style="{ backgroundColor: item.color }"></span></span>
+          <div class="space-y-12">
+            <div v-for="item in cartItems" :key="item.id" class="flex flex-col md:flex-row gap-10 py-10 border-b border-stone-100 group last:border-0 hover:bg-white transition-all duration-700 px-6 rounded-3xl">
+              <!-- Item Visual -->
+              <div class="w-full md:w-44 aspect-[3/4] bg-white rounded-2xl overflow-hidden flex-shrink-0 relative border border-stone-100 shadow-sm p-4 group-hover:shadow-2xl transition-all duration-700">
+                <img v-if="item.image" :src="item.image" :alt="item.name" class="w-full h-full object-contain transition-transform duration-[2s] group-hover:scale-110"/>
+                <div v-else class="w-full h-full flex items-center justify-center bg-stone-50"><span class="material-symbols-outlined text-stone-100 text-4xl italic">image</span></div>
+              </div>
+
+              <!-- Item Narrative -->
+              <div class="flex-1 flex flex-col justify-between py-2">
+                <div class="flex justify-between items-start gap-6">
+                  <div>
+                    <h3 class="font-serif text-3xl font-bold tracking-tight text-stone-900 group-hover:text-primary transition-colors mb-4 italic">
+                      {{ item.name }}
+                    </h3>
+                    <div class="flex flex-wrap gap-4 text-[9px] font-bold uppercase tracking-[0.2em] text-stone-400">
+                      <span v-if="item.size" class="px-3 py-1.5 bg-stone-50 rounded-sm border border-stone-100">Proportion: <strong class="text-stone-900 italic font-serif">{{ item.size }}</strong></span>
+                      <span v-if="item.color" class="px-3 py-1.5 bg-stone-50 rounded-sm border border-stone-100 flex items-center gap-2">
+                        Tonal: <div class="w-2 h-2 rounded-full border border-stone-200" :style="{ backgroundColor: item.color }"></div>
+                      </span>
+                    </div>
                   </div>
-                  <button @click="removeFromCart(item.id)" class="text-[10px] uppercase font-bold tracking-[0.2em] text-red-400 hover:text-red-600 transition-colors flex items-center gap-2 w-max opacity-0 group-hover:opacity-100 transition-opacity">
-                    <span class="material-symbols-outlined text-xs">close</span> Remove Piece
+                  <div class="text-right">
+                    <p class="text-2xl font-body font-bold text-stone-900 tabular-nums tracking-tighter">
+                      {{ settings?.currency || 'EGP' }} {{ (item.price * item.quantity).toFixed(0) }}
+                    </p>
+                    <p class="text-[9px] text-stone-400 font-bold uppercase tracking-widest mt-2">
+                      Value: {{ settings?.currency || 'EGP' }} {{ item.price.toFixed(0) }} / EA
+                    </p>
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-between mt-10">
+                  <div class="flex items-center bg-white border border-stone-100 rounded-full h-12 px-2 shadow-sm">
+                    <button @click="updateQuantity(item.id, item.quantity - 1)" class="w-9 h-9 rounded-full flex items-center justify-center text-stone-300 hover:text-stone-900 transition-colors"><span class="material-symbols-outlined text-sm">remove</span></button>
+                    <span class="min-w-[32px] text-center font-body text-sm font-bold">{{ item.quantity }}</span>
+                    <button @click="updateQuantity(item.id, item.quantity + 1)" class="w-9 h-9 rounded-full flex items-center justify-center text-stone-300 hover:text-stone-900 transition-colors"><span class="material-symbols-outlined text-sm">add</span></button>
+                  </div>
+                  
+                  <button @click="removeFromCart(item.id)" class="text-[9px] uppercase font-bold tracking-[0.3em] text-stone-400 hover:text-red-500 transition-colors flex items-center gap-2 border-b border-transparent hover:border-red-100 pb-1">
+                    Remove Piece
                   </button>
                 </div>
-              </div>
-
-              <div class="md:col-span-2 flex justify-between md:justify-center items-center">
-                <div class="flex items-center border border-stone-200 rounded p-1 bg-white">
-                  <button @click="updateQuantity(item.id, item.quantity - 1)" class="w-8 h-8 flex items-center justify-center text-stone-400 hover:text-primary transition-colors hover:bg-stone-50 rounded"><span class="material-symbols-outlined text-sm">remove</span></button>
-                  <span class="w-8 text-center font-body text-xs font-bold">{{ item.quantity }}</span>
-                  <button @click="updateQuantity(item.id, item.quantity + 1)" class="w-8 h-8 flex items-center justify-center text-stone-400 hover:text-primary transition-colors hover:bg-stone-50 rounded"><span class="material-symbols-outlined text-sm">add</span></button>
-                </div>
-              </div>
-
-              <div class="md:col-span-3 flex justify-between md:justify-end items-center">
-                <span class="md:hidden text-xs uppercase tracking-widest text-stone-400 font-label">Total</span>
-                <span class="font-body font-bold text-stone-900">{{ settings?.currency || 'EGP' }} {{ (item.price * item.quantity).toFixed(0) }}</span>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Order Summary -->
+        <!-- Fiscal Summary -->
         <div class="lg:col-span-4">
-           <div class="bg-stone-900 text-stone-100 p-10 rounded-2xl sticky top-32 shadow-2xl shadow-stone-950/20">
-            <h2 class="text-2xl font-serif mb-8 border-b border-white/5 pb-6 italic">Bag Total</h2>
+           <div class="bg-stone-900 text-stone-100 p-12 rounded-[2.5rem] sticky top-40 shadow-3xl shadow-stone-900/40">
+            <h2 class="text-3xl font-serif font-bold mb-10 border-b border-white/10 pb-10 italic">Summary</h2>
             
-            <div class="space-y-5 mb-10">
-              <div class="flex justify-between items-center text-stone-400 text-xs uppercase tracking-widest font-label">
-                <span>Subtotal ({{ cartItemCount }} Items)</span>
-                <span class="text-stone-100">{{ settings?.currency || 'EGP' }} {{ cartTotal.toFixed(0) }}</span>
+            <div class="space-y-6 mb-12">
+              <div class="flex justify-between items-center text-[10px] uppercase font-bold tracking-[0.3em] text-stone-400">
+                <span>Total Value</span>
+                <span class="text-stone-100 tabular-nums">{{ settings?.currency || 'EGP' }} {{ cartTotal.toFixed(0) }}</span>
               </div>
-              <div class="flex justify-between items-center text-stone-400 text-xs uppercase tracking-widest font-label">
-                <span>Shipping Fees</span>
-                <span v-if="isShippingFree" class="text-primary font-bold">Complimentary</span>
-                <span v-else class="text-stone-100">{{ settings?.currency || 'EGP' }} {{ settings?.shippingFee || 0 }}</span>
+              <div class="flex justify-between items-center text-[10px] uppercase font-bold tracking-[0.3em] text-stone-400">
+                <span>Shipping Narrative</span>
+                <span v-if="isShippingFree" class="text-primary italic font-serif">Complimentary</span>
+                <span v-else class="text-stone-100 tabular-nums">{{ settings?.currency || 'EGP' }} {{ settings?.shippingFee || 0 }}</span>
               </div>
-              <div class="flex justify-between items-center text-stone-400 text-xs uppercase tracking-widest font-label">
-                <span>Inclusive of VAT (14%)</span>
-                <span class="text-stone-100">{{ settings?.currency || 'EGP' }} {{ (cartTotal * 0.14).toFixed(0) }}</span>
+              <div class="flex justify-between items-center text-[10px] uppercase font-bold tracking-[0.3em] text-stone-400/50">
+                <span>Incl. Value Taxes</span>
+                <span class="text-stone-100/50 tabular-nums">{{ settings?.currency || 'EGP' }} {{ (cartTotal * 0.14).toFixed(0) }}</span>
               </div>
             </div>
 
-            <div class="flex justify-between items-center text-2xl font-serif mb-10 pt-8 border-t border-white/5 italic">
-              <span>Grand Total</span>
-              <span>{{ settings?.currency || 'EGP' }} {{ grandTotal.toFixed(0) }}</span>
+            <div class="flex justify-between items-end text-4xl font-serif font-bold mb-14 pt-10 border-t border-white/10 italic">
+              <span class="text-xs uppercase font-bold tracking-[0.3em] text-stone-500 not-italic mb-2">Grand Total</span>
+              <span class="tracking-tighter">{{ settings?.currency || 'EGP' }} {{ grandTotal.toFixed(0) }}</span>
             </div>
 
-            <NuxtLink to="/checkout" class="block w-full py-6 text-center bg-white text-stone-950 rounded font-label uppercase tracking-[0.3em] text-[11px] font-bold hover:bg-primary hover:text-white transition-all transform active:scale-[0.98] shadow-xl shadow-stone-950/40">
-              Finalize Order
+            <NuxtLink to="/checkout" class="block w-full py-7 text-center bg-white text-stone-900 rounded-full font-label uppercase tracking-[0.4em] text-[11px] font-bold hover:bg-primary hover:text-white transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-2xl shadow-black/20">
+              Commit to Order
             </NuxtLink>
             
-            <div class="mt-8 flex flex-col items-center gap-4">
-               <div class="flex gap-4 opacity-30">
-                 <span class="material-symbols-outlined text-xl">shield_locked</span>
-                 <span class="material-symbols-outlined text-xl">credit_card</span>
-                 <span class="material-symbols-outlined text-xl">account_balance</span>
+            <div class="mt-10 pt-10 border-t border-white/5 flex flex-col items-center gap-6 text-center">
+               <div class="flex gap-8 opacity-20">
+                 <span class="material-symbols-outlined text-2xl font-light">verified_user</span>
+                 <span class="material-symbols-outlined text-2xl font-light">lock</span>
+                 <span class="material-symbols-outlined text-2xl font-light">payments</span>
                </div>
-               <p class="text-[9px] uppercase tracking-[0.2em] text-stone-500 font-label">Secure Checkout Powered by Vigo</p>
+               <p class="text-[8px] uppercase tracking-[0.4em] text-stone-500 font-bold leading-relaxed">
+                 Encrypted Fiscal Processing<br/>Curated by Vigo Atelier
+               </p>
             </div>
           </div>
 
-          <!-- Free Shipping Upsell -->
-          <div v-if="!isShippingFree && settings?.freeShippingThreshold > 0" class="mt-6 p-6 bg-primary/5 border border-primary/20 rounded-xl">
-             <div class="flex items-center gap-3 mb-3">
-               <span class="material-symbols-outlined text-primary text-sm animate-pulse">local_shipping</span>
-               <span class="text-[10px] uppercase font-bold tracking-widest text-primary">Unlock Free Shipping</span>
+          <!-- Shipping Advancement -->
+          <div v-if="!isShippingFree && settings?.freeShippingThreshold > 0" class="mt-8 p-8 bg-white border border-stone-100 rounded-3xl shadow-sm">
+             <div class="flex items-center justify-between mb-6">
+               <div class="flex items-center gap-3">
+                 <span class="material-symbols-outlined text-primary text-lg italic">auto_awesome</span>
+                 <span class="text-[9px] uppercase font-bold tracking-[0.3em] text-stone-900">Complimentary Shipping</span>
+               </div>
+               <span class="text-[10px] text-stone-400 tabular-nums">Remaining: {{ (settings.freeShippingThreshold - cartTotal).toFixed(0) }}</span>
              </div>
-             <p class="text-xs text-stone-600 font-body mb-4 leading-relaxed">
-               Add <strong>{{ settings?.currency || 'EGP' }} {{ (settings.freeShippingThreshold - cartTotal).toFixed(0) }}</strong> more to your bag and enjoy complimentary express delivery.
+             <p class="text-xs text-stone-500 font-body italic mb-6 leading-relaxed">
+               Elevate your selection by <strong>{{ (settings.freeShippingThreshold - cartTotal).toFixed(0) }}</strong> to unlock archived complimentary logistics.
              </p>
-             <div class="h-1 bg-stone-100 rounded-full overflow-hidden">
-                <div class="h-full bg-primary transition-all duration-1000" :style="{ width: `${(cartTotal / settings.freeShippingThreshold) * 100}%` }"></div>
+             <div class="h-1 bg-stone-50 rounded-full overflow-hidden">
+                <div class="h-full bg-primary transition-all duration-[2s] cubic-bezier(0.2, 0.8, 0.2, 1)" :style="{ width: `${Math.min((cartTotal / settings.freeShippingThreshold) * 100, 100)}%` }"></div>
              </div>
           </div>
         </div>
       </div>
     </main>
-
-    <!-- Footer Space Filler if needed -->
   </div>
 </template>
 
@@ -133,7 +163,7 @@ definePageMeta({
 
 const isShippingFree = computed(() => {
   if (!settings.value?.freeShippingThreshold) return false
-  return cartTotal.value >= settings.value.freeShippingThreshold
+  return cartTotal.value >= (settings.value.freeShippingThreshold || 0)
 })
 
 const grandTotal = computed(() => {
@@ -142,9 +172,18 @@ const grandTotal = computed(() => {
 })
 
 useHead({
-  title: `Shopping Bag | ${settings.value?.siteName || 'VIGO'}`,
+  title: `Your Bag | ${settings.value?.siteName || 'VIGO ATELIER'}`,
   meta: [
-    { name: 'description', content: 'Review your selected items and proceed to checkout.' }
+    { name: 'description', content: 'Review your selected artisanal collection and proceed to fiscal commitment.' }
   ]
 })
 </script>
+
+<style scoped>
+/* Hidden scrollbar but keeps functionality */
+[appearance="textfield"]::-webkit-outer-spin-button,
+[appearance="textfield"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+</style>
