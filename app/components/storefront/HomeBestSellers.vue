@@ -1,20 +1,17 @@
 <template>
   <section class="py-24 bg-stone-50 overflow-hidden">
     <div class="max-w-screen-2xl mx-auto px-12">
-      <div class="mb-16">
-        <span class="uppercase tracking-[0.4em] text-[10px] font-bold text-primary mb-4 block">Seasonal Edit</span>
-        <h2 class="text-5xl font-serif">The <span class="italic">Essential</span> List</h2>
-      </div>
-
-      <div v-if="pending" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-        <div v-for="i in 4" :key="i" class="animate-pulse">
-          <div class="aspect-[3/4] bg-stone-200 rounded-xl mb-4"></div>
-          <div class="h-4 bg-stone-200 rounded w-2/3 mb-2"></div>
-          <div class="h-4 bg-stone-200 rounded w-1/3"></div>
+      <!-- Skeleton Loading State -->
+      <div v-if="pending" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
+        <div v-for="i in 10" :key="i" class="animate-pulse">
+          <div class="aspect-[3/4] bg-stone-100 rounded-xl mb-4"></div>
+          <div class="h-4 bg-stone-100 rounded w-2/3 mb-2"></div>
+          <div class="h-4 bg-stone-100 rounded w-1/3"></div>
         </div>
       </div>
 
-      <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+      <!-- Products Grid -->
+      <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-x-8 gap-y-16">
         <div v-for="product in products" :key="product.id" class="group">
           <NuxtLink :to="`/products/${product.slug}`">
             <div class="relative aspect-[3/4] bg-white rounded-xl overflow-hidden mb-6 shadow-sm border border-stone-100 group-hover:shadow-xl group-hover:shadow-primary/5 transition-all duration-500">
@@ -58,15 +55,6 @@
           </NuxtLink>
         </div>
       </div>
-
-      <div class="mt-20 flex justify-center">
-        <NuxtLink 
-          to="/products"
-          class="px-12 py-5 border border-stone-200 rounded text-stone-800 font-label text-[11px] uppercase tracking-[0.3em] font-bold hover:bg-stone-900 hover:text-white hover:border-stone-900 transition-all duration-500 active:scale-[0.98]"
-        >
-          View Entire Collection
-        </NuxtLink>
-      </div>
     </div>
   </section>
 </template>
@@ -74,11 +62,10 @@
 <script setup lang="ts">
 const { settings } = useSettings()
 
-const { data: productsData, pending } = await useApiFetch<any>('/api/products', {
-  query: { limit: 4, sort: 'popular' }
+// Fetch latest 10 products
+const { data: products, pending } = await useApiFetch<any[]>('/api/products', {
+  query: { limit: 10, sort: 'newest' }
 })
-
-const products = computed(() => productsData.value?.items || [])
 
 const calculateDiscountedPrice = (product: any) => {
   if (product.discount) {

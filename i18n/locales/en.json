@@ -102,5 +102,13 @@
     "success": "Success",
     "confirm": "Confirm",
     "delete": "Delete"
+  },
+  "nav": {
+    "home": "Home",
+    "shopAll": "Shop All",
+    "aboutUs": "About Us"
+  },
+  "footer": {
+    "whatsapp": "Chat on WhatsApp"
   }
 }

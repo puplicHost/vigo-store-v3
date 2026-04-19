@@ -186,12 +186,12 @@
           <!-- Social Tab -->
           <div v-if="activeTab === 'social'" class="space-y-6">
             <div>
-              <label class="block text-sm font-body text-on-surface-variant mb-1">Facebook URL</label>
+              <label class="block text-sm font-body text-on-surface-variant mb-1">TikTok URL</label>
               <input
-                v-model="settings.facebookUrl"
+                v-model="settings.tiktokUrl"
                 type="url"
                 class="w-full bg-transparent border border-outline-variant/30 rounded-lg px-4 py-2.5 text-sm font-body text-on-surface focus:outline-none focus:border-primary/50 transition-colors"
-                placeholder="https://facebook.com/..."
+                placeholder="https://tiktok.com/@..."
               />
             </div>
             <div>
@@ -203,7 +203,26 @@
                 placeholder="https://instagram.com/..."
               />
             </div>
+            <div>
+              <label class="block text-sm font-body text-on-surface-variant mb-1">Facebook URL</label>
+              <input
+                v-model="settings.facebookUrl"
+                type="url"
+                class="w-full bg-transparent border border-outline-variant/30 rounded-lg px-4 py-2.5 text-sm font-body text-on-surface focus:outline-none focus:border-primary/50 transition-colors"
+                placeholder="https://facebook.com/..."
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-body text-on-surface-variant mb-1">Snapchat URL</label>
+              <input
+                v-model="settings.snapchatUrl"
+                type="url"
+                class="w-full bg-transparent border border-outline-variant/30 rounded-lg px-4 py-2.5 text-sm font-body text-on-surface focus:outline-none focus:border-primary/50 transition-colors"
+                placeholder="https://snapchat.com/add/..."
+              />
+            </div>
           </div>
+
 
           <!-- Payment Tab -->
           <div v-if="activeTab === 'payment'" class="space-y-6">

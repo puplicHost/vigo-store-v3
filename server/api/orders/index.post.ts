@@ -1,25 +1,33 @@
 import { paymobService } from '../../utils/paymob'
-import { settingsService } from '../../domains/settings/services/SettingsService'
 import prisma from '../../utils/prisma'
-import { logger } from '../../utils/logger'
+import { handleError } from '../../utils/error'
 
 export default defineEventHandler(async (event) => {
-  try {
-    const user = event.context.user
-    if (!user) {
-      throw createError({
-        statusCode: 401,
-        statusMessage: 'Unauthorized'
-      })
-    }
+  const user = event.context.user
+  if (!user) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Unauthorized'
+    })
+  }
 
+  try {
     const body = await readBody(event)
     const { items, shippingAddress, totalAmount, paymentMethod } = body
 
-    // 1. Get Settings for Payment Gateway Keys
-    const settings = await settingsService.getSettings()
+    // 1. Validate Payment Method
+    const gateway = await prisma.paymentGateway.findUnique({
+      where: { name: paymentMethod.toUpperCase() }
+    })
 
-    // 2. Create Order in Database (Status: PENDING)
+    if (!gateway || !gateway.isEnabled) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Selected payment method is currently unavailable'
+      })
+    }
+
+    // 2. Create Order
     const order = await prisma.order.create({
       data: {
         userId: user.id,
@@ -27,7 +35,7 @@ export default defineEventHandler(async (event) => {
         status: 'PENDING',
         paymentStatus: 'PENDING',
         paymentMethod: paymentMethod.toUpperCase(),
-        shippingAddress: JSON.stringify(shippingAddress), // Assuming we have as field or separate model
+        shippingAddress: JSON.stringify(shippingAddress),
         items: {
           create: items.map((item: any) => ({
             productId: item.productId,
@@ -38,37 +46,29 @@ export default defineEventHandler(async (event) => {
       }
     })
 
-    // 3. Handle Payment Gateway Initialization
-    if (paymentMethod.toUpperCase() === 'PAYMOB' && settings.isPaymobEnabled) {
-      if (!settings.paymobApiKey || !settings.paymobIntegrationId) {
-        throw createError({
-          statusCode: 500,
-          statusMessage: 'Paymob is not configured properly'
-        })
-      }
-
-      // Step A: Authentication
-      const authToken = await paymobService.authenticate(settings.paymobApiKey)
-
-      // Step B: Order Registration
+    // 3. Handle Paymob Logic
+    if (paymentMethod.toUpperCase() === 'PAYMOB' && gateway.config) {
+      const config = gateway.config as any
+      
+      const authToken = await paymobService.authenticate(config.apiKey)
       const amountCents = Math.round(totalAmount * 100)
+      
       const paymobOrderId = await paymobService.registerOrder(
         authToken,
         amountCents,
-        settings.currency || 'EGP',
+        'EGP',
         order.id
       )
 
-      // Step C: Payment Key Generation
       const paymentToken = await paymobService.createPaymentKey(
         authToken,
         paymobOrderId,
         amountCents,
-        settings.currency || 'EGP',
-        Number(settings.paymobIntegrationId),
+        'EGP',
+        Number(config.integrationId),
         {
-          first_name: shippingAddress.firstName,
-          last_name: shippingAddress.lastName,
+          first_name: shippingAddress.firstName || user.name || 'Vigo',
+          last_name: shippingAddress.lastName || 'Customer',
           email: user.email,
           phone_number: shippingAddress.phone || '01000000000'
         }
@@ -77,25 +77,18 @@ export default defineEventHandler(async (event) => {
       return {
         success: true,
         orderId: order.id,
-        paymentToken,
-        iframeId: settings.paymobIframeId,
-        paymentUrl: `https://egypt.paymob.com/api/acceptance/iframes/${settings.paymobIframeId}?payment_token=${paymentToken}`
+        paymentUrl: `https://egypt.paymob.com/api/acceptance/iframes/${config.iframeId}?payment_token=${paymentToken}`
       }
     }
 
-    // Default response for COD or logic without redirect
+    // 4. Handle COD Logic
     return {
       success: true,
       orderId: order.id,
-      message: 'Order created successfully'
+      message: 'Order created successfully with Cash on Delivery'
     }
 
   } catch (error: any) {
-    logger.error('[Order Create Error]', error)
-    if (error.statusCode) throw error
-    throw createError({
-      statusCode: 500,
-      statusMessage: error.message || 'Failed to create order'
-    })
+    throw handleError(error)
   }
 })

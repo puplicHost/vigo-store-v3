@@ -57,29 +57,31 @@ onUnmounted(() => {
             :class="{ 'scale-110': currentSlide === index }"
             alt="Hero Background"
           />
-          <div class="absolute inset-0 bg-stone-950/20 mix-blend-multiply"></div>
+          <!-- Strategic Overlay for Readability -->
+          <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60"></div>
+          <div class="absolute inset-0 bg-black/20 mix-blend-overlay"></div>
           
-          <div class="absolute inset-0 flex flex-col justify-center px-12 md:px-24 max-w-7xl">
-            <div class="overflow-hidden mb-6">
+          <div class="absolute inset-0 flex flex-col justify-center items-center text-center px-6 md:px-24 max-w-5xl mx-auto">
+            <div class="overflow-hidden mb-8">
               <h1 
                 v-html="slide.title"
-                class="text-6xl md:text-9xl font-serif font-bold text-white leading-[0.9] -tracking-[0.04em] transition-all duration-1000 delay-300"
+                class="text-5xl md:text-8xl lg:text-[10rem] font-serif font-bold text-white leading-[0.85] -tracking-[0.04em] transition-all duration-1000 delay-300"
                 :class="currentSlide === index ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'"
               ></h1>
             </div>
             <p 
-              class="font-body text-lg md:text-xl text-stone-200 max-w-md mb-12 leading-relaxed transition-all duration-1000 delay-500"
+              class="font-body text-base md:text-xl text-stone-200 max-w-2xl mb-14 leading-relaxed transition-all duration-1000 delay-500"
               :class="currentSlide === index ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'"
             >
               {{ slide.description }}
             </p>
             <div 
-              class="flex items-center gap-8 transition-all duration-1000 delay-700"
+              class="flex flex-col items-center gap-6 transition-all duration-1000 delay-700"
               :class="currentSlide === index ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'"
             >
               <NuxtLink 
                 :to="slide.link" 
-                class="px-10 py-5 bg-white text-stone-900 rounded font-label text-[11px] font-bold uppercase tracking-[0.3em] hover:bg-primary hover:text-white transition-all transform active:scale-[0.98]"
+                class="px-14 py-6 bg-white text-stone-900 rounded-full font-label text-[11px] font-bold uppercase tracking-[0.4em] hover:bg-primary hover:text-white transition-all transform hover:scale-105 active:scale-[0.98] shadow-2xl shadow-black/20"
               >
                 Explore Collection
               </NuxtLink>
@@ -106,8 +108,6 @@ onUnmounted(() => {
         </div>
       </section>
 
-      <!-- Featured Collections (Categories) -->
-      <StorefrontHomeCategories />
 
       <!-- Best Sellers (Featured Grid) -->
       <StorefrontHomeBestSellers />
@@ -124,8 +124,6 @@ onUnmounted(() => {
         </div>
       </section>
 
-      <!-- Newsletter -->
-      <StorefrontNewsletter />
     </main>
   </div>
 </template>

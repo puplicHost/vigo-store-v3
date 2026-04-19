@@ -20,8 +20,8 @@ export default defineEventHandler(async (event) => {
     if (!settings) {
       settings = await prisma.settings.create({
         data: {
-          shippingFee: body.shippingFee ?? 0,
-          freeShippingThreshold: body.freeShippingThreshold ?? 0,
+          shippingFee: Number(body.shippingFee ?? 0),
+          freeShippingThreshold: Number(body.freeShippingThreshold ?? 0),
           currency: body.currency ?? 'EGP',
           contactEmail: body.contactEmail,
           contactPhone: body.contactPhone,
@@ -36,6 +36,8 @@ export default defineEventHandler(async (event) => {
           instagramUrl: body.instagramUrl,
           twitterUrl: body.twitterUrl,
           linkedinUrl: body.linkedinUrl,
+          tiktokUrl: body.tiktokUrl,
+          snapchatUrl: body.snapchatUrl,
           isCodEnabled: body.isCodEnabled ?? true,
           isStripeEnabled: body.isStripeEnabled ?? false,
           stripePublicKey: body.stripePublicKey,
@@ -43,7 +45,7 @@ export default defineEventHandler(async (event) => {
           isTestMode: body.isTestMode ?? false,
           isPaymobEnabled: body.isPaymobEnabled ?? false,
           paymobApiKey: body.paymobApiKey,
-          paymobHmac: body.paymobHmac,
+          paymobHmacSecret: body.paymobHmac,
           paymobIntegrationId: body.paymobIntegrationId,
           paymobIframeId: body.paymobIframeId
         }
@@ -53,8 +55,8 @@ export default defineEventHandler(async (event) => {
       settings = await prisma.settings.update({
         where: { id: settings.id },
         data: {
-          ...(body.shippingFee !== undefined && { shippingFee: body.shippingFee }),
-          ...(body.freeShippingThreshold !== undefined && { freeShippingThreshold: body.freeShippingThreshold }),
+          ...(body.shippingFee !== undefined && { shippingFee: Number(body.shippingFee) }),
+          ...(body.freeShippingThreshold !== undefined && { freeShippingThreshold: Number(body.freeShippingThreshold) }),
           ...(body.currency !== undefined && { currency: body.currency }),
           ...(body.contactEmail !== undefined && { contactEmail: body.contactEmail }),
           ...(body.contactPhone !== undefined && { contactPhone: body.contactPhone }),
@@ -69,6 +71,8 @@ export default defineEventHandler(async (event) => {
           ...(body.instagramUrl !== undefined && { instagramUrl: body.instagramUrl }),
           ...(body.twitterUrl !== undefined && { twitterUrl: body.twitterUrl }),
           ...(body.linkedinUrl !== undefined && { linkedinUrl: body.linkedinUrl }),
+          ...(body.tiktokUrl !== undefined && { tiktokUrl: body.tiktokUrl }),
+          ...(body.snapchatUrl !== undefined && { snapchatUrl: body.snapchatUrl }),
           ...(body.isCodEnabled !== undefined && { isCodEnabled: body.isCodEnabled }),
           ...(body.isStripeEnabled !== undefined && { isStripeEnabled: body.isStripeEnabled }),
           ...(body.stripePublicKey !== undefined && { stripePublicKey: body.stripePublicKey }),
@@ -76,7 +80,7 @@ export default defineEventHandler(async (event) => {
           ...(body.isTestMode !== undefined && { isTestMode: body.isTestMode }),
           ...(body.isPaymobEnabled !== undefined && { isPaymobEnabled: body.isPaymobEnabled }),
           ...(body.paymobApiKey !== undefined && { paymobApiKey: body.paymobApiKey }),
-          ...(body.paymobHmac !== undefined && { paymobHmac: body.paymobHmac }),
+          ...(body.paymobHmac !== undefined && { paymobHmacSecret: body.paymobHmac }),
           ...(body.paymobIntegrationId !== undefined && { paymobIntegrationId: body.paymobIntegrationId }),
           ...(body.paymobIframeId !== undefined && { paymobIframeId: body.paymobIframeId })
         }

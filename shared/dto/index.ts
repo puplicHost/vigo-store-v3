@@ -168,7 +168,11 @@ export interface SettingsDTO {
   twitterUrl: string | null
   instagramUrl: string | null
   linkedinUrl: string | null
+  tiktokUrl: string | null
+  snapchatUrl: string | null
   stripePublicKey: string | null
+  stripeSecretKey?: string | null
+  isTestMode: boolean
   isCodEnabled: boolean
   isStripeEnabled: boolean
   isPaymobEnabled: boolean

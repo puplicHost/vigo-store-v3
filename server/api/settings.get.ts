@@ -33,6 +33,8 @@ export default defineEventHandler(async (event) => {
       instagramUrl: settings.instagramUrl,
       twitterUrl: settings.twitterUrl,
       linkedinUrl: settings.linkedinUrl,
+      tiktokUrl: settings.tiktokUrl,
+      snapchatUrl: settings.snapchatUrl,
       shippingFee: settings.shippingFee,
       freeShippingThreshold: settings.freeShippingThreshold,
       isCodEnabled: settings.isCodEnabled,

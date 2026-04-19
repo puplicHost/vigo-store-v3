@@ -44,7 +44,11 @@ export class SettingsRepository {
     if (data.twitterUrl !== undefined) prismaData.twitterUrl = data.twitterUrl || null
     if (data.instagramUrl !== undefined) prismaData.instagramUrl = data.instagramUrl || null
     if (data.linkedinUrl !== undefined) prismaData.linkedinUrl = data.linkedinUrl || null
+    if (data.tiktokUrl !== undefined) prismaData.tiktokUrl = data.tiktokUrl || null
+    if (data.snapchatUrl !== undefined) prismaData.snapchatUrl = data.snapchatUrl || null
     if (data.stripePublicKey !== undefined) prismaData.stripePublicKey = data.stripePublicKey || null
+    if (data.stripeSecretKey !== undefined) prismaData.stripeSecretKey = data.stripeSecretKey || null
+    if (data.isTestMode !== undefined) prismaData.isTestMode = Boolean(data.isTestMode)
     if (data.isCodEnabled !== undefined) prismaData.isCodEnabled = Boolean(data.isCodEnabled)
     if (data.isStripeEnabled !== undefined) prismaData.isStripeEnabled = Boolean(data.isStripeEnabled)
     if (data.isPaymobEnabled !== undefined) prismaData.isPaymobEnabled = Boolean(data.isPaymobEnabled)
@@ -87,7 +91,11 @@ export class SettingsRepository {
       twitterUrl: null,
       instagramUrl: null,
       linkedinUrl: null,
+      tiktokUrl: null,
+      snapchatUrl: null,
       stripePublicKey: null,
+      stripeSecretKey: null,
+      isTestMode: true,
       isCodEnabled: true,
       isStripeEnabled: false,
       isPaymobEnabled: false,
@@ -116,7 +124,11 @@ export class SettingsRepository {
       twitterUrl: null,
       instagramUrl: null,
       linkedinUrl: null,
+      tiktokUrl: null,
+      snapchatUrl: null,
       stripePublicKey: null,
+      stripeSecretKey: null,
+      isTestMode: true,
       isCodEnabled: true,
       isStripeEnabled: false,
       isPaymobEnabled: false
@@ -144,7 +156,11 @@ export class SettingsRepository {
       twitterUrl: settings.twitterUrl,
       instagramUrl: settings.instagramUrl,
       linkedinUrl: settings.linkedinUrl,
+      tiktokUrl: settings.tiktokUrl,
+      snapchatUrl: settings.snapchatUrl,
       stripePublicKey: settings.stripePublicKey,
+      stripeSecretKey: settings.stripeSecretKey,
+      isTestMode: settings.isTestMode,
       isCodEnabled: settings.isCodEnabled,
       isStripeEnabled: settings.isStripeEnabled,
       isPaymobEnabled: settings.isPaymobEnabled,

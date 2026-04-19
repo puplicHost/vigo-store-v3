@@ -122,6 +122,7 @@ model Order {
   userId          String
   user            User          @relation(fields: [userId], references: [id])
   items           OrderItem[]
+  payments        PaymentTransaction[]
   totalAmount     Float
   status          OrderStatus   @default(PENDING)
   paymentStatus   PaymentStatus @default(PENDING)
@@ -147,51 +148,70 @@ model OrderItem {
   price     Float   
 }
 
-// 8. إعدادات المتجر (Settings) - Singleton model
+// 8. بوابات الدفع (MVP)
+model PaymentGateway {
+  id              String   @id @default(cuid())
+  name            String   @unique // "Paymob", "COD"
+  isEnabled       Boolean  @default(true)
+  config          Json?    // Stores API Keys, Integration IDs, etc. (Encrypted ideally)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// 9. المعاملات المالية
+model PaymentTransaction {
+  id              String   @id @default(cuid())
+  orderId         String
+  order           Order    @relation(fields: [orderId], references: [id])
+  externalId      String?  @unique // Paymob Transaction ID
+  amount          Float
+  status          String   // "PENDING", "SUCCESS", "FAILED"
+  rawResponse     Json?    // Full gateway response for debugging
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// 10. إعدادات المتجر (Settings)
 model Settings {
-  id                String   @id @default(cuid())
-  
-  // Shipping & Currency
-  shippingFee       Float    @default(0)
-  freeShippingThreshold Float @default(0)
+  id                String   @id @default("default")
+  siteName          String?  @default("VIGO ATELIER")
+  siteDescription   String?
+  siteKeywords      String?
   currency          String   @default("EGP")
   
-  // Contact Info
+  shippingFee       Float    @default(0)
+  freeShippingThreshold Float @default(0)
+
   contactEmail      String?
   contactPhone      String?
   contactAddress    String?
   whatsappNumber    String?
-  
-  // Maintenance Mode
-  maintenanceMode   Boolean  @default(false)
-  maintenanceMessage String?
-  
-  // SEO
-  siteName          String?
-  siteDescription   String?
-  siteKeywords      String?
   
   // Social Media
   facebookUrl       String?
   instagramUrl      String?
   twitterUrl        String?
   linkedinUrl       String?
-  
-  // Payment Configuration
+  tiktokUrl         String?
+  snapchatUrl       String?
+
+  // Maintenance
+  maintenanceMode   Boolean  @default(false)
+  maintenanceMessage String?
+
+  // Payment Settings
   isCodEnabled      Boolean  @default(true)
   isStripeEnabled   Boolean  @default(false)
+  isTestMode        Boolean  @default(true)
   stripePublicKey   String?
   stripeSecretKey   String?
   
-  // Paymob Configuration (Egypt Card Payments)
   isPaymobEnabled   Boolean  @default(false)
   paymobApiKey      String?
   paymobIntegrationId String?
   paymobIframeId    String?
   paymobHmacSecret  String?
-  
-  isTestMode        Boolean  @default(true)
-  
+
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
-}
+}
