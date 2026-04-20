@@ -244,36 +244,65 @@ const total = computed(() => {
 
 const commitOrder = async () => {
   if (!cartItems.value.length) return
-  if (!shipping.value.fullName || !shipping.value.phone || !shipping.value.address) {
-    toast.warning('Logistics details required for archival.')
-    return
-  }
-  if (paymentMethod.value === 'paymob' && !card.value.number) {
-    toast.warning('Card credentials required for modal processing.')
-    return
+  
+  // Conditional Validation Based on Payment Method
+  if (paymentMethod.value === 'cod') {
+    if (!shipping.value.fullName || !shipping.value.phone || !shipping.value.address) {
+      toast.warning('Logistics details required for Cash on Arrival.')
+      return
+    }
+  } else if (paymentMethod.value === 'paymob') {
+    if (!shipping.value.fullName || !shipping.value.phone) {
+      toast.warning('Recipient details required for Digital Processing.')
+      return
+    }
+    if (!shipping.value.email) {
+      toast.warning('Fiscal Email required for Digital Processing.')
+      return
+    }
+    if (!card.value.number || !card.value.expiry || !card.value.cvv) {
+      toast.warning('Card credentials required for modal processing.')
+      return
+    }
   }
 
   isProcessing.value = true
   try {
     const names = shipping.value.fullName.split(' ')
+    const payload = {
+      items: cartItems.value.map(i => ({ 
+        productId: i.product ? i.product.id : i.productId, 
+        quantity: i.quantity, 
+        price: i.price 
+      })),
+      shippingAddress: {
+        firstName: names[0] || '', lastName: names.slice(1).join(' ') || '',
+        phone: shipping.value.phone, 
+        address: paymentMethod.value === 'cod' ? shipping.value.address : 'Digital Purchase',
+        city: paymentMethod.value === 'cod' ? shipping.value.city : 'Digital City',
+        country: 'Egypt',
+        email: paymentMethod.value === 'paymob' ? shipping.value.email : undefined
+      },
+      totalAmount: total.value,
+      paymentMethod: paymentMethod.value.toUpperCase()
+    }
+
+    console.log("ORDER PAYLOAD", payload)
+
     await $apiFetch<any>('/api/orders', {
       method: 'POST',
-      body: {
-        items: cartItems.value.map(i => ({ productId: i.productId, quantity: i.quantity, price: i.price })),
-        shippingAddress: {
-          firstName: names[0] || '', lastName: names.slice(1).join(' ') || '',
-          phone: shipping.value.phone, address: shipping.value.address,
-          city: shipping.value.city, country: 'Egypt'
-        },
-        totalAmount: total.value,
-        paymentMethod: paymentMethod.value.toUpperCase()
-      }
+      body: payload
     })
+    
     toast.success('Commitment received.')
     clearCart()
     navigateTo('/')
   } catch (error: any) {
-    toast.error('Processing failed.')
+    if (error.response?._data?.statusMessage) {
+      toast.error(error.response._data.statusMessage)
+    } else {
+      toast.error('Processing failed.')
+    }
   } finally {
     isProcessing.value = false
   }

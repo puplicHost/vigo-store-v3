@@ -32,24 +32,37 @@
 
           <div class="flex flex-col lg:flex-row gap-20 xl:gap-32">
             <!-- Image Theater (Left Column) -->
-            <div class="lg:w-7/12 xl:w-8/12 flex flex-col gap-10">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-                <div 
+            <div class="lg:w-7/12 xl:w-8/12 flex flex-col gap-6">
+              <!-- Main Image Viewer -->
+              <div class="relative aspect-[3/4] overflow-hidden rounded-3xl bg-white border border-stone-100 shadow-sm transition-all duration-700 group">
+                <img 
+                  v-if="product.images?.length"
+                  :src="product.images[selectedImageIndex] || product.images[0]" 
+                  :alt="`${product.name} - Main View`"
+                  class="w-full h-full object-contain p-8 md:p-12 transition-transform duration-1000 group-hover:scale-105"
+                />
+                
+                <!-- Floating Badge -->
+                <div v-if="product.isFeatured" class="absolute top-8 left-8 z-10">
+                  <span class="bg-black text-white text-[9px] font-bold uppercase tracking-[0.3em] px-4 py-2 rounded-sm shadow-2xl">Atelier Preview</span>
+                </div>
+              </div>
+
+              <!-- Thumbnails -->
+              <div v-if="product.images?.length > 1" class="flex gap-4 overflow-x-auto pb-4 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
+                <button 
                   v-for="(image, index) in product.images" 
                   :key="index"
-                  class="relative aspect-[3/4] overflow-hidden rounded-3xl bg-white border border-stone-100 group shadow-sm hover:shadow-2xl transition-all duration-700"
-                  :class="{ 'md:col-span-2': index === 0 }"
+                  @click="selectedImageIndex = index"
+                  class="relative flex-none w-24 sm:w-28 aspect-[3/4] overflow-hidden rounded-2xl bg-white border-[1.5px] transition-all duration-300 snap-start"
+                  :class="selectedImageIndex === index ? 'border-primary shadow-md' : 'border-stone-100 hover:border-stone-300 opacity-60 hover:opacity-100'"
                 >
                   <img 
                     :src="image" 
-                    :alt="`${product.name} - View ${index + 1}`"
-                    class="w-full h-full object-contain p-8 md:p-12 transition-transform duration-1000 group-hover:scale-105"
+                    :alt="`Thumbnail ${index + 1}`"
+                    class="w-full h-full object-contain p-3"
                   />
-                  <!-- Floating Badge -->
-                  <div v-if="index === 0 && product.isFeatured" class="absolute top-8 left-8">
-                    <span class="bg-black text-white text-[9px] font-bold uppercase tracking-[0.3em] px-4 py-2 rounded-sm shadow-2xl">Atelier Preview</span>
-                  </div>
-                </div>
+                </button>
               </div>
             </div>
 
@@ -88,7 +101,7 @@
                 <div v-if="product.colors?.length" class="mb-14">
                   <div class="flex justify-between items-center mb-6">
                     <span class="text-[10px] font-bold uppercase tracking-[0.3em] text-stone-400">Tonal Palette</span>
-                    <span class="text-[10px] text-stone-900 font-bold uppercase tracking-widest">{{ selectedColor }}</span>
+                    <span class="text-[10px] text-stone-900 font-bold uppercase tracking-widest">{{ getColorName(selectedColor) }}</span>
                   </div>
                   <div class="flex gap-5">
                     <button 
@@ -217,6 +230,7 @@ const route = useRoute()
 const { settings } = useSettings()
 const { addToCart } = useCart()
 const { toast } = useNotifications()
+const { getColorName } = useColors()
 const slug = route.params.slug
 
 // Core Details Map
@@ -230,6 +244,7 @@ const detailsMap = [
 const selectedColor = ref('')
 const selectedSize = ref('')
 const quantity = ref(1)
+const selectedImageIndex = ref(0)
 
 // Price Calculation
 const calculatePrice = (product: any) => {
@@ -258,6 +273,7 @@ const relatedProducts = computed(() => {
 watch(product, (newP) => {
   if (newP) {
     if (newP.colors?.length && !selectedColor.value) selectedColor.value = newP.colors[0]
+    selectedImageIndex.value = 0
   }
 }, { immediate: true })
 

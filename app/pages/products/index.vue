@@ -86,7 +86,7 @@
                     class="text-[12px] transition-colors capitalize"
                     :class="selectedColors.includes(color) ? 'text-[#1c1b1b] font-medium' : 'text-[#8c8a85] group-hover:text-[#5c5a55]'"
                   >
-                    {{ colorMap[color.toLowerCase()] || color }}
+                    {{ getColorName(color) }}
                   </span>
                 </button>
               </div>
@@ -165,7 +165,7 @@
                 
                 <!-- Subtitle / Colors text -->
                 <p class="text-[11px] text-[#5c5a55] mb-3 truncate">
-                  {{ product.colors && product.colors.length > 0 ? product.colors.map((c: string) => colorMap[c.toLowerCase()] || c).join(' / ') : 'Sandstone / White' }}
+                  {{ product.colors && product.colors.length > 0 ? product.colors.map((c: string) => getColorName(c)).join(' / ') : 'Sandstone / White' }}
                 </p>
 
                 <!-- Color palette indicator -->
@@ -213,6 +213,7 @@
 <script setup lang="ts">
 const { settings } = useSettings()
 const route = useRoute()
+const { getColorName } = useColors()
 
 // Filter states
 const searchQuery = ref('')
@@ -224,19 +225,6 @@ const sortBy = ref('newest')
 // New filter state for Material UI
 const selectedMaterials = ref<string[]>([])
 const materials = ['Organic Silk', 'Raw Linen', 'Merino Wool']
-
-// Helper formatting map
-const colorMap: Record<string, string> = {
-  '#000000': 'Obsidian',
-  'black': 'Obsidian',
-  '#333333': 'Charcoal',
-  '#d2b48c': 'Sandstone',
-  '#c2b280': 'Ecru',
-  '#f5f5f5': 'Cream',
-  '#ffffff': 'White',
-  'white': 'White',
-  '#87ceeb': 'Sky Blue'
-}
 
 // Fetch products
 const { data: productsData, pending } = await useApiFetch<any>('/api/products', {

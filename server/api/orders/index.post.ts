@@ -27,7 +27,25 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // 2. Create Order
+    // 2. Validate Products Exist Before Order Creation
+    const productIds = items.map((item: any) => item.productId)
+    const validProducts = await prisma.product.findMany({
+      where: {
+        id: { in: productIds }
+      }
+    })
+
+    console.log("Incoming order items:", items)
+    console.log("Validated product IDs:", validProducts)
+
+    if (validProducts.length !== items.length) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'One or more products in your cart are unavailable'
+      })
+    }
+
+    // 3. Create Order
     const userId = user.userId || user.id
     if (!userId) {
       throw createError({
