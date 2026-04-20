@@ -1,3 +1,5 @@
+import { getErrorMessage } from '../utils/errorHandler'
+
 /**
  * Secure API Fetch with JWT Authentication
  * SSR-safe with reactive token handling and proper refetch logic
@@ -113,23 +115,16 @@ export const $apiFetch = async <T = any>(url: string, options: any = {}): Promis
       headers
     })
   } catch (error: any) {
-    // Logs the error but lets the component handle the specific re-throw
+    // Determine user-friendly Arabic text
+    const message = getErrorMessage(error)
+
+    // Developer logging only
     console.error('[API Fetch Error]:', error)
-    // #region agent log
-    if (import.meta.client) {
-      debugProjectLog({
-        hypothesisId: 'H2',
-        location: 'useApiFetch.ts:$apiFetch:catch',
-        message: 'mutation failed',
-        data: {
-          url: String(url),
-          method: String(options?.method || 'GET'),
-          status: error?.statusCode ?? error?.status,
-          statusMessage: error?.data?.statusMessage ?? error?.message
-        }
-      })
+    
+    // Throw standard object for UI to pick up seamlessly
+    throw {
+      message,
+      statusCode: error?.statusCode || error?.status || error?.response?.status
     }
-    // #endregion
-    throw error
   }
 }

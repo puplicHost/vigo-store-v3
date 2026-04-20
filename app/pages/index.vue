@@ -116,11 +116,11 @@ onUnmounted(() => {
       <section class="py-32 bg-white flex flex-col items-center text-center px-12 border-t border-stone-100">
         <span class="material-symbols-outlined text-4xl text-primary font-light mb-12">auto_awesome</span>
         <h2 class="text-3xl md:text-5xl font-serif leading-snug max-w-4xl italic text-stone-800">
-          "The Vigo Atelier ethos is centered around <br/>aesthetic permanence and the meticulous <br/>pursuit of uncompromised quality."
+          "The {{ settings?.siteName || 'Vigo Atelier' }} ethos is centered around <br/>aesthetic permanence and the meticulous <br/>pursuit of uncompromised quality."
         </h2>
         <div class="mt-12 flex flex-col items-center">
             <div class="w-px h-16 bg-stone-200 mb-6"></div>
-            <span class="uppercase tracking-[0.4em] text-[10px] font-bold text-stone-400">VIGO Creative Direction</span>
+            <span class="uppercase tracking-[0.4em] text-[10px] font-bold text-stone-400">{{ settings?.siteName || 'VIGO' }} Creative Direction</span>
         </div>
       </section>
 

@@ -93,9 +93,7 @@
       "status": "Status",
       "payment": "Payment",
       "pending": "Pending",
-      "paid": "Paid",
-      "shipped": "Shipped",
-      "delivered": "Delivered",
+      "confirmed": "Confirmed",
       "cancelled": "Cancelled"
     }
   },

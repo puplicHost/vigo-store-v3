@@ -38,22 +38,19 @@ enum Permission {
   MANAGE_SETTINGS
 }
 
-// 3. نظام حالات الطلب
+// 3. نظام حالات الطلب (Order Lifecycle)
 enum OrderStatus {
   PENDING
-  PROCESSING
-  PAID
-  SHIPPED
-  DELIVERED
+  CONFIRMED
   CANCELLED
 }
 
-// 3.1 نظام حالات الدفع
+// 3.1 نظام حالات الدفع (Payment Lifecycle)
 enum PaymentStatus {
   PENDING
+  PROCESSING
   PAID
   FAILED
-  REFUNDED
 }
 
 // 4. موديل المستخدم
@@ -178,6 +175,8 @@ model Settings {
   siteDescription   String?
   siteKeywords      String?
   currency          String   @default("EGP")
+  logo              String?
+
   
   shippingFee       Float    @default(0)
   freeShippingThreshold Float @default(0)

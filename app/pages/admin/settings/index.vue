@@ -45,6 +45,47 @@
         <form v-else @submit.prevent="saveSettings">
           <!-- General Tab -->
           <div v-if="activeTab === 'general'" class="space-y-6">
+            <!-- Site Logo -->
+            <div class="space-y-4 pb-6 border-b border-outline-variant/10">
+              <label class="block text-sm font-label uppercase tracking-widest text-on-surface-variant">Site Logo</label>
+              <div class="flex items-center gap-6">
+                <!-- Preview -->
+                <div class="w-32 h-32 rounded-xl bg-surface-container-low border border-outline-variant/20 flex items-center justify-center overflow-hidden">
+                  <img v-if="settings.logo" :src="settings.logo" class="w-full h-full object-contain p-2" />
+                  <span v-else class="material-symbols-outlined text-4xl text-on-surface-variant/30">image</span>
+                </div>
+                
+                <div class="space-y-3">
+                  <div class="flex gap-2">
+                    <button
+                      type="button"
+                      @click="() => logoInput?.click()"
+                      class="px-4 py-2 bg-primary text-on-primary rounded-lg font-body text-xs hover:opacity-90 transition-opacity flex items-center gap-2"
+                    >
+                      <span class="material-symbols-outlined text-sm">upload</span>
+                      Change Logo
+                    </button>
+                    <button
+                      v-if="settings.logo"
+                      type="button"
+                      @click="settings.logo = null"
+                      class="px-4 py-2 border border-error/30 text-error rounded-lg font-body text-xs hover:bg-error/5 transition-colors"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                  <p class="text-[10px] text-on-surface-variant/60 font-body">Recommended: PNG or SVG with transparent background.<br>Suggested size: 512x512px.</p>
+                </div>
+              </div>
+              <input
+                ref="logoInput"
+                type="file"
+                accept="image/*"
+                class="hidden"
+                @change="handleLogoUpload"
+              />
+            </div>
+
             <div>
               <label class="block text-sm font-body text-on-surface-variant mb-1">{{ $t('products.name') }}</label>
               <input
@@ -386,6 +427,26 @@ const { settings, pending, error, updateSettings, fetchSettings } = useSettings(
 const { toast } = useNotifications()
 const activeTab = ref('general')
 const saving = ref(false)
+const logoInput = ref<HTMLInputElement | null>(null)
+
+const handleLogoUpload = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const files = target.files
+  if (!files || !files[0]) return
+
+  const file = files[0]
+  if (!file.type.startsWith('image/')) {
+    toast.error('Please upload an image file')
+    return
+  }
+
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    const result = e.target?.result as string
+    if (result) settings.value.logo = result
+  }
+  reader.readAsDataURL(file)
+}
 
 const tabs = [
   { id: 'general', label: 'General' },

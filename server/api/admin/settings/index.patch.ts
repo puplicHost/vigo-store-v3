@@ -47,7 +47,8 @@ export default defineEventHandler(async (event) => {
           paymobApiKey: body.paymobApiKey,
           paymobHmacSecret: body.paymobHmac,
           paymobIntegrationId: body.paymobIntegrationId,
-          paymobIframeId: body.paymobIframeId
+          paymobIframeId: body.paymobIframeId,
+          logo: body.logo
         }
       })
     } else {
@@ -82,7 +83,8 @@ export default defineEventHandler(async (event) => {
           ...(body.paymobApiKey !== undefined && { paymobApiKey: body.paymobApiKey }),
           ...(body.paymobHmac !== undefined && { paymobHmacSecret: body.paymobHmac }),
           ...(body.paymobIntegrationId !== undefined && { paymobIntegrationId: body.paymobIntegrationId }),
-          ...(body.paymobIframeId !== undefined && { paymobIframeId: body.paymobIframeId })
+          ...(body.paymobIframeId !== undefined && { paymobIframeId: body.paymobIframeId }),
+          ...(body.logo !== undefined && { logo: body.logo })
         }
       })
     }

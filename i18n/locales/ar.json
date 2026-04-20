@@ -91,7 +91,10 @@
       "customer": "العميل",
       "total": "الإجمالي",
       "status": "الحالة",
-      "payment": "الدفع"
+      "payment": "الدفع",
+      "pending": "معلق",
+      "confirmed": "مؤكد",
+      "cancelled": "ملغي"
     }
   },
   "common": {

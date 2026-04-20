@@ -57,9 +57,9 @@ export class AdminDashboardService {
       }
     })
 
-    const revenue = orders.reduce((sum, order) => sum + order.totalAmount, 0)
+    const revenue = orders.reduce((sum, order) => sum + (order.paymentStatus === 'PAID' ? order.totalAmount : 0), 0)
     const paidOrders = orders.filter(o => o.paymentStatus === 'PAID').length
-    const pendingOrders = orders.filter(o => o.status === 'PENDING' || o.status === 'PAID').length
+    const pendingOrders = orders.filter(o => o.status === 'PENDING').length
     const averageOrderValue = orders.length > 0 ? revenue / orders.length : 0
 
     const users = await prisma.user.findMany({

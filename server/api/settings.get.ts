@@ -40,6 +40,7 @@ export default defineEventHandler(async (event) => {
       isCodEnabled: settings.isCodEnabled,
       isStripeEnabled: settings.isStripeEnabled,
       isPaymobEnabled: settings.isPaymobEnabled,
+      logo: settings.logo,
       // NOTE: We EXCLUDE stripeSecretKey, stripePublicKey, and isTestMode for security
     }
   } catch (error: any) {

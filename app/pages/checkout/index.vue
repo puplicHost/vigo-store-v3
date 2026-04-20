@@ -289,20 +289,26 @@ const commitOrder = async () => {
 
     console.log("ORDER PAYLOAD", payload)
 
-    await $apiFetch<any>('/api/orders', {
+    const response = await $apiFetch<any>('/api/orders', {
       method: 'POST',
       body: payload
     })
     
-    toast.success('Commitment received.')
-    clearCart()
-    navigateTo('/')
-  } catch (error: any) {
-    if (error.response?._data?.statusMessage) {
-      toast.error(error.response._data.statusMessage)
+    // Decoupled Response Handling
+    if (response.paymentUrl) {
+      toast.success(response.message || 'Redirecting to payment terminal...')
+      // Small delay to allow toast to be seen
+      setTimeout(() => {
+        window.location.href = response.paymentUrl
+      }, 1000)
     } else {
-      toast.error('Processing failed.')
+      toast.success(response.message || 'Order confirmed.')
+      clearCart()
+      navigateTo('/account') // Navigate to order history/account
     }
+  } catch (error: any) {
+    // Show only the translated, user-friendly error message
+    toast.error(error.message || 'حدث خطأ غير متوقع في معالجة طلبك.')
   } finally {
     isProcessing.value = false
   }

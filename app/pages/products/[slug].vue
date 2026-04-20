@@ -71,7 +71,7 @@
               <div class="sticky top-40">
                 <!-- Title & Brand -->
                 <div class="space-y-4 mb-12">
-                   <span class="text-[9px] uppercase tracking-[0.4em] text-primary font-bold block mb-4">VIGO BESPOKE SELECTION</span>
+                   <span class="text-[9px] uppercase tracking-[0.4em] text-primary font-bold block mb-4">{{ settings?.siteName || 'VIGO' }} BESPOKE SELECTION</span>
                    <h1 class="text-5xl md:text-6xl xl:text-7xl font-serif font-bold tracking-tight text-stone-900 leading-[1.1] italic">
                      {{ product.name }}
                    </h1>

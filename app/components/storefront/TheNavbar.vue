@@ -1,7 +1,19 @@
 <template>
   <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl shadow-[0_20px_40px_rgba(28,27,27,0.04)]">
     <div class="flex justify-between items-center px-12 py-6 w-full max-w-screen-2xl mx-auto">
-      <NuxtLink to="/" class="text-2xl font-serif italic text-stone-900 tracking-tight">VIGO</NuxtLink>
+      <NuxtLink to="/" class="flex items-center">
+        <template v-if="settings?.logo && !hasLogoError">
+          <img 
+            :src="settings.logo" 
+            alt="Logo" 
+            class="h-10 w-10 rounded-full aspect-square object-cover border border-outline-variant/10"
+            @error="hasLogoError = true"
+          />
+        </template>
+        <span v-else class="text-2xl font-serif italic text-stone-900 tracking-tight uppercase">
+          {{ settings?.siteName || 'VIGO' }}
+        </span>
+      </NuxtLink>
       
       <!-- Desktop Navigation -->
       <div class="hidden md:flex items-center gap-10">
@@ -69,7 +81,7 @@
         <div class="absolute inset-0 bg-stone-900/40 backdrop-blur-sm" @click="isMobileMenuOpen = false"></div>
         <aside class="absolute top-0 right-0 w-[80%] h-full bg-white shadow-2xl p-10 flex flex-col">
           <div class="flex justify-between items-center mb-16">
-            <span class="text-xl font-serif italic">VIGO</span>
+            <span class="text-xl font-serif italic uppercase">{{ settings?.siteName || 'VIGO' }}</span>
             <button @click="isMobileMenuOpen = false" class="text-stone-400 hover:text-stone-900 transition-colors">
               <span class="material-symbols-outlined">close</span>
             </button>
@@ -93,8 +105,10 @@
 
 <script setup lang="ts">
 const { isAuthenticated, user } = useAuth()
+const { settings } = useSettings()
 const { cartItemCount } = useCart()
 const isMobileMenuOpen = ref(false)
+const hasLogoError = ref(false)
 </script>
 
 <style scoped>

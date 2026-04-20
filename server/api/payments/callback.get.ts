@@ -36,7 +36,7 @@ export default defineEventHandler(async (event) => {
       data: {
         paymentStatus: isSuccess ? 'PAID' : 'FAILED',
         transactionId: transactionId as string,
-        status: isSuccess ? 'PROCESSING' : 'PENDING'
+        status: isSuccess ? 'CONFIRMED' : 'PENDING'
       }
     })
 

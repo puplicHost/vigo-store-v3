@@ -172,7 +172,7 @@ const grandTotal = computed(() => {
 })
 
 useHead({
-  title: `Your Bag | ${settings.value?.siteName || 'VIGO ATELIER'}`,
+  title: 'Your Bag',
   meta: [
     { name: 'description', content: 'Review your selected artisanal collection and proceed to fiscal commitment.' }
   ]

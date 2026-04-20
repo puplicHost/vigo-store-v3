@@ -9,7 +9,7 @@
 <script setup lang="ts">
 const props = defineProps<{
   status?: string
-  type?: 'pending' | 'paid' | 'shipped' | 'delivered' | 'cancelled' | 'stock' | 'featured' | 'admin' | 'super_admin' | 'manager' | 'sales' | 'user'
+  type?: 'pending' | 'confirmed' | 'cancelled' | 'stock' | 'featured' | 'admin' | 'super_admin' | 'manager' | 'sales' | 'user'
   showDot?: boolean
   showIcon?: boolean
 }>()
@@ -18,10 +18,8 @@ const badgeClass = computed(() => {
   const s = props.type || props.status?.toLowerCase()
   switch (s) {
     case 'pending': return 'bg-amber-500/10 text-amber-600 border-amber-500/20'
-    case 'paid': return 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
-    case 'shipped': return 'bg-indigo-500/10 text-indigo-600 border-indigo-500/20'
-    case 'delivered': return 'bg-blue-500/10 text-blue-600 border-blue-500/20'
-    case 'cancelled': return 'bg-red-500/10 text-red-600 border-red-500/20'
+    case 'confirmed': return 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
+    case 'cancelled': return 'bg-rose-500/10 text-rose-600 border-rose-500/20'
     case 'stock': return 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
     case 'featured': return 'bg-primary/10 text-primary border-primary/20'
     case 'super_admin': return 'bg-purple-500/10 text-purple-600 border-purple-500/20'
@@ -37,10 +35,8 @@ const dotClass = computed(() => {
   const s = props.type || props.status?.toLowerCase()
   switch (s) {
     case 'pending': return 'bg-amber-500'
-    case 'paid': return 'bg-emerald-500'
-    case 'shipped': return 'bg-indigo-500'
-    case 'delivered': return 'bg-blue-500'
-    case 'cancelled': return 'bg-red-500'
+    case 'confirmed': return 'bg-emerald-500'
+    case 'cancelled': return 'bg-rose-500'
     case 'stock': return 'bg-emerald-500'
     case 'featured': return 'bg-primary'
     case 'super_admin': return 'bg-purple-500'
@@ -55,10 +51,8 @@ const dotClass = computed(() => {
 const iconClass = computed(() => {
   const s = props.type || props.status?.toLowerCase()
   switch (s) {
-    case 'pending': return 'text-amber-500'
+    case 'confirmed':
     case 'paid': return 'text-emerald-500'
-    case 'shipped': return 'text-indigo-500'
-    case 'delivered': return 'text-blue-500'
     case 'cancelled': return 'text-red-500'
     case 'stock': return 'text-emerald-500'
     case 'featured': return 'text-primary'
@@ -74,10 +68,8 @@ const iconClass = computed(() => {
 const iconName = computed(() => {
   const s = props.type || props.status?.toLowerCase()
   switch (s) {
-    case 'pending': return 'schedule'
-    case 'paid': return 'check_circle'
-    case 'shipped': return 'local_shipping'
-    case 'delivered': return 'delivery_dining'
+    case 'confirmed':
+    case 'paid': return 'verified'
     case 'cancelled': return 'cancel'
     case 'stock': return 'inventory'
     case 'featured': return 'star'

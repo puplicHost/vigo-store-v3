@@ -246,13 +246,11 @@
                   <td class="px-6 py-4">
                     <span :class="[
                       'inline-flex items-center px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider',
-                      order.status === 'DELIVERED' ? 'bg-success-soft text-success-solid' :
-                      order.status === 'PAID' ? 'bg-primary-soft text-primary-solid' :
-                      order.status === 'SHIPPED' ? 'bg-warning-soft text-warning-solid' :
-                      order.status === 'CANCELLED' ? 'bg-error-soft text-error-solid' :
-                      'bg-surface-container-high text-on-surface-variant'
+                      order.status === 'CONFIRMED' ? 'bg-success-soft text-success-solid' :
+                      order.status === 'PENDING' ? 'bg-warning-soft text-warning-solid' :
+                      'bg-error-soft text-error-solid'
                     ]">
-                      {{ order.status || 'UNKNOWN' }}
+                      {{ order.status }}
                     </span>
                   </td>
                 </tr>
@@ -525,12 +523,10 @@ const ordersChartSeries = computed(() => {
   const ordersArray = Array.isArray(orders.value) ? orders.value : []
 
   const pendingCount = ordersArray.filter(o => o.status === 'PENDING').length
-  const paidCount = ordersArray.filter(o => o.status === 'PAID').length
-  const shippedCount = ordersArray.filter(o => o.status === 'SHIPPED').length
-  const deliveredCount = ordersArray.filter(o => o.status === 'DELIVERED').length
+  const confirmedCount = ordersArray.filter(o => o.status === 'CONFIRMED').length
   const cancelledCount = ordersArray.filter(o => o.status === 'CANCELLED').length
 
-  return [pendingCount, paidCount, shippedCount, deliveredCount, cancelledCount]
+  return [pendingCount, confirmedCount, cancelledCount]
 })
 
 const ordersChartOptions = computed(() => ({
@@ -542,8 +538,8 @@ const ordersChartOptions = computed(() => ({
     foreColor: isDark.value ? '#94a3b8' : '#64748b'
   },
   series: ordersChartSeries.value,
-  labels: [t('dashboard.orders.pending'), t('dashboard.orders.paid'), t('dashboard.orders.shipped'), t('dashboard.orders.delivered'), t('dashboard.orders.cancelled')],
-  colors: ['#f59e0b', '#10b981', '#6366f1', '#3b82f6', '#ef4444'],
+  labels: [t('dashboard.orders.pending'), t('dashboard.orders.confirmed'), t('dashboard.orders.cancelled')],
+  colors: ['#f59e0b', '#10b981', '#ef4444'],
   dataLabels: {
     enabled: true,
     formatter: (val: number) => val.toString()

@@ -152,7 +152,7 @@ export default defineEventHandler(async (event) => {
     )
 
     // Seed Orders (30+ orders across last 30 days)
-    const orderStatuses: OrderStatus[] = [OrderStatus.PENDING, OrderStatus.PAID, OrderStatus.SHIPPED, OrderStatus.DELIVERED, OrderStatus.CANCELLED]
+    const orderStatuses: OrderStatus[] = [OrderStatus.PENDING, OrderStatus.CONFIRMED, OrderStatus.CANCELLED]
     const paymentStatuses: PaymentStatus[] = [PaymentStatus.PENDING, PaymentStatus.PAID, PaymentStatus.FAILED, PaymentStatus.REFUNDED]
     const customerUsers = users.filter(u => u.role === Role.USER)
 
@@ -183,7 +183,7 @@ export default defineEventHandler(async (event) => {
       let paymentStatus = paymentStatuses[Math.floor(Math.random() * paymentStatuses.length)]
 
       // Ensure payment status matches order status
-      if (status === OrderStatus.PAID || status === OrderStatus.SHIPPED || status === OrderStatus.DELIVERED) {
+      if (status === OrderStatus.CONFIRMED) {
         paymentStatus = PaymentStatus.PAID
       } else if (status === OrderStatus.CANCELLED) {
         paymentStatus = Math.random() > 0.5 ? PaymentStatus.FAILED : PaymentStatus.REFUNDED

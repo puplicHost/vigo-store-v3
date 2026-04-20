@@ -94,7 +94,7 @@ definePageMeta({
 })
 
 useHead({
-  title: `My Account | ${settings.value?.siteName || 'VIGO'}`
+  title: 'My Account'
 })
 
 const handleLogout = () => {

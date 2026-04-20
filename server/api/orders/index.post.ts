@@ -1,69 +1,60 @@
-import { paymobService } from '../../utils/paymob'
+import { OrderStatus, PaymentStatus } from '@prisma/client'
+import { paymentService } from '../../utils/payment'
 import prisma from '../../utils/prisma'
 import { handleError } from '../../utils/error'
 
+/**
+ * POST /api/orders
+ * Professional Order Creation Layer (Decoupled)
+ */
 export default defineEventHandler(async (event) => {
   const user = event.context.user
   if (!user) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Unauthorized'
-    })
+    throw createError({ statusCode: 401, statusMessage: 'Unauthorized session' })
   }
 
   try {
     const body = await readBody(event)
     const { items, shippingAddress, totalAmount, paymentMethod } = body
 
-    // 1. Validate Payment Method
+    // 1. Structural Validation
+    if (!items || !items.length || !totalAmount || !paymentMethod) {
+      throw createError({ statusCode: 400, statusMessage: 'Incomplete order payload' })
+    }
+
+    // 2. Gateway Availability Check
     const gateway = await prisma.paymentGateway.findUnique({
       where: { name: paymentMethod.toUpperCase() }
     })
 
     if (!gateway || !gateway.isEnabled) {
-      throw createError({
-        statusCode: 400,
-        statusMessage: 'Selected payment method is currently unavailable'
+      throw createError({ 
+        statusCode: 400, 
+        statusMessage: 'Selected settlement method is currently unavailable' 
       })
     }
 
-    // 2. Validate Products Exist Before Order Creation
+    // 3. Product Integrity Check
     const productIds = items.map((item: any) => item.productId)
     const validProducts = await prisma.product.findMany({
-      where: {
-        id: { in: productIds }
-      }
+      where: { id: { in: productIds }, isDeleted: false, isActive: true }
     })
 
-    console.log("Incoming order items:", items)
-    console.log("Validated product IDs:", validProducts)
-
     if (validProducts.length !== items.length) {
-      throw createError({
-        statusCode: 400,
-        statusMessage: 'One or more products in your cart are unavailable'
+      throw createError({ 
+        statusCode: 400, 
+        statusMessage: 'One or more items in your cart are no longer available' 
       })
     }
 
-    // 3. Create Order
+    // 4. Create Order (Core Lifecycle: PENDING)
     const userId = user.userId || user.id
-    if (!userId) {
-      throw createError({
-        statusCode: 401,
-        statusMessage: 'Invalid user session'
-      })
-    }
-
     const order = await prisma.order.create({
       data: {
-        user: {
-          connect: {
-            id: userId
-          }
-        },
+        user: { connect: { id: userId } },
         totalAmount: Number(totalAmount),
-        status: 'PENDING',
-        paymentStatus: 'PENDING',
+        status: OrderStatus.PENDING,
+        paymentStatus: PaymentStatus.PENDING,
         paymentMethod: paymentMethod.toUpperCase(),
         shippingAddress: JSON.stringify(shippingAddress),
         items: {
@@ -76,49 +67,28 @@ export default defineEventHandler(async (event) => {
       }
     })
 
-    // 3. Handle Paymob Logic
-    if (paymentMethod.toUpperCase() === 'PAYMOB' && gateway.config) {
-      const config = gateway.config as any
+    // 5. Initialize Settlement (Gateway Layer)
+    const paymentResult = await paymentService.initializePayment(order, shippingAddress)
 
-      const authToken = await paymobService.authenticate(config.apiKey)
-      const amountCents = Math.round(totalAmount * 100)
-
-      const paymobOrderId = await paymobService.registerOrder(
-        authToken,
-        amountCents,
-        'EGP',
-        order.id
-      )
-
-      const paymentToken = await paymobService.createPaymentKey(
-        authToken,
-        paymobOrderId,
-        amountCents,
-        'EGP',
-        Number(config.integrationId),
-        {
-          first_name: shippingAddress.firstName || user.name || 'Vigo',
-          last_name: shippingAddress.lastName || 'Customer',
-          email: user.email,
-          phone_number: shippingAddress.phone || '01000000000'
-        }
-      )
-
-      return {
-        success: true,
-        orderId: order.id,
-        paymentUrl: `https://egypt.paymob.com/api/acceptance/iframes/${config.iframeId}?payment_token=${paymentToken}`
-      }
+    if (!paymentResult.success) {
+      // Logic: Order remains PENDING but we notify user of gateway failure
+      throw createError({
+        statusCode: 400,
+        statusMessage: paymentResult.message || 'Settlement layer initialization failed'
+      })
     }
 
-    // 4. Handle COD Logic
+    // 6. Response (Production Standard)
     return {
       success: true,
       orderId: order.id,
-      message: 'Order created successfully with Cash on Delivery'
+      paymentUrl: paymentResult.paymentUrl,
+      message: paymentResult.message || 'Order intent recorded successfully'
     }
 
   } catch (error: any) {
+    // Global Error Handling (Enterprise Layer)
+    console.error('[ORDER CREATION FATAL]', error)
     throw handleError(error)
   }
 })

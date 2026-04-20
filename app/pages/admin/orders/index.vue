@@ -24,9 +24,7 @@ class="appearance-none bg-surface-container-lowest border border-outline-variant
         >
           <option value="">All Status</option>
           <option value="PENDING">Pending</option>
-          <option value="PAID">Paid</option>
-          <option value="SHIPPED">Shipped</option>
-          <option value="DELIVERED">Delivered</option>
+          <option value="CONFIRMED">Confirmed</option>
           <option value="CANCELLED">Cancelled</option>
         </select>
         <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">expand_more</span>
@@ -85,11 +83,9 @@ class="appearance-none bg-surface-container-lowest border border-outline-variant
                 <td class="px-6 py-4">
                   <span :class="[
                     'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium',
-                    order.status === 'DELIVERED' ? 'bg-success/10 text-success' :
-                    order.status === 'PAID' ? 'bg-primary/10 text-primary' :
-                    order.status === 'SHIPPED' ? 'bg-warning/10 text-warning' :
+                    order.status === 'CONFIRMED' ? 'bg-success/10 text-success' :
                     order.status === 'CANCELLED' ? 'bg-error/10 text-error' :
-                    'bg-surface-container-high text-on-surface-variant'
+                    'bg-slate-100 text-slate-400'
                   ]">
                     {{ order.status || 'UNKNOWN' }}
                   </span>

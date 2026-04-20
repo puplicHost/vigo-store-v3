@@ -31,6 +31,12 @@ export default defineNuxtConfig({
     experimental: {
       openAPI: true
     },
+    // Set body size limit to 10MB for large logo uploads
+    runtimeConfig: {
+      nitro: {
+        bodySizeLimit: '10mb'
+      }
+    },
     // Server middleware for request tracking, observability, and rate limiting
     routeRules: {
       '/api/**': {

@@ -15,7 +15,7 @@
             The Art of <br/><span class="italic text-primary">Permanence</span>
           </h1>
           <p class="text-lg font-body text-secondary leading-relaxed max-w-md">
-            Founded on the principle of uncompromised aesthetic purity, VIGO Atelier bridges the gap between ancestral craftsmanship and modern minimalism. We create pieces designed to endure beyond passing seasons.
+            Founded on the principle of uncompromised aesthetic purity, {{ settings?.siteName || 'VIGO Atelier' }} bridges the gap between ancestral craftsmanship and modern minimalism. We create pieces designed to endure beyond passing seasons.
           </p>
         </div>
         <div class="w-full md:w-1/2 relative aspect-[4/5] rounded-tl-[100px] rounded-br-[100px] overflow-hidden">
@@ -39,7 +39,7 @@
           <div class="flex flex-col md:items-start items-center">
             <span class="material-symbols-outlined text-4xl text-primary mb-6">all_inclusive</span>
             <h3 class="text-xl font-serif mb-4">Timeless Silhouettes</h3>
-            <p class="text-secondary font-body leading-relaxed text-sm">Our design philosophy ignores transient trends. VIGO garments are architectural, designed to look as relevant in two decades as they do today.</p>
+            <p class="text-secondary font-body leading-relaxed text-sm">Our design philosophy ignores transient trends. {{ settings?.siteName || 'VIGO' }} garments are architectural, designed to look as relevant in two decades as they do today.</p>
           </div>
         </div>
       </section>
@@ -52,7 +52,7 @@
         </div>
         <div class="max-w-2xl mx-auto text-center">
           <h2 class="text-3xl font-serif italic mb-6">"True luxury is found in the unseen details — the perfect stitch, the weight of the fabric, the intention behind the design."</h2>
-          <span class="uppercase tracking-[0.2em] text-xs font-label text-primary font-bold">VIGO Founders, 2024</span>
+          <span class="uppercase tracking-[0.2em] text-xs font-label text-primary font-bold">{{ settings?.siteName || 'VIGO' }} Founders, 2024</span>
         </div>
       </section>
     </main>
@@ -64,6 +64,6 @@ const { isAuthenticated, user } = useAuth()
 const { settings } = useSettings()
 
 useHead({
-  title: `About Us | ${settings.value?.siteName || 'VIGO'}`
+  title: 'About Us'
 })
 </script>

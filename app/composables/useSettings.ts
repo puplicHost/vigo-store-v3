@@ -5,7 +5,8 @@ export const useSettings = () => {
     currency: 'EGP',
     siteName: 'Vigo Store',
     siteDescription: 'Modern Editorial E-commerce',
-    maintenanceMode: false
+    maintenanceMode: false,
+    logo: null
   }))
 
   const error = ref<any>(null)

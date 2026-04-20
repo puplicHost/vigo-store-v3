@@ -55,7 +55,7 @@ export const UpdateCategorySchema = CreateCategorySchema.partial()
 // ============================================================================
 
 export const UpdateOrderStatusSchema = z.object({
-  status: z.enum(['PENDING', 'PAID', 'SHIPPED', 'DELIVERED', 'CANCELLED'], 'Invalid order status')
+  status: z.enum(['PENDING', 'CONFIRMED', 'CANCELLED'], 'Invalid order status')
 })
 
 // ============================================================================
@@ -83,6 +83,7 @@ export const UpdateSettingsSchema = z.object({
   siteName: z.string().optional(),
   siteDescription: z.string().optional(),
   siteKeywords: z.string().optional(),
+  logo: z.string().optional(),
   facebookUrl: z.string().url('Invalid Facebook URL').optional().or(z.literal('')),
   twitterUrl: z.string().url('Invalid Twitter URL').optional().or(z.literal('')),
   instagramUrl: z.string().url('Invalid Instagram URL').optional().or(z.literal('')),
