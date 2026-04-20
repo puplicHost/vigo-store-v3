@@ -14,7 +14,7 @@ export const useSettings = () => {
   // We use the PUBLIC endpoint here so it works for all users
   const { data, pending, refresh, error: fetchError } = useAsyncData(
     'settings',
-    () => $apiFetch('/api/settings'),
+    () => $fetch('/api/settings'),
     {
       server: true,
       lazy: true,

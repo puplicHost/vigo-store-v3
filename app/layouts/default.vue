@@ -10,16 +10,9 @@
 </template>
 
 <script setup>
-const { settings } = useSettings()
 </script>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&display=swap');
-
-.font-body {
-  font-family: 'Manrope', sans-serif;
-}
-
 @keyframes marquee {
   0% { transform: translateX(50%); }
   100% { transform: translateX(-100%); }

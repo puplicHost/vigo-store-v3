@@ -1,5 +1,9 @@
 import prisma from '../utils/prisma'
 
+let cachedSettings: any = null;
+let lastCacheTime = 0;
+const CACHE_TTL = 60000; // 60 seconds
+
 export default defineEventHandler(async (event) => {
   const path = event.node.req.url || ''
 
@@ -20,7 +24,13 @@ export default defineEventHandler(async (event) => {
 
   try {
     // Get settings to check maintenance mode
-    const settings = await prisma.settings.findFirst()
+    const now = Date.now();
+    if (!cachedSettings || (now - lastCacheTime > CACHE_TTL)) {
+      cachedSettings = await prisma.settings.findFirst();
+      lastCacheTime = now;
+    }
+    
+    const settings = cachedSettings;
 
     // If maintenance mode is enabled, redirect to maintenance page
     if (settings?.maintenanceMode) {

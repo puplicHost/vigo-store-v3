@@ -95,6 +95,18 @@ export default defineEventHandler(async (event) => {
     if (error.statusCode) {
       throw error
     }
+    
+    // Map Domain Errors safely
+    if (error.name === 'ValidationError') {
+      throw createError({ statusCode: 400, statusMessage: error.message })
+    }
+    if (error.name === 'NotFoundError') {
+      throw createError({ statusCode: 404, statusMessage: error.message })
+    }
+    if (error.name === 'ConflictError') {
+      throw createError({ statusCode: 409, statusMessage: error.message })
+    }
+    
     logger.error('[Product POST Error]', error)
     throw createError({
       statusCode: 500,

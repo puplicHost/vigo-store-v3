@@ -43,8 +43,8 @@
         <div class="md:col-span-3 md:ml-auto">
           <span class="text-white font-medium mb-8 block font-serif italic text-lg tracking-tight uppercase tracking-widest">Explore</span>
           <nav class="flex flex-col gap-4">
-            <NuxtLink v-for="link in ['Home', 'Shop All', 'About Us', 'Contact']" :key="link" :to="link === 'Home' ? '/' : '/' + link.toLowerCase().replace(' ', '')" class="text-stone-500 hover:text-primary transition-all duration-300 transform hover:translate-x-1">
-              {{ link }}
+            <NuxtLink v-for="link in quickLinks" :key="link.label" :to="link.to" class="text-stone-500 hover:text-primary transition-all duration-300 transform hover:translate-x-1">
+              {{ link.label }}
             </NuxtLink>
           </nav>
         </div>
@@ -94,6 +94,13 @@
 
 <script setup lang="ts">
 const { settings } = useSettings()
+
+const quickLinks = [
+  { label: 'Home', to: '/' },
+  { label: 'Shop All', to: '/products' },
+  { label: 'About Us', to: '/about' },
+  { label: 'Cart', to: '/cart' }
+]
 </script>
 
 <style scoped>

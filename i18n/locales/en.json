@@ -1,5 +1,8 @@
 {
   "sidebar": {
+    "badge": "Admin",
+    "subtitle": "Catalog, orders, and store settings in one place.",
+    "sectionMenu": "Menu",
     "dashboard": "Dashboard",
     "inventory": "Inventory",
     "categories": "Categories",

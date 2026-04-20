@@ -1,8 +1,5 @@
 import jwt from 'jsonwebtoken'
 
-const JWT_SECRET = process.env.JWT_SECRET!
-if (!JWT_SECRET) throw new Error('JWT_SECRET environment variable is not set')
-
 export interface DecodedToken {
   userId: string
   email: string
@@ -28,6 +25,9 @@ export function extractToken(event: any): string | null {
  * Verify JWT token and return decoded payload
  */
 export function verifyToken(token: string): DecodedToken {
+  const JWT_SECRET = process.env.JWT_SECRET
+  if (!JWT_SECRET) throw createError({ statusCode: 500, message: 'JWT_SECRET environment variable is not set' })
+
   try {
     return jwt.verify(token, JWT_SECRET) as DecodedToken
   } catch (error) {

@@ -18,6 +18,16 @@ export default defineNuxtRouteMiddleware((to) => {
 
   // Check if user is authenticated
   if (!auth.isAuthenticated.value) {
+    // #region agent log
+    if (import.meta.client) {
+      debugProjectLog({
+        hypothesisId: 'H4',
+        location: 'admin-guard.global.ts',
+        message: 'admin unauthenticated redirect',
+        data: { path: to.path }
+      })
+    }
+    // #endregion
     return navigateTo('/auth/login')
   }
 
@@ -26,6 +36,16 @@ export default defineNuxtRouteMiddleware((to) => {
   const allowedRoles = ['ADMIN', 'SUPER_ADMIN', 'SALES', 'MANAGER']
 
   if (!userRole || !allowedRoles.includes(userRole)) {
+    // #region agent log
+    if (import.meta.client) {
+      debugProjectLog({
+        hypothesisId: 'H5',
+        location: 'admin-guard.global.ts',
+        message: 'admin role rejected',
+        data: { path: to.path, userRole: userRole || null }
+      })
+    }
+    // #endregion
     auth.logout()
     return navigateTo('/auth/login')
   }

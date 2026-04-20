@@ -39,12 +39,12 @@ export default defineEventHandler(async (event) => {
     // Delete order (orderItems will be cascade deleted if configured in Prisma)
     // If cascade is not set, manually delete orderItems first
     await prisma.$transaction(async (tx: any) => {
-      // Delete order items first
+      await tx.paymentTransaction.deleteMany({
+        where: { orderId: id }
+      })
       await tx.orderItem.deleteMany({
         where: { orderId: id }
       })
-
-      // Delete the order
       await tx.order.delete({
         where: { id }
       })

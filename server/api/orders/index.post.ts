@@ -28,9 +28,21 @@ export default defineEventHandler(async (event) => {
     }
 
     // 2. Create Order
+    const userId = user.userId || user.id
+    if (!userId) {
+      throw createError({
+        statusCode: 401,
+        statusMessage: 'Invalid user session'
+      })
+    }
+
     const order = await prisma.order.create({
       data: {
-        userId: user.id,
+        user: {
+          connect: {
+            id: userId
+          }
+        },
         totalAmount: Number(totalAmount),
         status: 'PENDING',
         paymentStatus: 'PENDING',

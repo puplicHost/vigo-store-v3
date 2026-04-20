@@ -93,9 +93,3 @@ const handleForgotPassword = async () => {
     </div>
   </div>
 </template>
-
-<style scoped>
-.font-serif {
-  font-family: 'Noto Serif', serif;
-}
-</style>

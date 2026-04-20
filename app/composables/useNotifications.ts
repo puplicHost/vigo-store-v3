@@ -21,13 +21,6 @@ export const useNotifications = () => {
       createdAt: new Date(),
     }
     notifications.value.unshift(newNotification)
-    
-    // Auto-remove after 5 seconds if it's a success/info toast
-    if (newNotification.type === 'success' || newNotification.type === 'info') {
-        setTimeout(() => {
-            removeNotification(newNotification.id)
-        }, 5000)
-    }
   }
 
   const markAsRead = (id: string) => {

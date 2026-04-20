@@ -192,9 +192,3 @@ const handleRegister = async () => {
     </footer>
   </div>
 </template>
-
-<style scoped>
-.font-serif {
-  font-family: 'Noto Serif', serif;
-}
-</style>

@@ -14,22 +14,31 @@ export const useCart = () => {
   // We initialize with an empty array. Hydration will happen later.
   const cartItems = useState<CartItem[]>('cart_items', () => []);
   const isCartOpen = useState<boolean>('cart_open', () => false);
+  const hasHydratedCart = useState<boolean>('cart_hydrated', () => false);
+  const hasCartWatcher = useState<boolean>('cart_watcher_ready', () => false);
 
-  // Load from localStorage on client side only
+  // Load from localStorage only after mount to avoid SSR hydration mismatches.
   if (import.meta.client) {
-    const savedCart = localStorage.getItem('vigo_cart');
-    if (savedCart && cartItems.value.length === 0) {
-      try {
-        cartItems.value = JSON.parse(savedCart);
-      } catch (e) {
-        console.error('Failed to parse cart from localStorage', e);
+    onMounted(() => {
+      if (!hasHydratedCart.value) {
+        const savedCart = localStorage.getItem('vigo_cart');
+        if (savedCart && cartItems.value.length === 0) {
+          try {
+            cartItems.value = JSON.parse(savedCart);
+          } catch (e) {
+            console.error('Failed to parse cart from localStorage', e);
+          }
+        }
+        hasHydratedCart.value = true;
       }
-    }
 
-    // Watch for changes and sync back to localStorage
-    watch(cartItems, (newItems) => {
-      localStorage.setItem('vigo_cart', JSON.stringify(newItems));
-    }, { deep: true });
+      if (!hasCartWatcher.value) {
+        watch(cartItems, (newItems) => {
+          localStorage.setItem('vigo_cart', JSON.stringify(newItems));
+        }, { deep: true });
+        hasCartWatcher.value = true;
+      }
+    });
   }
 
   const cartTotal = computed(() => {

@@ -484,7 +484,7 @@ const revenueChartOptions = computed(() => ({
         colors: isDark.value ? '#94a3b8' : '#64748b',
         fontSize: '12px'
       },
-      formatter: (value) => `${settings.value.currency}${value.toFixed(0)}`
+      formatter: (value: number) => `${settings.value.currency}${value.toFixed(0)}`
     }
   },
   colors: ['#6366f1'],
@@ -515,7 +515,7 @@ const revenueChartOptions = computed(() => ({
   tooltip: {
     theme: isDark.value ? 'dark' : 'light',
     y: {
-      formatter: (value) => `${settings.value.currency}${value.toFixed(2)}`
+      formatter: (value: number) => `${settings.value.currency}${value.toFixed(2)}`
     }
   }
 }))
@@ -546,7 +546,7 @@ const ordersChartOptions = computed(() => ({
   colors: ['#f59e0b', '#10b981', '#6366f1', '#3b82f6', '#ef4444'],
   dataLabels: {
     enabled: true,
-    formatter: (val) => val.toString()
+    formatter: (val: number) => val.toString()
   },
   plotOptions: {
     pie: {
@@ -565,7 +565,7 @@ const ordersChartOptions = computed(() => ({
   tooltip: {
     theme: isDark.value ? 'dark' : 'light',
     y: {
-      formatter: (value) => `${value} ${t('dashboard.orders.recent')}`
+      formatter: (value: number) => `${value} ${t('dashboard.orders.recent')}`
     }
   }
 }))

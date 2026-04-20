@@ -117,7 +117,7 @@
                 <span v-else class="text-on-surface-variant text-sm">-</span>
               </td>
               <td class="px-6 py-4 text-right">
-                <div class="flex items-center justify-end gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                <div class="flex items-center justify-end gap-2">
                   <NuxtLink
                     :to="`/admin/products/${product.id}/edit`"
                     class="p-2 rounded-lg hover:bg-surface-container-low text-on-surface-variant hover:text-primary transition-colors"

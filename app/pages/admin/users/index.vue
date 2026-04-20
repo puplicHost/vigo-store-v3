@@ -330,7 +330,7 @@ const filteredUsers = computed(() => {
 
   // Apply role filter
   if (roleFilter.value !== 'ALL') {
-    filtered = filtered.filter(u => u.role === roleFilter.value)
+    filtered = filtered.filter((u: any) => u.role === roleFilter.value)
   }
 
   // Apply search filter
@@ -356,7 +356,7 @@ const createUser = async () => {
   }
 }
 
-const editUser = (user) => {
+const editUser = (user: any) => {
   editingUser.value = {
     id: user.id,
     name: user.name || '',
@@ -386,7 +386,7 @@ const updateUser = async () => {
   }
 }
 
-const confirmDelete = (user) => {
+const confirmDelete = (user: any) => {
   userToDelete.value = user
   showDeleteModal.value = true
 }

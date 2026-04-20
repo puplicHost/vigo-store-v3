@@ -34,15 +34,8 @@ export default defineNuxtConfig({
     // Server middleware for request tracking, observability, and rate limiting
     routeRules: {
       '/api/**': {
-        middleware: ['request-id', 'auth', 'rate-limit'],
         cors: true
       }
-    },
-    // Redis configuration for production caching
-    redis: {
-      // Redis will be used in production when REDIS_URL is set
-      // Fallback to in-memory cache in development
-      default: process.env.REDIS_URL || undefined
     }
   },
 
@@ -53,7 +46,7 @@ export default defineNuxtConfig({
     }
   },
 
-  // Vite optimization for DevTools
+  // Vite: dev stability (reduces vite-node IPC disconnects on some Windows setups)
   vite: {
     optimizeDeps: {
       include: [
@@ -61,7 +54,12 @@ export default defineNuxtConfig({
         '@vue/devtools-kit',
         'vue3-apexcharts'
       ]
-    }
+    },
+    server: {
+      watch: {
+        usePolling: process.platform === 'win32',
+      },
+    },
   },
 
   // i18n Configuration
@@ -71,7 +69,7 @@ export default defineNuxtConfig({
       { code: 'ar', name: 'العربية', dir: 'rtl', file: 'ar.json' }
     ],
     defaultLocale: 'en',
-    langDir: 'locales/',
+    langDir: '../i18n/locales/',
     strategy: 'no_prefix',
     detectBrowserLanguage: {
       useCookie: true,

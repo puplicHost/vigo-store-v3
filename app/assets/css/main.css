@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,700&family=Outfit:wght@300;400;500;600;700&display=swap');
+/* Latin: Outfit + Cormorant | Arabic: Tajawal + Amiri (fallbacks for RTL) */
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,700&family=Outfit:wght@300;400;500;600;700&family=Tajawal:wght@400;500;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 @import '@mdi/font/css/materialdesignicons.min.css';
 
@@ -10,6 +11,11 @@
 /* Base Styles - with CSS variables */
 @layer base {
   :root {
+    --font-sans: 'Outfit', 'Tajawal', system-ui, sans-serif;
+    --font-serif: 'Cormorant Garamond', 'Amiri', serif;
+    /* Matches --primary #775a19 — used by rgba() helpers */
+    --primary-rgb: 119 90 25;
+
     --on-tertiary-fixed-variant: #474747;
     --tertiary-fixed-dim: #c8c6c6;
     --on-primary: #ffffff;
@@ -22,8 +28,8 @@
     --error: #ba1a1a;
     --outline: #7f7667;
     --on-primary-container: #4e3700;
-    --surface-bright: #fcf9f8;
-    --background: #fcf9f8;
+    --surface-bright: #fdfcfa;
+    --background: #faf8f5;
     --primary-fixed: #ffdea5;
     --on-error-container: #93000a;
     --error-container: #ffdad6;
@@ -31,7 +37,7 @@
     --surface-container-high: #ebe7e7;
     --on-tertiary-fixed: #1b1c1c;
     --tertiary-fixed: #e4e2e1;
-    --surface: #fcf9f8;
+    --surface: #faf8f5;
     --secondary-fixed: #e5e2e1;
     --inverse-on-surface: #f3f0ef;
     --on-primary-fixed: #261900;
@@ -72,75 +78,86 @@
     --primary: #775a19;
     --surface-container-lowest: #ffffff;
     --on-tertiary: #ffffff;
+
+    --surface-container-lowest-rgb: 255 255 255;
   }
 
-  /* ====== Dark Mode Overrides ====== */
+  /* ====== Dark Mode Overrides (higher contrast: surfaces, text, borders) ====== */
   .dark {
-    --background: #09090b;
-    --surface: #09090b;
-    --surface-container-lowest: #050505;
-    --surface-container-low: #121214;
-    --surface-container: #18181b;
-    --surface-container-high: #27272a;
-    --surface-container-highest: #3f3f46;
-    --surface-dim: #09090b;
-    --surface-bright: #27272a;
-    --surface-variant: #18181b;
-    
-    --on-surface: #faf9f6;
-    --on-surface-variant: #a1a1aa;
-    --on-background: #faf9f6;
-    
-    --primary: #d4af37;
-    --primary-container: #775a19;
-    --on-primary: #1c1b1b;
-    --on-primary-container: #ffdea5;
-    --inverse-primary: #e9c176;
-    
-    --secondary: #94a3b8;
-    --secondary-container: #1e293b;
-    --on-secondary: #0f172a;
-    --on-secondary-container: #cbd5e1;
-    
-    --tertiary: #a1a1aa;
-    --tertiary-container: #3f3f46;
-    --on-tertiary: #18181b;
-    --on-tertiary-container: #e4e4e7;
-    
+    --primary-rgb: 220 180 60;
+
+    --background: #0b0c10;
+    --surface: #0b0c10;
+    /* Elevated surfaces: clearer steps vs near-black bg */
+    --surface-container-lowest: #13141c;
+    --surface-container-low: #1a1c26;
+    --surface-container: #222530;
+    --surface-container-high: #2c2e3a;
+    --surface-container-highest: #383a48;
+    --surface-dim: #08090d;
+    --surface-bright: #3f4252;
+    --surface-variant: #1e2028;
+
+    --on-surface: #f4f4f5;
+    --on-surface-variant: #b4b8c6;
+    --on-background: #f4f4f5;
+
+    --primary: #e4c04a;
+    --primary-container: #6b5420;
+    --on-primary: #0c0c0e;
+    --on-primary-container: #fff4d5;
+    --inverse-primary: #f0d78c;
+
+    --secondary: #a8b4c8;
+    --secondary-container: #252e3d;
+    --on-secondary: #0c0e12;
+    --on-secondary-container: #dce3ed;
+
+    --tertiary: #b8bcc8;
+    --tertiary-container: #3a3d4a;
+    --on-tertiary: #0c0c0e;
+    --on-tertiary-container: #eceef4;
+
     --error: #f87171;
-    --error-container: #450a0a;
-    --on-error: #450a0a;
-    --on-error-container: #fca5a5;
-    
-    --outline: rgba(255, 255, 255, 0.15);
-    --outline-variant: rgba(255, 255, 255, 0.05);
-    
-    --inverse-surface: #e4e4e7;
-    --inverse-on-surface: #18181b;
-    
-    --success: #34d399;
-    --success-container: #064e3b;
-    --on-success: #022c22;
-    --on-success-container: #a7f3d0;
-    
-    --warning: #fbbf24;
-    --warning-container: #78350f;
-    --on-warning: #451a03;
-    --on-warning-container: #fde68a;
-    
-    --info: #60a5fa;
-    --info-container: #1e3a8a;
-    --on-info: #172554;
-    --on-info-container: #bfdbfe;
-    
+    --error-container: #5c1515;
+    --on-error: #1a0505;
+    --on-error-container: #fecaca;
+
+    /* Visible dividers / inputs (was ~invisible at 0.05 alpha) */
+    --outline: rgba(255, 255, 255, 0.22);
+    --outline-variant: rgba(255, 255, 255, 0.12);
+
+    --inverse-surface: #e8e8ed;
+    --inverse-on-surface: #12131a;
+
+    --success: #4ade80;
+    --success-container: #0d3d2e;
+    --on-success: #052018;
+    --on-success-container: #bbf7d0;
+
+    --warning: #fcd34d;
+    --warning-container: #5c3d0a;
+    --on-warning: #1c1404;
+    --on-warning-container: #fef3c7;
+
+    --info: #7cb6fc;
+    --info-container: #1e3a5f;
+    --on-info: #0a1628;
+    --on-info-container: #dbeafe;
+
     --primary-fixed: #ffdea5;
-    --secondary-fixed: #3b3b3b;
-    --tertiary-fixed: #3b3b3b;
+    --secondary-fixed: #2f3138;
+    --tertiary-fixed: #2f3138;
+
+    /* For glass-surface / rgba() helpers */
+    --surface-container-lowest-rgb: 19 20 28;
   }
 
   body {
-    font-family: 'Outfit', sans-serif;
+    font-family: var(--font-sans);
     font-weight: 500;
+    font-feature-settings: 'kern' 1;
+    text-rendering: optimizeLegibility;
   }
 
   h1,
@@ -148,7 +165,7 @@
   h3,
   .font-headline,
   .font-serif {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: var(--font-serif);
     font-weight: 700;
   }
 }
@@ -208,19 +225,19 @@
   }
 
   .font-headline {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: var(--font-serif);
   }
 
   .font-body {
-    font-family: 'Outfit', sans-serif;
+    font-family: var(--font-sans);
   }
 
   .font-label {
-    font-family: 'Outfit', sans-serif;
+    font-family: var(--font-sans);
   }
 
   .font-serif {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: var(--font-serif);
   }
 
   /* Animations */
@@ -249,9 +266,9 @@
   }
   
   .dark .glass-panel {
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+    background: rgba(26, 28, 36, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.35);
   }
 
   .metallic-gradient {
@@ -296,10 +313,10 @@
 }
 
 .dark .btn-gradient {
-  background: linear-gradient(135deg, #d4af37 0%, #a6841e 100%);
-  border: 1px solid rgba(212, 175, 55, 0.4);
-  box-shadow: 0 4px 20px -5px rgba(212, 175, 55, 0.4);
-  color: #000000;
+  background: linear-gradient(135deg, #e4c04a 0%, #a6841e 100%);
+  border: 1px solid rgba(228, 192, 74, 0.45);
+  box-shadow: 0 4px 20px -5px rgba(228, 192, 74, 0.35);
+  color: #0c0c0e;
   font-weight: 700;
 }
 
@@ -332,20 +349,20 @@ select:focus {
 }
 
 .dark .card-premium {
-  background: linear-gradient(145deg, rgba(30, 30, 35, 0.6) 0%, rgba(18, 18, 20, 0.8) 100%);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background-color: var(--surface-container-low);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--outline-variant);
 }
 
 .card-premium:hover {
   box-shadow: 0 12px 40px -8px rgba(0, 0, 0, 0.1);
   transform: translateY(-2px) scale(1.01);
-  border-color: rgba(var(--primary-rgb, 197, 160, 89), 0.3);
+  border-color: rgb(var(--primary-rgb) / 0.3);
 }
 
 .dark .card-premium:hover {
-  box-shadow: 0 12px 40px -8px rgba(0, 0, 0, 0.5), 0 0 20px -5px rgba(212, 175, 55, 0.1);
-  border-color: rgba(212, 175, 55, 0.3);
+  box-shadow: 0 12px 40px -8px rgba(0, 0, 0, 0.5), 0 0 20px -5px rgba(228, 192, 74, 0.12);
+  border-color: rgba(228, 192, 74, 0.35);
 }
 
 /* Glass Surface for Topbar */
@@ -356,7 +373,7 @@ select:focus {
 }
 
 .dark .glass-surface {
-  background: rgba(18, 18, 18, 0.85);
+  background: rgba(var(--surface-container-lowest-rgb, 19, 20, 28), 0.92);
 }
 
 /* Staggered Animations */

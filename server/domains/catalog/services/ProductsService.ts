@@ -185,6 +185,7 @@ export class ProductsService {
     colors: string[]
     stock: number
     isFeatured: boolean
+    isActive: boolean
     categoryId: string
   }>, userId: string, userRole: string, event?: any): Promise<ProductDTO> {
     // Check if product exists

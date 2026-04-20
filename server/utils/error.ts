@@ -15,7 +15,7 @@ export const handleError = (error: any) => {
 
   // Create a standardized Nuxt error
   return createError({
-    statusCode: error.statusCode || 500,
+    statusCode: 500,
     statusMessage: isDev
       ? error.message || 'Internal Server Error'
       : 'Internal Server Error',

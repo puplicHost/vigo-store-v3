@@ -10,69 +10,99 @@
     <!-- Sidebar -->
     <aside 
       :class="[
-        'fixed lg:relative z-50 lg:z-auto bg-surface-container-lowest/80 backdrop-blur-2xl border-r border-outline-variant/30 flex flex-col transition-all duration-300 ease-in-out shadow-[4px_0_24px_rgba(0,0,0,0.02)] dark:shadow-[4px_0_24px_rgba(0,0,0,0.2)]',
-        'lg:w-64',
+        'fixed lg:sticky lg:top-0 lg:self-start lg:min-h-screen z-50 lg:z-auto flex flex-col',
+        'w-[min(100%,288px)] lg:w-[272px]',
+        'bg-surface-container-lowest',
+        'backdrop-blur-xl border-r border-outline-variant/20',
+        'shadow-[4px_0_32px_-8px_rgba(0,0,0,0.06)] dark:shadow-[4px_0_32px_-8px_rgba(0,0,0,0.45)]',
+        'transition-transform duration-300 ease-out',
         isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
       ]"
     >
-      <!-- Logo -->
-      <div class="p-8 border-b border-outline-variant/10 flex items-center justify-between">
-        <h1 class="font-serif italic text-2xl tracking-[0.15em] text-on-surface bg-gradient-to-r from-primary to-primary-container bg-clip-text text-transparent">
-          {{ settings?.siteName || 'THE ATELIER' }}
-        </h1>
-        <!-- Close button for mobile -->
-        <button 
-          @click="closeMobileSidebar"
-          class="lg:hidden p-2 rounded-lg hover:bg-surface-container-low transition-colors"
-        >
-          <span class="material-symbols-outlined text-on-surface-variant">close</span>
-        </button>
+      <!-- Accent rail (solid) -->
+      <div
+        class="pointer-events-none absolute inset-y-0 start-0 w-px bg-outline-variant/25"
+        aria-hidden="true"
+      />
+
+      <!-- Brand -->
+      <div class="relative border-b border-outline-variant/10 px-6 pt-7 pb-5">
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <p class="text-[10px] font-semibold uppercase tracking-[0.35em] text-primary/90 mb-2">
+              {{ $t('sidebar.badge') }}
+            </p>
+            <h1 class="font-serif italic text-xl sm:text-2xl leading-tight tracking-wide text-on-surface truncate">
+              {{ settings?.siteName || 'THE ATELIER' }}
+            </h1>
+            <p class="mt-2 text-[11px] text-on-surface-variant/80 font-body leading-relaxed">
+              {{ $t('sidebar.subtitle') }}
+            </p>
+          </div>
+          <button
+            type="button"
+            @click="closeMobileSidebar"
+            class="lg:hidden shrink-0 p-2 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors"
+            aria-label="Close menu"
+          >
+            <span class="material-symbols-outlined text-[22px]">close</span>
+          </button>
+        </div>
       </div>
-      <p class="text-[10px] uppercase tracking-[0.3em] text-on-surface-variant mt-1 px-8 pb-4">
-        Management
-      </p>
 
       <!-- Navigation -->
-      <nav class="flex-1 p-6 space-y-2 overflow-y-auto scrollbar-custom">
+      <nav class="flex-1 px-4 py-5 space-y-1 overflow-y-auto scrollbar-custom">
+        <p class="px-3 mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant/60">
+          {{ $t('sidebar.sectionMenu') }}
+        </p>
         <NuxtLink
           v-for="item in menuItems"
           :key="item.path"
           :to="item.path"
           @click="closeMobileSidebar"
           :class="[
-            'flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300',
+            'group relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-lowest',
             isActive(item.path)
-              ? 'bg-primary/10 text-primary font-medium'
-              : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'
+              ? 'bg-primary/[0.12] dark:bg-primary/15 text-primary ring-1 ring-inset ring-primary/25'
+              : 'text-on-surface-variant hover:bg-surface-container-low/90 hover:text-on-surface'
           ]"
         >
-          <span class="material-symbols-outlined text-lg">{{ item.icon }}</span>
-          <span class="font-label text-[11px] uppercase tracking-[0.15em]">{{ $t(item.name) }}</span>
+          <span
+            v-if="isActive(item.path)"
+            class="absolute start-0 top-1/2 -translate-y-1/2 w-[3px] h-7 rounded-full bg-primary"
+            aria-hidden="true"
+          />
+          <span
+            :class="[
+              'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors duration-200',
+              isActive(item.path)
+                ? 'bg-primary/20 text-primary'
+                : 'bg-surface-container-low text-on-surface-variant group-hover:bg-surface-container-high group-hover:text-on-surface'
+            ]"
+          >
+            <span class="material-symbols-outlined text-[22px]">{{ item.icon }}</span>
+          </span>
+          <span
+            :class="[
+              'font-label text-[11px] uppercase tracking-[0.14em] leading-snug',
+              isActive(item.path) ? 'font-semibold' : ''
+            ]"
+          >{{ $t(item.name) }}</span>
         </NuxtLink>
       </nav>
 
-      <!-- Quick Stats (Mobile) -->
-      <div class="px-6 pb-4 lg:hidden">
-        <div class="bg-surface-container-low rounded-lg p-4 space-y-3">
-          <div class="flex justify-between items-center">
-            <span class="text-xs text-on-surface-variant">Products</span>
-            <span class="text-sm font-medium text-on-surface">1,247</span>
-          </div>
-          <div class="flex justify-between items-center">
-            <span class="text-xs text-on-surface-variant">Orders</span>
-            <span class="text-sm font-medium text-on-surface">348</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Bottom Actions -->
-      <div class="p-6 border-t border-outline-variant/10">
+      <!-- Sign out -->
+      <div class="p-4 mt-auto border-t border-outline-variant/10 bg-surface-container-low/30 dark:bg-black/15">
         <button
+          type="button"
+          class="group flex w-full items-center gap-3 rounded-xl px-3 py-3 text-on-surface-variant transition-colors duration-200 hover:bg-error/[0.08] hover:text-error"
           @click="logout"
-          class="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-on-surface-variant hover:bg-error/10 hover:text-error transition-all duration-300"
         >
-          <span class="material-symbols-outlined text-lg">logout</span>
-          <span class="font-label text-[11px] uppercase tracking-[0.15em]">{{ $t('sidebar.signOut') }}</span>
+          <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-container-low text-error/80 transition-colors group-hover:bg-error/10">
+            <span class="material-symbols-outlined text-[22px]">logout</span>
+          </span>
+          <span class="font-label text-[11px] uppercase tracking-[0.14em] text-start">{{ $t('sidebar.signOut') }}</span>
         </button>
       </div>
     </aside>

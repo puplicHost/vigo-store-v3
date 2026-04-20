@@ -53,7 +53,8 @@ export default defineEventHandler(async (event) => {
       images,
       sizes,
       colors,
-      isFeatured
+      isFeatured,
+      isActive
     } = result.data
 
     // Build update data
@@ -88,6 +89,7 @@ export default defineEventHandler(async (event) => {
     if (sizes !== undefined) updateData.sizes = sizes
     if (colors !== undefined) updateData.colors = colors
     if (isFeatured !== undefined) updateData.isFeatured = isFeatured
+    if (isActive !== undefined) updateData.isActive = isActive
 
     // Validate and update category if provided
     if (categoryId !== undefined) {
@@ -130,6 +132,18 @@ export default defineEventHandler(async (event) => {
         statusMessage: 'Product not found'
       })
     }
+    
+    // Map Domain Errors safely
+    if (error.name === 'ValidationError') {
+      throw createError({ statusCode: 400, statusMessage: error.message })
+    }
+    if (error.name === 'NotFoundError') {
+      throw createError({ statusCode: 404, statusMessage: error.message })
+    }
+    if (error.name === 'ConflictError') {
+      throw createError({ statusCode: 409, statusMessage: error.message })
+    }
+    
     logger.error('[Product PATCH Error]', error)
     throw createError({
       statusCode: 500,

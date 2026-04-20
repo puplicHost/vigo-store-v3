@@ -33,15 +33,18 @@ export const ProductSchema = z.object({
 })
 
 // Update Product Schema (all fields optional)
+// Coerce numeric fields: JSON from forms often sends strings for <input type="number">.
 export const UpdateProductSchema = z.object({
   name: z.string().min(1).optional(),
   description: z.string().optional(),
-  price: z.number().positive().optional(),
-  discount: z.number().min(0).optional().nullable(),
-  stock: z.number().int().min(0).optional(),
+  price: z.coerce.number().positive().optional(),
+  // Preserve null (do not coerce null → 0)
+  discount: z.union([z.null(), z.coerce.number().min(0)]).optional(),
+  stock: z.coerce.number().int().min(0).optional(),
   categoryId: z.string().min(1).optional(),
   images: z.array(z.string()).optional(),
   sizes: z.array(z.string()).optional(),
   colors: z.array(z.string()).optional(),
-  isFeatured: z.boolean().optional()
+  isFeatured: z.boolean().optional(),
+  isActive: z.boolean().optional()
 })

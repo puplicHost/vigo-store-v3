@@ -1,9 +1,21 @@
-import { defineEventHandler, getCookie, setCookie, getHeader, createError } from 'h3'
+import { defineEventHandler, getCookie, setCookie, getHeader, createError, getRequestURL } from 'h3'
 import { randomBytes } from 'crypto'
 
 export default defineEventHandler((event) => {
+  let pathname = ''
+  try {
+    pathname = getRequestURL(event).pathname || ''
+  } catch {
+    pathname = typeof event.path === 'string' ? event.path : ''
+  }
+
   // Only apply to API routes
-  if (!event.path.startsWith('/api/')) {
+  if (!pathname.startsWith('/api/')) {
+    return
+  }
+
+  // Dev-only debug ingest: skip CSRF (handler is dev-only); pathname must match real request path
+  if (process.env.NODE_ENV !== 'production' && pathname.startsWith('/api/__debug/')) {
     return
   }
 
@@ -25,7 +37,7 @@ export default defineEventHandler((event) => {
   const method = event.method.toUpperCase()
   if (['POST', 'PATCH', 'DELETE', 'PUT'].includes(method)) {
     const headerToken = getHeader(event, 'x-csrf-token')
-    
+
     if (!headerToken || headerToken !== csrfToken) {
       throw createError({
         statusCode: 403,

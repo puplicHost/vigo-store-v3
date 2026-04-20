@@ -70,7 +70,7 @@
               Price (EGP) *
             </label>
             <input
-              v-model="form.price"
+              v-model.number="form.price"
               type="number"
               step="0.01"
               min="0"
@@ -86,7 +86,7 @@
               Discount (%)
             </label>
             <input
-              v-model="form.discount"
+              v-model.number="form.discount"
               type="number"
               min="0"
               max="100"
@@ -103,7 +103,7 @@
               Stock *
             </label>
             <input
-              v-model="form.stock"
+              v-model.number="form.stock"
               type="number"
               min="0"
               required
@@ -266,7 +266,7 @@
 definePageMeta({
   layout: 'admin',
   middleware: ['permissions'],
-  permission: 'MANAGE_SETTINGS' 
+  permission: 'EDIT_PRODUCTS'
 })
 
 const route = useRoute()
@@ -304,7 +304,7 @@ const newColorName = ref('')
 
 const toggleSize = (size: string) => {
   const idx = form.sizes.indexOf(size)
-  if (idx >= 0) step: form.sizes.splice(idx, 1)
+  if (idx >= 0) form.sizes.splice(idx, 1)
   else form.sizes.push(size)
 }
 

@@ -2,7 +2,7 @@
  * Secure API Fetch with JWT Authentication
  * SSR-safe with reactive token handling and proper refetch logic
  */
-export const useApiFetch = (url: string | (() => string), options: any = {}) => {
+export const useApiFetch = <T = any>(url: string | (() => string), options: any = {}) => {
   const { token } = useAuth()
   
   // Use explicit key to avoid "incompatible options" warnings
@@ -35,13 +35,13 @@ export const useApiFetch = (url: string | (() => string), options: any = {}) => 
     return h
   })
 
-  const response = useFetch(url, {
+  const response = useFetch<T>(url, {
     key,
     credentials: 'include',
     ...options,
     headers,
     transform: options.transform || transform,
-    default: options.default || (() => null),
+    default: options.default || (() => null as any),
     // Watch token changes to refetch when token becomes available
     watch: [token],
     // Don't run on server if token is not ready
@@ -65,6 +65,17 @@ export const useApiFetch = (url: string | (() => string), options: any = {}) => 
     (err) => {
       if (err) {
         console.error(`[API ERROR] ${key}:`, err)
+        // #region agent log
+        if (import.meta.client) {
+          const e = err as { statusCode?: number; statusMessage?: string; message?: string }
+          debugProjectLog({
+            hypothesisId: 'H1',
+            location: 'useApiFetch.ts:watch:error',
+            message: 'useFetch error',
+            data: { key: String(key), statusCode: e?.statusCode, statusMessage: e?.statusMessage ?? e?.message }
+          })
+        }
+        // #endregion
       }
     }
   )
@@ -104,6 +115,21 @@ export const $apiFetch = async <T = any>(url: string, options: any = {}): Promis
   } catch (error: any) {
     // Logs the error but lets the component handle the specific re-throw
     console.error('[API Fetch Error]:', error)
+    // #region agent log
+    if (import.meta.client) {
+      debugProjectLog({
+        hypothesisId: 'H2',
+        location: 'useApiFetch.ts:$apiFetch:catch',
+        message: 'mutation failed',
+        data: {
+          url: String(url),
+          method: String(options?.method || 'GET'),
+          status: error?.statusCode ?? error?.status,
+          statusMessage: error?.data?.statusMessage ?? error?.message
+        }
+      })
+    }
+    // #endregion
     throw error
   }
 }

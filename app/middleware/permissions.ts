@@ -30,6 +30,16 @@ export default defineNuxtRouteMiddleware((to, from) => {
   const requiredPermission = to.meta.permission as Permission
 
   if (requiredPermission && !hasPermission(auth.user.value, requiredPermission)) {
+    // #region agent log
+    if (import.meta.client) {
+      debugProjectLog({
+        hypothesisId: 'H3',
+        location: 'permissions.ts',
+        message: 'navigate 403',
+        data: { path: to.path, requiredPermission, userRole: auth.user.value?.role }
+      })
+    }
+    // #endregion
     return navigateTo('/403')
   }
 })
