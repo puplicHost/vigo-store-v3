@@ -1,120 +1,117 @@
 <template>
-  <div class="min-h-screen bg-stone-50 text-stone-900 selection:bg-primary/20">
-    <main class="pt-32 pb-24 px-8 md:px-16 max-w-screen-2xl mx-auto min-h-screen w-full">
+  <div class="min-h-screen bg-white text-on-surface selection:bg-primary/10">
+    <main class="pt-32 pb-24 px-6 md:px-12 max-w-screen-2xl mx-auto min-h-screen">
       
       <!-- Page Narrative -->
-      <header class="mb-20">
-        <nav class="mb-6 flex items-center gap-4 text-[10px] uppercase tracking-[0.3em] text-stone-400 font-bold">
-          <NuxtLink to="/cart" class="hover:text-stone-900 transition-colors italic">Bag Portfolio</NuxtLink>
-          <span class="w-1 h-1 rounded-full bg-stone-200"></span>
-          <span class="text-stone-900 italic font-medium">Order Finalization</span>
-        </nav>
-        <h1 class="text-6xl md:text-8xl font-serif font-bold tracking-tight text-stone-900 italic leading-none">Checkout</h1>
+      <header class="mb-24 text-center">
+        <h1 class="text-6xl md:text-8xl font-serif font-bold tracking-tight text-stone-900 italic leading-none mb-6">Checkout</h1>
+        <div class="flex items-center justify-center gap-4 text-[10px] uppercase tracking-[0.6em] text-stone-300 font-bold">
+           <span>Bag Archive</span>
+           <span class="w-1.5 h-1.5 rounded-full bg-stone-100"></span>
+           <span class="text-stone-900">Modality</span>
+        </div>
       </header>
 
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-20 xl:gap-32">
         <!-- Main Form Area -->
-        <div class="lg:col-span-7 space-y-20">
+        <div class="lg:col-span-7 space-y-24">
           
           <!-- 01: Payment Selection -->
-          <section class="space-y-10">
-            <header class="flex items-center gap-4">
-               <span class="text-[11px] font-bold uppercase tracking-[0.4em] text-primary">01 — MODALITY</span>
-               <div class="h-px bg-stone-200 flex-grow"></div>
+          <section class="space-y-12">
+            <header class="space-y-4">
+               <span class="text-[10px] font-bold uppercase tracking-[0.5em] text-primary italic">Selection 01</span>
+               <h2 class="text-4xl font-serif italic text-stone-900 tracking-tight font-bold">Payment Modality</h2>
             </header>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div 
                 v-for="method in [
-                  { id: 'cod', label: 'Cash on Arrival', icon: 'payments', desc: 'Pay when you receive' },
-                  { id: 'paymob', label: 'Credit Card', icon: 'credit_card', desc: 'Secure electronic portal' }
+                  { id: 'cod', label: 'Cash on Arrival', icon: 'payments', desc: 'Settle upon reception' },
+                  { id: 'paymob', label: 'Digital Portal', icon: 'verified_user', desc: 'Secure electronic transfer' }
                 ]" 
                 :key="method.id"
                 @click="paymentMethod = method.id"
                 :class="[
-                  'p-8 rounded-3xl cursor-pointer border-2 transition-all duration-500 bg-white group',
-                  paymentMethod === method.id ? 'border-stone-900 shadow-2xl translate-y-[-4px]' : 'border-stone-100 opacity-50 grayscale hover:opacity-100 hover:grayscale-0'
+                  'p-10 rounded-[2.5rem] cursor-pointer border transition-all duration-700 bg-stone-50/30 group',
+                  paymentMethod === method.id ? 'border-primary ring-8 ring-primary/5 shadow-2xl scale-[1.02]' : 'border-stone-100 opacity-60 hover:opacity-100'
                 ]"
               >
-                <div class="w-14 h-14 rounded-2xl bg-stone-50 flex items-center justify-center mb-6 group-hover:bg-primary/5 transition-colors">
+                <div class="w-16 h-16 rounded-full bg-white border border-stone-100 flex items-center justify-center mb-8 shadow-sm group-hover:scale-110 transition-transform">
                   <span class="material-symbols-outlined text-3xl font-light italic" :class="paymentMethod === method.id ? 'text-primary' : 'text-stone-300'">{{ method.icon }}</span>
                 </div>
-                <h3 class="text-xl font-serif font-bold italic mb-1">{{ method.label }}</h3>
-                <p class="text-[10px] uppercase tracking-[0.2em] text-stone-400 font-bold">{{ method.desc }}</p>
+                <h3 class="text-2xl font-serif font-bold italic mb-2">{{ method.label }}</h3>
+                <p class="text-[10px] uppercase tracking-[0.2em] text-stone-400 font-bold italic">{{ method.desc }}</p>
               </div>
             </div>
           </section>
 
           <!-- 02: Conditional Requirements -->
-          <section class="space-y-10">
-            <header class="flex items-center gap-4">
-               <span class="text-[11px] font-bold uppercase tracking-[0.4em] text-primary">02 — REQUIREMENTS</span>
-               <div class="h-px bg-stone-200 flex-grow"></div>
+          <section class="space-y-12">
+             <header class="space-y-4 text-left">
+               <span class="text-[10px] font-bold uppercase tracking-[0.5em] text-stone-300 italic">Selection 02</span>
+               <h2 class="text-4xl font-serif italic text-stone-900 tracking-tight font-bold">Logistics Intelligence</h2>
             </header>
 
-            <Transition mode="out-in" enter-active-class="transition-all duration-500 ease-out" enter-from-class="opacity-0 translate-y-8" enter-to-class="opacity-100 translate-y-0">
+            <Transition mode="out-in" enter-active-class="transition-all duration-700 ease-out" enter-from-class="opacity-0 translate-y-12" enter-to-class="opacity-100 translate-y-0">
               
               <!-- FOR COD: Only Logistics -->
-              <div v-if="paymentMethod === 'cod'" :key="'cod'" class="bg-white p-10 md:p-14 rounded-[2.5rem] border-2 border-stone-100 shadow-sm space-y-12">
-                <h4 class="text-xs font-bold font-serif italic uppercase tracking-[0.3em] text-stone-900 border-b border-stone-50 pb-4">Delivery Intelligence</h4>
+              <div v-if="paymentMethod === 'cod'" :key="'cod'" class="space-y-14">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-                  <div class="flex flex-col gap-4">
-                    <label class="text-[9px] uppercase tracking-[0.4em] font-bold text-stone-400">Recipient Name</label>
-                    <input v-model="shipping.fullName" type="text" placeholder="As it appears in ID" class="text-xl font-serif italic bg-transparent border-b-2 border-stone-100 py-3 focus:outline-none focus:border-stone-950 transition-all"/>
+                  <div class="flex flex-col gap-4 group">
+                    <label class="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-300 group-focus-within:text-primary transition-colors">Recipient Identity</label>
+                    <input v-model="shipping.fullName" type="text" placeholder="Legal full name" class="text-xl font-serif italic bg-transparent border-b border-stone-100 py-4 focus:outline-none focus:border-primary transition-all placeholder:text-stone-100"/>
                   </div>
-                  <div class="flex flex-col gap-4">
-                    <label class="text-[9px] uppercase tracking-[0.4em] font-bold text-stone-400">Contact Number</label>
-                    <input v-model="shipping.phone" type="tel" placeholder="01xxxxxxxxx" class="text-xl font-serif italic bg-transparent border-b-2 border-stone-100 py-3 focus:outline-none focus:border-stone-950 transition-all"/>
+                  <div class="flex flex-col gap-4 group">
+                    <label class="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-300 group-focus-within:text-primary transition-colors">Digital Contact</label>
+                    <input v-model="shipping.phone" type="tel" placeholder="Mobile number" class="text-xl font-serif italic bg-transparent border-b border-stone-100 py-4 focus:outline-none focus:border-primary transition-all placeholder:text-stone-100"/>
                   </div>
-                  <div class="flex flex-col gap-4 md:col-span-2">
-                    <label class="text-[9px] uppercase tracking-[0.4em] font-bold text-stone-400">Governance / City</label>
-                    <select v-model="shipping.city" class="text-xl font-serif italic bg-transparent border-b-2 border-stone-100 py-3 focus:outline-none focus:border-stone-950">
+                  <div class="flex flex-col gap-4 md:col-span-2 group">
+                    <label class="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-300 group-focus-within:text-primary transition-colors">Metropolis</label>
+                    <select v-model="shipping.city" class="text-xl font-serif italic bg-transparent border-b border-stone-100 py-4 focus:outline-none focus:border-primary transition-all">
                        <option value="Cairo">Cairo (القاهرة)</option>
                        <option value="Giza">Giza (الجيزة)</option>
                        <option value="Alexandria">Alexandria (الإسكندرية)</option>
                     </select>
                   </div>
-                  <div class="flex flex-col gap-4 md:col-span-2">
-                    <label class="text-[9px] uppercase tracking-[0.4em] font-bold text-stone-400">Detailed Address</label>
-                    <input v-model="shipping.address" type="text" placeholder="Street, Building, Floor" class="text-xl font-serif italic bg-transparent border-b-2 border-stone-100 py-3 focus:outline-none focus:border-stone-950 transition-all"/>
+                  <div class="flex flex-col gap-4 md:col-span-2 group">
+                    <label class="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-300 group-focus-within:text-primary transition-colors">Geographic Destination</label>
+                    <input v-model="shipping.address" type="text" placeholder="Street, Building, Apartment" class="text-xl font-serif italic bg-transparent border-b border-stone-100 py-4 focus:outline-none focus:border-primary transition-all placeholder:text-stone-100"/>
                   </div>
                 </div>
               </div>
 
               <!-- FOR VISA: Card + Billing Email -->
-              <div v-else :key="'paymob'" class="bg-white p-10 md:p-14 rounded-[2.5rem] border-2 border-stone-100 shadow-sm space-y-12">
-                <h4 class="text-xs font-bold font-serif italic uppercase tracking-[0.3em] text-stone-900 border-b border-stone-50 pb-4">Digital Processing Intel</h4>
-                
-                <!-- Email for digital receipt -->
-                <div class="flex flex-col gap-4">
-                  <label class="text-[9px] uppercase tracking-[0.4em] font-bold text-stone-400">Fiscal Receipt Email</label>
-                  <input v-model="shipping.email" type="email" placeholder="email@destination.com" class="text-xl font-serif italic bg-transparent border-b-2 border-stone-100 py-3 focus:outline-none focus:border-stone-950 transition-all"/>
+              <div v-else :key="'paymob'" class="space-y-16">
+                <!-- Fiscal Receipt Email -->
+                <div class="flex flex-col gap-4 group">
+                  <label class="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-300 group-focus-within:text-primary transition-colors">Fiscal Receipt Destination</label>
+                  <input v-model="shipping.email" type="email" placeholder="concierge@atelier.com" class="text-xl font-serif italic bg-transparent border-b border-stone-100 py-4 focus:outline-none focus:border-primary transition-all placeholder:text-stone-100"/>
                 </div>
 
                 <!-- Manual Card Fields -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 pt-8 border-t border-stone-50">
-                  <div class="flex flex-col gap-4 md:col-span-2">
-                    <label class="text-[9px] uppercase tracking-[0.4em] font-bold text-stone-400">Card Identity Number</label>
-                    <input v-model="card.number" type="text" placeholder="4242 4242 4242 4242" @input="formatCardNumber" maxlength="19" class="text-xl font-serif italic bg-transparent border-b-2 border-stone-100 py-3 focus:outline-none focus:border-stone-950 transition-all font-mono"/>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 bg-stone-50/30 p-10 md:p-14 rounded-[3rem] border border-stone-100">
+                  <div class="flex flex-col gap-4 md:col-span-2 group text-left">
+                    <label class="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-300 group-focus-within:text-primary transition-colors">Card Identity</label>
+                    <input v-model="card.number" type="text" placeholder="•••• •••• •••• ••••" @input="formatCardNumber" maxlength="19" class="text-xl font-serif italic bg-transparent border-b border-stone-100 py-4 focus:outline-none focus:border-primary transition-all font-mono placeholder:text-stone-200"/>
                   </div>
-                  <div class="flex flex-col gap-4">
-                    <label class="text-[9px] uppercase tracking-[0.4em] font-bold text-stone-400">Expirty MM/YY</label>
-                    <input v-model="card.expiry" type="text" placeholder="00 / 00" @input="formatExpiry" maxlength="7" class="text-xl font-serif italic bg-transparent border-b-2 border-stone-100 py-3 focus:outline-none focus:border-stone-950 transition-all"/>
+                  <div class="flex flex-col gap-4 group text-left">
+                    <label class="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-300 group-focus-within:text-primary transition-colors">Expiry Threshold</label>
+                    <input v-model="card.expiry" type="text" placeholder="MM / YY" @input="formatExpiry" maxlength="7" class="text-xl font-serif italic bg-transparent border-b border-stone-100 py-4 focus:outline-none focus:border-primary transition-all placeholder:text-stone-200"/>
                   </div>
-                  <div class="flex flex-col gap-4">
-                    <label class="text-[9px] uppercase tracking-[0.4em] font-bold text-stone-400">Security Cipher (CVV)</label>
-                    <input v-model="card.cvv" type="password" placeholder="***" maxlength="3" class="text-xl font-serif italic bg-transparent border-b-2 border-stone-100 py-3 focus:outline-none focus:border-stone-950 transition-all"/>
+                  <div class="flex flex-col gap-4 group text-left">
+                    <label class="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-300 group-focus-within:text-primary transition-colors">Cipher (CVV)</label>
+                    <input v-model="card.cvv" type="password" placeholder="•••" maxlength="3" class="text-xl font-serif italic bg-transparent border-b border-stone-100 py-4 focus:outline-none focus:border-primary transition-all placeholder:text-stone-200"/>
                   </div>
-                </div>
-
-                <!-- Essential Delivery Info for Visa -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 pt-8 border-t border-stone-50">
-                  <div class="flex flex-col gap-4">
-                    <label class="text-[9px] uppercase tracking-[0.4em] font-bold text-stone-400">Sovereign Recipient</label>
-                    <input v-model="shipping.fullName" type="text" placeholder="Full name" class="text-xl font-serif italic bg-transparent border-b-2 border-stone-100 py-3 focus:outline-none focus:border-stone-950 transition-all"/>
-                  </div>
-                  <div class="flex flex-col gap-4">
-                    <label class="text-[9px] uppercase tracking-[0.4em] font-bold text-stone-400">Mobile Contact</label>
-                    <input v-model="shipping.phone" type="tel" placeholder="01xxxxxxxxx" class="text-xl font-serif italic bg-transparent border-b-2 border-stone-100 py-3 focus:outline-none focus:border-stone-950 transition-all"/>
+                  
+                   <div class="md:col-span-2 grid grid-cols-2 gap-12 mt-10 border-t border-stone-100 pt-10">
+                     <div class="flex flex-col gap-4 group text-left">
+                        <label class="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-300 group-focus-within:text-primary transition-colors">Recipient</label>
+                        <input v-model="shipping.fullName" type="text" placeholder="Name" class="text-lg font-serif italic bg-transparent border-b border-stone-100 py-4 focus:outline-none focus:border-primary transition-all"/>
+                     </div>
+                     <div class="flex flex-col gap-4 group text-left">
+                        <label class="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-300 group-focus-within:text-primary transition-colors">Phone</label>
+                        <input v-model="shipping.phone" type="tel" placeholder="Mobile" class="text-lg font-serif italic bg-transparent border-b border-stone-100 py-4 focus:outline-none focus:border-primary transition-all"/>
+                     </div>
                   </div>
                 </div>
               </div>
@@ -122,29 +119,29 @@
           </section>
 
           <!-- Action Terminal -->
-          <div class="flex flex-col md:flex-row items-center justify-between gap-12 pt-10 border-t border-stone-100">
-             <NuxtLink to="/cart" class="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-300 hover:text-stone-950 transition-all flex items-center gap-4 group">
-               <span class="material-symbols-outlined text-sm group-hover:-translate-x-2 transition-transform">arrow_back</span>
-               Back to Bag
+          <div class="flex flex-col md:flex-row items-center justify-between gap-12 pt-16 border-t border-stone-50">
+             <NuxtLink to="/cart" class="text-[10px] uppercase tracking-[0.5em] font-bold text-stone-300 hover:text-stone-950 transition-all flex items-center gap-6 group">
+               <span class="material-symbols-outlined text-sm group-hover:-translate-x-3 transition-transform italic">arrow_back</span>
+               Return to Bag Portfolio
              </NuxtLink>
              <button 
                @click="commitOrder" 
                :disabled="isProcessing"
-               class="h-24 px-24 bg-stone-950 text-white rounded-full font-bold uppercase tracking-[0.5em] text-[12px] shadow-3xl hover:bg-primary transition-all transform hover:scale-[1.05] active:scale-[0.98] disabled:opacity-50 flex items-center gap-8"
+               class="h-24 px-20 md:px-32 bg-stone-900 text-white rounded-full font-bold uppercase tracking-[0.6em] text-[12px] shadow-3xl hover:bg-primary transition-all duration-700 transform hover:scale-[1.05] active:scale-95 disabled:opacity-50 flex items-center gap-10"
              >
-               <span v-if="isProcessing" class="material-symbols-outlined animate-spin text-2xl">loading</span>
-               <span v-else class="material-symbols-outlined text-2xl">{{ paymentMethod === 'cod' ? 'local_shipping' : 'verified_user' }}</span>
-               {{ isProcessing ? 'Archiving Commitment' : (paymentMethod === 'cod' ? 'Confirm Arrival' : 'Secure Modality') }}
+               <span v-if="isProcessing" class="material-symbols-outlined animate-spin text-2xl italic">progress_activity</span>
+               <span v-else class="material-symbols-outlined text-2xl italic">{{ paymentMethod === 'cod' ? 'handshake' : 'offline_pin' }}</span>
+               {{ isProcessing ? 'Processing Commitment' : (paymentMethod === 'cod' ? 'Confirm Arrival' : 'Secure Modality') }}
              </button>
           </div>
         </div>
 
         <!-- Right Side Budgeting -->
-        <aside class="lg:col-span-5 flex flex-col pt-4">
-          <div class="sticky top-40 bg-white p-12 rounded-[3rem] border-2 border-stone-100 shadow-xl space-y-12">
-            <h2 class="text-3xl font-serif font-bold italic border-b border-stone-50 pb-8 flex items-end justify-between">
-              Final Summary
-              <span class="text-[10px] font-bold text-stone-300 not-italic uppercase tracking-widest">{{ cartItemCount }} Items</span>
+        <aside class="lg:col-span-5 flex flex-col">
+          <div class="sticky top-40 bg-stone-50/50 p-12 rounded-[4rem] border border-stone-100 shadow-sm space-y-16 mt-10">
+            <h2 class="text-4xl font-serif font-bold italic border-b border-stone-100 pb-10 flex items-end justify-between">
+              Order Narrative
+              <span class="text-[10px] font-bold text-stone-300 not-italic uppercase tracking-[0.3em] italic">{{ cartItemCount }} Curated Items</span>
             </h2>
 
             <div class="space-y-8">

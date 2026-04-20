@@ -13,45 +13,45 @@
   :root {
     --font-sans: 'Outfit', 'Tajawal', system-ui, sans-serif;
     --font-serif: 'Cormorant Garamond', 'Amiri', serif;
-    /* Matches --primary #775a19 — used by rgba() helpers */
-    --primary-rgb: 119 90 25;
+    /* Matches --primary #B19759 — Luxury Gold */
+    --primary-rgb: 177 151 89;
 
     --on-tertiary-fixed-variant: #474747;
     --tertiary-fixed-dim: #c8c6c6;
     --on-primary: #ffffff;
     --surface-dim: #dcd9d9;
     --primary-fixed-dim: #e9c176;
-    --primary-container: #c5a059;
+    --primary-container: #B19759;
     --on-primary-fixed-variant: #5d4201;
     --inverse-surface: #313030;
-    --secondary-container: #e2dfde;
+    --secondary-container: #F8F6F3;
     --error: #ba1a1a;
-    --outline: #7f7667;
+    --outline: #9a948b;
     --on-primary-container: #4e3700;
-    --surface-bright: #fdfcfa;
-    --background: #faf8f5;
+    --surface-bright: #ffffff;
+    --background: #ffffff;
     --primary-fixed: #ffdea5;
     --on-error-container: #93000a;
     --error-container: #ffdad6;
     --tertiary-container: #a6a5a5;
-    --surface-container-high: #ebe7e7;
+    --surface-container-high: #F2F0ED;
     --on-tertiary-fixed: #1b1c1c;
     --tertiary-fixed: #e4e2e1;
-    --surface: #faf8f5;
+    --surface: #ffffff;
     --secondary-fixed: #e5e2e1;
     --inverse-on-surface: #f3f0ef;
     --on-primary-fixed: #261900;
     --on-secondary: #ffffff;
     --on-error: #ffffff;
-    --surface-container-highest: #e5e2e1;
-    --outline-variant: #d1c5b4;
-    --on-surface: #1c1b1b;
+    --surface-container-highest: #F0EDEA;
+    --outline-variant: #E5E1DA;
+    --on-surface: #0a0a0a;
     --tertiary: #5f5e5e;
-    --surface-tint: #775a19;
+    --surface-tint: #B19759;
     --secondary: #5f5e5e;
     --on-secondary-container: #636262;
-    --surface-container: #f0edec;
-    --on-background: #1c1b1b;
+    --surface-container: #F8F6F3;
+    --on-background: #0a0a0a;
     --inverse-primary: #e9c176;
     
     --success: #10b981;
@@ -68,14 +68,14 @@
     --info-container: #dbeafe;
     --on-info: #ffffff;
     --on-info-container: #1e3a8a;
-    --surface-variant: #e5e2e1;
+    --surface-variant: #F2F0ED;
     --on-secondary-fixed: #1c1b1b;
     --secondary-fixed-dim: #c8c6c5;
-    --surface-container-low: #f6f3f2;
+    --surface-container-low: #FBF9F7;
     --on-tertiary-container: #3b3b3b;
     --on-secondary-fixed-variant: #474746;
     --on-surface-variant: #4e4639;
-    --primary: #775a19;
+    --primary: #B19759;
     --surface-container-lowest: #ffffff;
     --on-tertiary: #ffffff;
 

@@ -60,135 +60,85 @@ const handleRegister = async () => {
 </script>
 
 <template>
-  <div class="space-y-12">
-    <!-- Header -->
-    <div class="space-y-4 fade-up">
-      <h2 class="text-4xl font-serif tracking-tighter text-on-surface">
-        Join the Atelier
+  <div class="w-full max-w-2xl mx-auto space-y-20 animate-stagger mb-20">
+    <!-- Hero Section -->
+    <div class="text-center space-y-8">
+      <span class="text-[10px] uppercase tracking-[0.6em] text-stone-400 font-bold block">Est. 2024 — Membership</span>
+      <h2 class="text-5xl md:text-7xl font-serif tracking-tight text-on-surface leading-tight">
+        The essence of <br/><span class="italic text-primary">bespoke curation.</span>
       </h2>
-      <p class="text-on-surface-variant font-body text-sm leading-relaxed max-w-xs">
-        Enter your details to become a member of our exclusive artisanal community.
+      <div class="w-24 h-px bg-stone-100 mx-auto"></div>
+      <p class="text-stone-400 font-body text-sm leading-relaxed max-w-sm mx-auto italic">
+        Join {{ settings?.siteName || 'Elixir' }} and unlock exclusive access to the Atelier's limited editions, artisanal releases, and seasonal scent journals.
       </p>
     </div>
 
-    <!-- Error Message -->
-    <div v-if="error" class="bg-error-container/50 backdrop-blur-sm border border-error/20 text-error px-4 py-3 rounded text-sm fade-up">
-      {{ error }}
-    </div>
+    <!-- Main Registration Box -->
+    <div class="bg-stone-50/40 p-10 md:p-16 rounded-[2.5rem] border border-stone-100 shadow-sm">
+      <div class="text-center mb-16">
+         <h3 class="text-3xl font-serif text-stone-900 mb-4 italic">Create Account</h3>
+         <p class="text-[10px] uppercase tracking-widest text-stone-400 font-bold">Enter your details to join the {{ settings?.siteName || 'ELIXIR' }} community.</p>
+      </div>
 
-    <!-- Registration Form -->
-    <form class="space-y-10" @submit.prevent="handleRegister">
-      <div class="space-y-8">
-        <!-- Name Field -->
-        <div class="relative fade-up" style="animation-delay: 50ms;">
-          <input
-            id="full_name"
-            v-model="name"
-            type="text"
-            required
-            placeholder=" "
-            class="peer w-full bg-transparent border-0 border-b-2 border-outline-variant/30 py-3 px-0 focus:ring-0 focus:border-primary transition-all duration-300 font-body text-on-surface placeholder-transparent"
-          />
-          <label
-            for="full_name"
-            class="absolute left-0 -top-3.5 text-on-surface-variant text-[10px] uppercase tracking-[0.2em] transition-all peer-placeholder-shown:text-sm peer-placeholder-shown:text-on-surface-variant/40 peer-placeholder-shown:top-3 peer-focus:-top-3.5 peer-focus:text-primary peer-focus:text-[10px] pointer-events-none"
-          >
-            Full Name
-          </label>
-        </div>
+       <!-- Error Message -->
+      <div v-if="error" class="mb-12 bg-red-50 border border-red-100 text-red-600 px-6 py-4 rounded-xl text-[10px] font-bold uppercase tracking-widest text-center">
+        {{ error }}
+      </div>
 
-        <!-- Email Field -->
-        <div class="relative fade-up" style="animation-delay: 100ms;">
-          <input
-            id="email"
-            v-model="email"
-            type="email"
-            required
-            placeholder=" "
-            class="peer w-full bg-transparent border-0 border-b-2 border-outline-variant/30 py-3 px-0 focus:ring-0 focus:border-primary transition-all duration-300 font-body text-on-surface placeholder-transparent"
-          />
-          <label
-            for="email"
-            class="absolute left-0 -top-3.5 text-on-surface-variant text-[10px] uppercase tracking-[0.2em] transition-all peer-placeholder-shown:text-sm peer-placeholder-shown:text-on-surface-variant/40 peer-placeholder-shown:top-3 peer-focus:-top-3.5 peer-focus:text-primary peer-focus:text-[10px] pointer-events-none"
-          >
-            Email Address
-          </label>
-        </div>
-
-        <!-- Password Filed -->
-        <div class="relative fade-up" style="animation-delay: 150ms;">
-          <input
-            id="password"
-            v-model="password"
-            type="password"
-            required
-            placeholder=" "
-            class="peer w-full bg-transparent border-0 border-b-2 border-outline-variant/30 py-3 px-0 focus:ring-0 focus:border-primary transition-all duration-300 font-body text-on-surface placeholder-transparent"
-          />
-          <label
-            for="password"
-            class="absolute left-0 -top-3.5 text-on-surface-variant text-[10px] uppercase tracking-[0.2em] transition-all peer-placeholder-shown:text-sm peer-placeholder-shown:text-on-surface-variant/40 peer-placeholder-shown:top-3 peer-focus:-top-3.5 peer-focus:text-primary peer-focus:text-[10px] pointer-events-none"
-          >
-            Password
-          </label>
-        </div>
-
-        <!-- Confirm Password Field -->
-        <div class="relative fade-up" style="animation-delay: 200ms;">
-          <input
-            id="confirm_password"
-            v-model="confirmPassword"
-            type="password"
-            required
-            placeholder=" "
-            class="peer w-full bg-transparent border-0 border-b-2 border-outline-variant/30 py-3 px-0 focus:ring-0 focus:border-primary transition-all duration-300 font-body text-on-surface placeholder-transparent"
-          />
-          <label
-            for="confirm_password"
-            class="absolute left-0 -top-3.5 text-on-surface-variant text-[10px] uppercase tracking-[0.2em] transition-all peer-placeholder-shown:text-sm peer-placeholder-shown:text-on-surface-variant/40 peer-placeholder-shown:top-3 peer-focus:-top-3.5 peer-focus:text-primary peer-focus:text-[10px] pointer-events-none"
-          >
-            Confirm Password
-          </label>
-        </div>
-
-        <!-- Newsletter Subscription -->
-        <div class="flex items-start gap-4 pt-4 fade-up" style="animation-delay: 250ms;">
-          <div class="flex items-center h-5">
-            <input
-              id="newsletter"
-              type="checkbox"
-              class="h-4 w-4 rounded-none border-outline-variant/30 text-primary focus:ring-primary/20 bg-transparent cursor-pointer"
-            />
+      <!-- Registration Form -->
+      <form class="space-y-12" @submit.prevent="handleRegister">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+          <!-- Name Field -->
+          <div class="relative group md:col-span-2">
+            <label for="full_name" class="block text-[10px] uppercase tracking-[0.3em] text-stone-400 font-bold mb-2 group-focus-within:text-primary transition-colors">Full Name</label>
+            <input id="full_name" v-model="name" type="text" required placeholder="Alexander Sterling" class="w-full bg-transparent border-0 border-b border-stone-200 py-3 px-0 focus:ring-0 focus:border-primary transition-all duration-500 font-body text-on-surface placeholder:text-stone-200"/>
           </div>
-          <div class="text-[11px]">
-            <label for="newsletter" class="text-on-surface-variant/60 font-light leading-relaxed cursor-pointer hover:text-on-surface transition-colors">
-              I wish to receive early access to collection drops and artisanal storytelling.
+
+          <!-- Email Field -->
+          <div class="relative group md:col-span-2">
+            <label for="email" class="block text-[10px] uppercase tracking-[0.3em] text-stone-400 font-bold mb-2 group-focus-within:text-primary transition-colors">Email Address</label>
+            <input id="email" v-model="email" type="email" required placeholder="alexander@atelier.com" class="w-full bg-transparent border-0 border-b border-stone-200 py-3 px-0 focus:ring-0 focus:border-primary transition-all duration-500 font-body text-on-surface placeholder:text-stone-200"/>
+          </div>
+
+          <!-- Password Filed -->
+          <div class="relative group">
+            <label for="password" class="block text-[10px] uppercase tracking-[0.3em] text-stone-400 font-bold mb-2 group-focus-within:text-primary transition-colors">Password</label>
+            <input id="password" v-model="password" type="password" required placeholder="••••••••" class="w-full bg-transparent border-0 border-b border-stone-200 py-3 px-0 focus:ring-0 focus:border-primary transition-all duration-500 font-body text-on-surface placeholder:text-stone-200"/>
+          </div>
+
+          <!-- Confirm Password Field -->
+          <div class="relative group">
+            <label for="confirm_password" class="block text-[10px] uppercase tracking-[0.3em] text-stone-400 font-bold mb-2 group-focus-within:text-primary transition-colors">Confirm</label>
+            <input id="confirm_password" v-model="confirmPassword" type="password" required placeholder="••••••••" class="w-full bg-transparent border-0 border-b border-stone-200 py-3 px-0 focus:ring-0 focus:border-primary transition-all duration-500 font-body text-on-surface placeholder:text-stone-200"/>
+          </div>
+
+          <!-- Newsletter Subscription -->
+          <div class="md:col-span-2 flex items-start gap-4 pt-4 group">
+            <input id="newsletter" type="checkbox" class="mt-1 h-4 w-4 rounded-none border-stone-200 text-primary focus:ring-primary/20 bg-transparent cursor-pointer transition-all"/>
+            <label for="newsletter" class="text-[11px] text-stone-400 font-medium leading-relaxed cursor-pointer group-hover:text-stone-700 transition-colors italic">
+              Subscribe to our newsletter for early access to collection drops and artisanal storytelling.
             </label>
           </div>
         </div>
-      </div>
 
-      <!-- Submit Button -->
-      <div class="pt-6 fade-up" style="animation-delay: 300ms;">
-        <button
-          type="submit"
-          :disabled="loading"
-          class="w-full btn-gradient text-on-primary font-label text-[11px] uppercase tracking-[0.3em] py-5 rounded hover:opacity-90 transition-all duration-300 shadow-xl shadow-primary/10 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
-        >
-          <span v-if="loading" class="material-symbols-outlined animate-spin text-lg">progress_activity</span>
-          <span>{{ loading ? 'Joining...' : 'Become a Member' }}</span>
-        </button>
-      </div>
-    </form>
+        <!-- Submit Button -->
+        <div class="pt-8">
+          <button type="submit" :disabled="loading" class="w-full py-7 px-10 bg-primary text-white rounded-full font-label text-[11px] font-bold uppercase tracking-[0.4em] shadow-3xl shadow-primary/30 hover:bg-stone-900 transition-all duration-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-4 hover:scale-[1.02] active:scale-[0.98]">
+            <span v-if="loading" class="material-symbols-outlined animate-spin text-lg italic">progress_activity</span>
+            <span>{{ loading ? 'Securing Membership...' : 'Join The Atelier' }}</span>
+          </button>
+        </div>
+      </form>
 
-    <!-- Footer Link -->
-    <footer class="mt-8 text-center fade-up" style="animation-delay: 350ms;">
-      <p class="text-sm text-on-surface-variant/70 font-body">
-        Already registered?
-        <NuxtLink to="/auth/login" class="text-primary font-semibold hover:underline underline-offset-8 ml-2 transition-all">
-          Sign In
-        </NuxtLink>
-      </p>
-    </footer>
+       <!-- Footer Link -->
+      <div class="mt-12 text-center">
+        <p class="text-xs text-stone-400 font-body italic flex items-center justify-center gap-2">
+          Already have an account?
+          <NuxtLink to="/auth/login" class="text-primary font-bold not-italic hover:text-stone-900 transition-colors uppercase tracking-widest text-[9px]">
+            Sign In
+          </NuxtLink>
+        </p>
+      </div>
+    </div>
   </div>
 </template>

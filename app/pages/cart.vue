@@ -126,7 +126,7 @@
                  <span class="material-symbols-outlined text-2xl font-light">payments</span>
                </div>
                <p class="text-[8px] uppercase tracking-[0.4em] text-stone-500 font-bold leading-relaxed">
-                 Encrypted Fiscal Processing<br/>Curated by Vigo Atelier
+                 Encrypted Fiscal Processing<br/>Curated by {{ settings?.siteName || 'Atelier' }}
                </p>
             </div>
           </div>

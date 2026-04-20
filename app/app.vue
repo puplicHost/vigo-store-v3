@@ -12,8 +12,8 @@
 const { settings } = useSettings()
 
 useHead({
-  title: settings.value?.siteName || 'Vigo Store',
-  titleTemplate: () => settings.value?.siteName || 'Vigo Store',
+  title: settings.value?.siteName || 'Maison',
+  titleTemplate: () => settings.value?.siteName || 'Maison',
   meta: [
     { name: 'description', content: settings.value?.siteDescription || 'Modern Editorial E-commerce' },
     { name: 'keywords', content: settings.value?.siteKeywords || 'fashion, luxury, atelier' }

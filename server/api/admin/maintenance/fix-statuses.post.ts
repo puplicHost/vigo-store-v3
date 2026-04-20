@@ -13,14 +13,14 @@ export default defineEventHandler(async (event) => {
     // Using raw query for maximum safety against enum drift in Prisma Client
     const result = await prisma.$executeRawUnsafe(`
       UPDATE "Order"
-      SET "status" = 'CONFIRMED'
+      SET "status" = 'PENDING'
       WHERE "status" NOT IN ('PENDING', 'CONFIRMED', 'CANCELLED')
     `)
 
     return {
       success: true,
       affectedRows: result,
-      message: `${result} orders migrated to the new standardized state machine.`
+      message: `${result} orders migrated to the standardized 'PENDING' fallback state.`
     }
   } catch (error: any) {
     console.error('[MAINTENANCE ERROR]', error)

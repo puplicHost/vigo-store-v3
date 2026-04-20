@@ -1,112 +1,106 @@
 <template>
-  <div class="min-h-screen bg-[#fafafa] text-[#1c1b1b]">
-    <main class="pt-24 pb-24 px-8 md:px-12 max-w-[1400px] mx-auto">
+  <div class="min-h-screen bg-white text-stone-900 selection:bg-primary/10">
+    <main class="pt-32 pb-24 px-6 md:px-12 max-w-screen-2xl mx-auto">
       
-      <!-- Breadcrumbs & Header -->
-      <header class="mb-14">
-        <div class="relative flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-[#eae8e4] pb-10">
-          <div class="max-w-2xl">
-            <nav class="mb-6 text-[9px] uppercase tracking-[0.2em] text-[#a09e99]">
-              <NuxtLink to="/" class="hover:text-[#1c1b1b] transition-colors">HOME</NuxtLink>
-              <span class="mx-2">/</span>
-              <span class="text-[#1c1b1b]">NEW ARRIVALS</span>
+      <!-- Page Narrative -->
+      <header class="mb-24 space-y-10">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-12 border-b border-stone-100 pb-12">
+          <div class="max-w-3xl space-y-8 animate-stagger">
+            <nav class="text-[9px] uppercase tracking-[0.6em] text-stone-300 font-bold italic">
+              <NuxtLink to="/" class="hover:text-primary transition-colors">Atelier Home</NuxtLink>
+              <span class="mx-3 opacity-30">/</span>
+              <span class="text-stone-900">Collections</span>
             </nav>
-            <h1 class="font-serif text-5xl md:text-6xl text-[#1c1b1b] mb-4">New Arrivals</h1>
-            <p class="text-[13px] text-[#5c5a55] font-body max-w-sm leading-relaxed">
-              Discover our latest editorial collection, where artisanal heritage meets modern silhouette.
+            <h1 class="font-serif text-6xl md:text-8xl text-stone-900 italic font-bold tracking-tight">The Collections</h1>
+            <p class="text-sm text-stone-400 font-body max-w-md leading-relaxed italic">
+              Explore our curated silhouette narrative. Precision-cut artisanal pieces designed for the modern individual who seeks aesthetic permanence.
             </p>
           </div>
           
-          <div class="flex items-center gap-3 self-start md:self-end">
-            <span class="text-[9px] uppercase tracking-[0.2em] text-[#a09e99]">SORT BY</span>
+          <div class="flex items-center gap-6 self-start md:self-end">
+            <span class="text-[9px] uppercase tracking-[0.4em] text-stone-300 font-bold italic">Arrange by</span>
             <div class="relative group">
               <select 
                 v-model="sortBy"
-                class="appearance-none bg-transparent border-b border-[#d4d2ce] pr-6 py-1 text-[11px] font-medium text-[#1c1b1b] hover:border-[#1c1b1b] transition-all focus:outline-none cursor-pointer"
+                class="appearance-none bg-transparent border-b border-stone-100 pr-10 py-2 text-[10px] font-bold text-stone-900 uppercase tracking-widest hover:border-primary transition-all focus:outline-none cursor-pointer"
               >
-                <option value="newest">Newest First</option>
-                <option value="oldest">Archival Pieces</option>
-                <option value="price-low">Value: Ascending</option>
-                <option value="price-high">Value: Descending</option>
+                <option value="newest">Latest arrivals</option>
+                <option value="oldest">Archive first</option>
+                <option value="price-low">Value: ascending</option>
+                <option value="price-high">Value: descending</option>
               </select>
-              <span class="material-symbols-outlined absolute right-0 top-1/2 -translate-y-1/2 text-sm text-[#8c8a85] pointer-events-none">expand_more</span>
+              <span class="material-symbols-outlined absolute right-0 top-1/2 -translate-y-1/2 text-sm text-stone-200 group-hover:text-primary transition-colors group-hover:translate-y-1">expand_more</span>
             </div>
           </div>
         </div>
       </header>
 
-      <div class="flex flex-col lg:flex-row gap-12 lg:gap-20">
+      <div class="flex flex-col lg:flex-row gap-20 xl:gap-32">
         <!-- Sidebar Filters -->
-        <aside class="w-full lg:w-56 flex-shrink-0">
-          <div class="sticky top-32 space-y-12">
-            <div class="flex items-center justify-between border-b border-[#eae8e4] pb-6 mb-8">
-              <h3 class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#1c1b1b]">FILTERS</h3>
-              <button @click="clearAll" class="text-[9px] uppercase tracking-[0.1em] text-[#a09e99] hover:text-[#1c1b1b] border-b border-[#a09e99] hover:border-[#1c1b1b] pb-0.5 transition-colors">
-                CLEAR ALL
+        <aside class="w-full lg:w-64 flex-shrink-0">
+          <div class="sticky top-40 space-y-16 animate-stagger">
+            <div class="flex items-center justify-between border-b border-stone-100 pb-8 mb-10">
+              <h3 class="text-[10px] font-bold uppercase tracking-[0.5em] text-stone-400 italic">Intel Filters</h3>
+              <button @click="clearAll" class="text-[9px] uppercase tracking-[0.2em] text-primary font-bold hover:text-stone-900 transition-colors">
+                Reset
               </button>
             </div>
 
             <!-- Filter: Size -->
-            <div class="pb-6 border-b border-[#eae8e4]">
-              <h4 class="text-[12px] text-[#1c1b1b] mb-4 font-body font-medium">Size</h4>
-              <div class="grid grid-cols-3 gap-2">
+            <div class="space-y-8">
+              <h4 class="text-[11px] font-bold uppercase tracking-[0.3em] text-stone-900 italic font-serif">Proportion</h4>
+              <div class="grid grid-cols-3 gap-3">
                 <button
                   v-for="size in ['XS', 'S', 'M', 'L', 'XL']"
                   :key="size"
                   @click="selectedSize = selectedSize === size ? null : size"
                   :class="[
-                    'h-9 text-[10px] transition-all flex items-center justify-center font-body group',
+                    'h-12 text-[10px] uppercase font-bold tracking-widest transition-all rounded-xl flex items-center justify-center border duration-500',
                     selectedSize === size
-                      ? 'border border-[#1c1b1b] text-[#1c1b1b]'
-                      : 'border border-[#e2e0dc] text-[#5c5a55] hover:border-[#b4b2ac]'
+                      ? 'border-primary bg-primary text-white shadow-xl shadow-primary/20'
+                      : 'border-stone-100 text-stone-400 hover:border-stone-300'
                   ]"
                 >
-                  <span class="group-hover:text-[#1c1b1b] transition-colors">{{ size }}</span>
+                  {{ size }}
                 </button>
               </div>
             </div>
 
             <!-- Filter: Color -->
-            <div v-if="availableColors.length" class="pb-6 border-b border-[#eae8e4]">
-              <h4 class="text-[12px] text-[#1c1b1b] mb-4 font-body font-medium">Color</h4>
-              <div class="flex flex-col gap-3 font-body">
+            <div v-if="availableColors.length" class="space-y-8">
+              <h4 class="text-[11px] font-bold uppercase tracking-[0.3em] text-stone-900 italic font-serif">Palette</h4>
+              <div class="flex flex-wrap gap-5">
                 <button
                   v-for="color in availableColors"
                   :key="color"
                   @click="toggleColor(color)"
-                  class="flex items-center gap-3 group text-left"
+                  class="group relative"
                 >
                   <div 
-                    class="w-[18px] h-[18px] rounded-full border transition-all flex items-center justify-center"
-                    :class="selectedColors.includes(color) ? 'border-[#1c1b1b]' : 'border-transparent group-hover:border-[#d4d2ce]'"
+                    class="w-10 h-10 rounded-full border border-stone-100 flex items-center justify-center transition-all duration-500"
+                    :class="selectedColors.includes(color) ? 'border-primary scale-110 shadow-lg ring-4 ring-primary/5' : 'hover:border-stone-300'"
                   >
-                    <div class="w-3 h-3 rounded-full shadow-sm ring-1 ring-black/5" :style="{ backgroundColor: color }"></div>
+                    <div class="w-7 h-7 rounded-full shadow-inner" :style="{ backgroundColor: color }"></div>
                   </div>
-                  <span 
-                    class="text-[12px] transition-colors capitalize"
-                    :class="selectedColors.includes(color) ? 'text-[#1c1b1b] font-medium' : 'text-[#8c8a85] group-hover:text-[#5c5a55]'"
-                  >
-                    {{ getColorName(color) }}
-                  </span>
                 </button>
               </div>
             </div>
 
             <!-- Filter: Material -->
-            <div>
-              <h4 class="text-[12px] text-[#1c1b1b] mb-4 font-body font-medium">Material</h4>
-              <div class="flex flex-col gap-3 font-body">
+            <div class="space-y-8">
+              <h4 class="text-[11px] font-bold uppercase tracking-[0.3em] text-stone-900 italic font-serif">Textile Intelligence</h4>
+              <div class="space-y-4">
                 <label 
                   v-for="mat in materials" 
                   :key="mat"
-                  class="flex items-center gap-3 cursor-pointer group"
+                  class="flex items-center gap-4 cursor-pointer group"
                 >
-                  <div class="relative flex items-center justify-center w-3.5 h-3.5 border transition-colors shadow-sm"
-                       :class="selectedMaterials.includes(mat) ? 'border-[#a68648] bg-[#a68648]' : 'border-[#d4d2ce] group-hover:border-[#a09e99]'">
-                    <span v-if="selectedMaterials.includes(mat)" class="material-symbols-outlined text-[10px] text-white">check</span>
+                  <div class="relative flex items-center justify-center w-5 h-5 border rounded transition-all duration-500"
+                       :class="selectedMaterials.includes(mat) ? 'border-primary bg-primary shadow-lg shadow-primary/20' : 'border-stone-100 group-hover:border-stone-300'">
+                    <span v-if="selectedMaterials.includes(mat)" class="material-symbols-outlined text-[12px] text-white italic">check</span>
                   </div>
                   <input type="checkbox" :value="mat" v-model="selectedMaterials" class="hidden" />
-                  <span class="text-[12px] text-[#8c8a85] group-hover:text-[#5c5a55] transition-colors" :class="{'text-[#1c1b1b] font-medium': selectedMaterials.includes(mat)}">{{ mat }}</span>
+                  <span class="text-[11px] uppercase tracking-widest transition-colors italic font-bold" :class="selectedMaterials.includes(mat) ? 'text-primary' : 'text-stone-300 group-hover:text-stone-900'">{{ mat }}</span>
                 </label>
               </div>
             </div>
@@ -115,93 +109,77 @@
 
         <!-- Product Grid -->
         <div class="flex-1">
-          <div v-if="pending" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-16">
-            <div v-for="i in 6" :key="i" class="animate-pulse">
-              <div class="aspect-[3/4] bg-[#f2f0ec] mb-4"></div>
-              <div class="h-4 bg-[#f2f0ec] w-2/3 mb-2"></div>
-              <div class="h-4 bg-[#f2f0ec] w-1/3"></div>
+          <div v-if="pending" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-24">
+            <div v-for="i in 6" :key="i" class="animate-pulse space-y-6">
+              <div class="aspect-[3/4] bg-stone-50 rounded-[3rem]"></div>
+              <div class="h-4 bg-stone-50 w-2/3 mx-auto rounded-full"></div>
+              <div class="h-4 bg-stone-50 w-1/3 mx-auto rounded-full"></div>
             </div>
           </div>
           
-          <div v-else-if="!filteredProducts?.length" class="flex flex-col items-center justify-center py-40 text-center border border-dashed border-[#e2e0dc]">
-            <span class="material-symbols-outlined text-4xl text-[#d4d2ce] mb-6 font-light">search_off</span>
-            <p class="text-[#8c8a85] font-serif italic text-lg">No pieces found matching your criteria.</p>
-            <button @click="clearAll" class="mt-8 text-[10px] font-bold uppercase tracking-[0.2em] text-[#1c1b1b] border-b border-[#1c1b1b] pb-1">Reset Filters</button>
+          <div v-else-if="!filteredProducts?.length" class="flex flex-col items-center justify-center py-48 text-center border-2 border-dashed border-stone-50 rounded-[4rem]">
+            <span class="material-symbols-outlined text-5xl text-stone-100 mb-8 italic">mystery</span>
+            <p class="text-stone-400 font-serif italic text-2xl tracking-tight max-w-sm">This specific silhouette selection has not yet reached our archive.</p>
+            <button @click="clearAll" class="mt-10 text-[10px] font-bold uppercase tracking-[0.4em] text-stone-900 border-b border-stone-200 pb-2 hover:border-primary transition-all">Clear Filters</button>
           </div>
 
-          <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
+          <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-24 animate-stagger">
             <NuxtLink
               v-for="(product, idx) in filteredProducts"
               :key="product.id"
               :to="`/products/${product.slug}`"
-              class="group block"
+              class="group block space-y-8"
             >
-              <div class="relative aspect-[3/4] bg-[#f8f8f8] overflow-hidden mb-5">
+              <div class="relative aspect-[3/4] bg-stone-50/30 overflow-hidden rounded-[3rem] border border-stone-100 transition-all duration-1000 group-hover:shadow-3xl group-hover:-translate-y-2">
                 <img 
                   v-if="product.images?.[0]" 
                   :src="product.images[0]" 
                   :alt="product.name"
-                  class="w-full h-full object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-105"
+                  class="w-full h-full object-contain p-8 transition-all duration-[2s] group-hover:scale-110"
                 />
-                <div v-else class="w-full h-full bg-[#e8e6e1] flex items-center justify-center">
-                  <span class="text-[#a09e99] text-xs font-serif italic">Vigo</span>
-                </div>
                 
-                <!-- NEW ARRIVAL Badge -->
-                <div v-if="idx < 3" class="absolute bottom-4 left-4 bg-white/95 px-3 py-1.5 shadow-sm">
-                  <span class="text-[8px] font-bold uppercase tracking-[0.2em] text-[#1c1b1b]">New Arrival</span>
+                <!-- Refined Badges -->
+                <div class="absolute top-8 left-8 flex flex-col gap-3">
+                   <span v-if="product.discount" class="bg-primary text-white text-[8px] font-bold uppercase tracking-[0.2em] px-3 py-1.5 rounded-full shadow-lg">
+                      Reserve {{ product.discount }}% Relief
+                   </span>
+                   <span v-if="idx < 3" class="bg-stone-900/10 backdrop-blur-md text-stone-900 text-[8px] font-bold uppercase tracking-[0.2em] px-3 py-1.5 rounded-full border border-stone-900/5">
+                      New Narrative
+                   </span>
                 </div>
               </div>
 
-              <div>
-                <div class="flex justify-between items-start gap-4 mb-1">
-                  <h3 class="text-[15px] font-serif font-medium text-[#1c1b1b] leading-tight group-hover:text-[#5c5a55] transition-colors line-clamp-1">
-                    {{ product.name }}
-                  </h3>
-                  <div class="text-right flex-shrink-0 pt-0.5">
-                    <p class="text-[11px] font-medium text-[#1c1b1b] tracking-wide">${{ calculatePrice(product).toFixed(0) }}</p>
-                  </div>
+              <div class="text-center space-y-3 px-4">
+                <p class="text-[9px] text-stone-300 uppercase tracking-[0.5em] font-bold italic">{{ product.category?.name || 'Limited Edition' }}</p>
+                <h3 class="text-2xl font-serif font-bold italic text-stone-900 tracking-tight group-hover:text-primary transition-colors">
+                   {{ product.name }}
+                </h3>
+                <div class="flex items-center justify-center gap-4">
+                   <p class="text-lg font-body font-bold text-stone-900 tabular-nums">{{ settings?.currency || 'EGP' }} {{ calculatePrice(product).toFixed(0) }}</p>
                 </div>
                 
-                <!-- Subtitle / Colors text -->
-                <p class="text-[11px] text-[#5c5a55] mb-3 truncate">
-                  {{ product.colors && product.colors.length > 0 ? product.colors.map((c: string) => getColorName(c)).join(' / ') : 'Sandstone / White' }}
-                </p>
-
                 <!-- Color palette indicator -->
-                <div v-if="product.colors?.length" class="flex gap-2">
+                <div v-show="product.colors?.length" class="flex gap-2 justify-center pt-2">
                   <div 
-                    v-for="(color, colorIdx) in product.colors.slice(0, 3)" 
+                    v-for="color in product.colors.slice(0, 4)" 
                     :key="color"
-                    class="relative"
-                  >
-                    <!-- A slightly larger ring outline for the first color for focus simulation as in design -->
-                    <div v-if="colorIdx === 0" class="absolute -inset-[3px] rounded-full ring-[0.5px] ring-[#d4d2ce]"></div>
-                    <div 
-                      class="w-2.5 h-2.5 rounded-full ring-1 ring-black/5 shadow-inner"
-                      :style="{ backgroundColor: color }"
-                    ></div>
-                  </div>
-                  <!-- Simulated second color matching design spacing -->
-                  <div v-if="product.colors.length === 1" class="relative">
-                     <div class="w-2.5 h-2.5 rounded-full ring-1 ring-[#eae8e4] bg-[#fafafa]"></div>
-                  </div>
+                    class="w-2 h-2 rounded-full ring-1 ring-stone-100 shadow-inner"
+                    :style="{ backgroundColor: color }"
+                  ></div>
                 </div>
               </div>
             </NuxtLink>
           </div>
           
-          <!-- Pagination / Load More Area -->
-          <div v-if="filteredProducts?.length" class="mt-24 pt-10 flex flex-col items-center border-t border-[#eae8e4]/50">
-            <button class="bg-[#a68648] text-white text-[10px] font-bold uppercase tracking-[0.2em] px-8 py-3.5 rounded-sm hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#a68648]/20 transition-all">
-              LOAD MORE DESIGNS
+          <!-- Pagination -->
+          <div v-if="filteredProducts?.length" class="mt-32 pt-16 flex flex-col items-center border-t border-stone-100">
+            <button class="h-20 px-20 bg-stone-900 text-white text-[10px] font-bold uppercase tracking-[0.5em] rounded-full hover:bg-primary transition-all duration-700 shadow-2xl shadow-stone-900/10 active:scale-95 italic">
+              Explore More Narrative
             </button>
-            <div class="flex items-center gap-5 mt-10 font-body text-[10px] tracking-widest text-[#a09e99]">
-              <div class="w-12 h-px bg-[#eae8e4]"></div>
-              <span class="text-[#1c1b1b] font-bold">01</span>
-              <span class="hover:text-[#5c5a55] cursor-pointer transition-colors">02</span>
-              <span class="hover:text-[#5c5a55] cursor-pointer transition-colors">03</span>
-              <div class="w-12 h-px bg-[#eae8e4]"></div>
+            <div class="flex items-center gap-8 mt-16 font-body text-[10px] tracking-[0.6em] text-stone-300 font-bold uppercase italic">
+              <span class="text-stone-900 border-b border-primary pb-2">01</span>
+              <span class="hover:text-primary cursor-pointer transition-colors pb-2 border-b border-stone-100">02</span>
+              <span class="hover:text-primary cursor-pointer transition-colors pb-2 border-b border-stone-100">03</span>
             </div>
           </div>
         </div>
