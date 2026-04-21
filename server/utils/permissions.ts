@@ -1,7 +1,6 @@
-
 import { H3Event } from 'h3'
-import type { Permission } from '~/shared/constants/permissions'
-import { ROLE_PERMISSIONS } from '~/shared/constants/permissions'
+import type { Permission } from '../../shared/constants/permissions'
+import { ROLE_PERMISSIONS } from '../../shared/constants/permissions'
 
 // Get permissions for a user based on their role
 export function getUserPermissions(role: string): Permission[] {

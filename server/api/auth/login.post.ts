@@ -5,6 +5,7 @@ import prisma from '../../utils/prisma'
 import { checkRateLimit, getRateLimitResetTime } from '../../utils/rateLimiter'
 import { getRequestHeader } from 'h3'
 import { LoginSchema } from '../../utils/validators'
+import { logger } from '../../utils/logger'
 
 export default defineEventHandler(async (event) => {
   // Rate limiting - max 5 attempts per IP per minute

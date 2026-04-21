@@ -28,7 +28,7 @@ RUN npm run build
 # =========================
 # Phase 2: Production
 # =========================
-FROM node:20-alpine
+FROM node:22-alpine
 
 # Set environment variables
 ENV NODE_ENV=production
