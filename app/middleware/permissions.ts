@@ -1,5 +1,5 @@
-import type { Permission } from '../../shared/constants/permissions'
-import { ROLE_PERMISSIONS } from '../../shared/constants/permissions'
+import type { Permission } from '@shared/constants/permissions'
+import { ROLE_PERMISSIONS } from '@shared/constants/permissions'
 
 const getUserPermissions = (role: string): Permission[] => {
   return ROLE_PERMISSIONS[role] || []

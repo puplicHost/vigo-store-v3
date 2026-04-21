@@ -1,5 +1,12 @@
+import { fileURLToPath } from 'node:url'
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  // Global alias for shared/ — resolves correctly in both Vite (client) and Nitro (server)
+  alias: {
+    '@shared': fileURLToPath(new URL('./shared', import.meta.url))
+  },
+
   // تفعيل ميزات Nuxt 4 الأساسية (مثل مجلد app/ الجديد)
   future: {
     compatibilityVersion: 4,

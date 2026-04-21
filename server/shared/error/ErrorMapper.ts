@@ -11,7 +11,7 @@ import {
   ConflictError,
   DatabaseError,
   UnexpectedError
-} from '../../../shared/errors/domain-errors'
+} from '@shared/errors/domain-errors'
 
 export interface ErrorResponse {
   statusCode: number

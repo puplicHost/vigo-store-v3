@@ -7,8 +7,8 @@
 import { categoryRepository } from '../repositories/CategoryRepository'
 import { getCacheProvider } from '../../../shared/cache/CacheProvider'
 import { auditLogService } from '../../../shared/audit/AuditLogService'
-import { NotFoundError, ValidationError, ConflictError } from '../../../../shared/errors/domain-errors'
-import type { CategoryDTO } from '../../../../shared/dto'
+import { NotFoundError, ValidationError, ConflictError } from '@shared/errors/domain-errors'
+import type { CategoryDTO } from '@shared/dto'
 
 // Cache keys
 const CACHE_KEYS = {

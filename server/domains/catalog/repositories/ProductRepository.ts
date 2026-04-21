@@ -4,7 +4,7 @@
  */
 
 import prisma from '../../../utils/prisma'
-import type { ProductDTO, ProductListDTO, LowStockProductDTO } from '../../../../shared/dto'
+import type { ProductDTO, ProductListDTO, LowStockProductDTO } from '@shared/dto'
 
 export class ProductRepository {
   /**

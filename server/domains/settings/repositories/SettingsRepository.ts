@@ -4,7 +4,7 @@
  */
 
 import prisma from '../../../utils/prisma'
-import type { SettingsDTO } from '../../../../shared/dto'
+import type { SettingsDTO } from '@shared/dto'
 
 export class SettingsRepository {
   /**

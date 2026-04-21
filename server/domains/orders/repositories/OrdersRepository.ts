@@ -5,7 +5,7 @@
 
 import prisma from '../../../utils/prisma'
 import { OrderStatus } from '@prisma/client'
-import type { OrderDTO, OrderListDTO, RecentOrderDTO } from '../../../../shared/dto'
+import type { OrderDTO, OrderListDTO, RecentOrderDTO } from '@shared/dto'
 
 export class OrdersRepository {
   /**

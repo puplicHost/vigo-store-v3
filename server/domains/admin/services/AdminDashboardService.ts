@@ -6,7 +6,7 @@
 
 import prisma from '../../../utils/prisma'
 import { getCacheProvider } from '../../../shared/cache/CacheProvider'
-import type { AdminDashboardDTO, DashboardStatsDTO, RecentOrderDTO, LowStockProductDTO } from '../../../../shared/dto'
+import type { AdminDashboardDTO, DashboardStatsDTO, RecentOrderDTO, LowStockProductDTO } from '@shared/dto'
 
 // Cache keys
 const CACHE_KEYS = {

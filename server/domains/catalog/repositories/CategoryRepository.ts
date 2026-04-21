@@ -4,7 +4,7 @@
  */
 
 import prisma from '../../../utils/prisma'
-import type { CategoryDTO } from '../../../../shared/dto'
+import type { CategoryDTO } from '@shared/dto'
 
 export class CategoryRepository {
   /**

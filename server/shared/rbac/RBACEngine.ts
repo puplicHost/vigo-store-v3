@@ -3,9 +3,9 @@
  * Policy-based authorization engine for fine-grained access control
  */
 
-import type { Permission } from '../../../shared/constants/permissions'
-import { ROLE_PERMISSIONS } from '../../../shared/constants/permissions'
-import { AuthorizationError } from '../../../shared/errors/domain-errors'
+import type { Permission } from '@shared/constants/permissions'
+import { ROLE_PERMISSIONS } from '@shared/constants/permissions'
+import { AuthorizationError } from '@shared/errors/domain-errors'
 
 export interface UserContext {
   userId: string

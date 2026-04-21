@@ -7,8 +7,8 @@
 import { productRepository } from '../repositories/ProductRepository'
 import { getCacheProvider } from '../../../shared/cache/CacheProvider'
 import { auditLogService } from '../../../shared/audit/AuditLogService'
-import { NotFoundError, ValidationError } from '../../../../shared/errors/domain-errors'
-import type { ProductDTO, ProductListDTO } from '../../../../shared/dto'
+import { NotFoundError, ValidationError } from '@shared/errors/domain-errors'
+import type { ProductDTO, ProductListDTO } from '@shared/dto'
 
 // Cache keys
 const CACHE_KEYS = {

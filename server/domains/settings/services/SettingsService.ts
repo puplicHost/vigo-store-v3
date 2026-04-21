@@ -7,7 +7,7 @@
 import { settingsRepository } from '../repositories/SettingsRepository'
 import { getCacheProvider } from '../../../shared/cache/CacheProvider'
 import { auditLogService } from '../../../shared/audit/AuditLogService'
-import type { SettingsDTO } from '../../../../shared/dto'
+import type { SettingsDTO } from '@shared/dto'
 
 // Cache keys
 const CACHE_KEY = 'settings:all'
