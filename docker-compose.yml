@@ -1,14 +1,14 @@
 services:
   db:
     image: postgres:15-alpine
-    container_name: vigo_store_db_v2
+    container_name: vigo_store
     restart: unless-stopped
     environment:
       POSTGRES_USER: vigo_user
       POSTGRES_PASSWORD: vigo_password
       POSTGRES_DB: vigo_store
     ports:
-      - "5434:5432"
+      - "5432:5432"
     volumes:
       - vigo_postgres_data:/var/lib/postgresql/data
     healthcheck:
