@@ -1,52 +1,65 @@
-# Use official Node.js minimum required version for Nuxt 3 (LTS recommended)
+# =========================
+# Phase 1: Build
+# =========================
 FROM node:22-alpine AS build
 
 # Set working directory
 WORKDIR /app
 
-# Enable corepack and pnpm/npm (here using npm since package-lock is present)
-# COPY package-lock.json first to leverage Docker cache
+# Copy package files first for better layer caching
 COPY package.json package-lock.json ./
 
-# Install dependencies
+# Install all dependencies
 RUN npm install
 
-# Copy the rest of the application
+# Copy all project files
 COPY . .
 
-# Generate prisma client (if applicable)
+# Dummy DATABASE_URL so prisma generate does not fail during build
+ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
+
+# Generate Prisma Client
 RUN npx prisma generate
 
-# Build the Nuxt application
+# Build Nuxt app
 RUN npm run build
 
-# --- Phase 2: Production environment ---
+
+# =========================
+# Phase 2: Production
+# =========================
 FROM node:20-alpine
 
-# Set to production
+# Set environment variables
 ENV NODE_ENV=production
+ENV PORT=3000
+ENV HOST=0.0.0.0
 
 # Set working directory
 WORKDIR /app
 
-# Copy package and server files from build stage
-COPY --from=build /app/.output /app/.output
-COPY --from=build /app/prisma /app/prisma
+# Copy built app
+COPY --from=build /app/.output ./.output
 
-# If you use Prisma, copy package for running prisma scripts in prod or handling DB migrations
+# Copy Prisma files
+COPY --from=build /app/prisma ./prisma
+
+# Copy package files
 COPY --from=build /app/package.json ./package.json
+COPY --from=build /app/package-lock.json ./package-lock.json
 
-# You may also want to install production dependencies only for Prisma if needed (not strictly necessary with .output but needed for prisma deploy)
-RUN npm install prisma --omit=dev
+# Copy generated Prisma binaries
+COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
 
-# Change ownership to a non-root user for security
+# Install only production dependencies
+RUN npm install --omit=dev
+
+# Security: run as non-root
 RUN chown -R node:node /app
 USER node
 
-# Expose port (Cloud providers like Railway override this through PORT env var)
+# Expose port
 EXPOSE 3000
-ENV PORT=3000
-ENV HOST=0.0.0.0
 
-# Start command
+# Start Nuxt server
 CMD ["node", ".output/server/index.mjs"]
