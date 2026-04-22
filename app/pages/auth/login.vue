@@ -73,7 +73,7 @@ const handleLogin = async () => {
       <h2 class="text-5xl font-serif tracking-tight text-on-surface italic">
         Welcome Back
       </h2>
-      <p class="text-stone-400 font-body text-sm leading-relaxed max-w-xs mx-auto italic font-medium">
+      <p class="text-stone-600 font-body text-sm leading-relaxed max-w-xs mx-auto italic font-medium">
         Please enter your credentials to access your private salon.
       </p>
     </div>
@@ -90,18 +90,21 @@ const handleLogin = async () => {
         <div class="relative group">
           <label
             for="email"
-            class="block text-[10px] uppercase tracking-[0.3em] text-stone-400 font-bold mb-2 group-focus-within:text-primary transition-colors"
+            class="block text-[10px] uppercase tracking-[0.3em] text-stone-600 font-bold mb-2 group-focus-within:text-primary transition-colors"
           >
             Email Address
           </label>
-          <input
-            id="email"
-            v-model="email"
-            type="email"
-            required
-            placeholder="atelier@example.com"
-            class="w-full bg-transparent border-0 border-b border-stone-200 py-3 px-0 focus:ring-0 focus:border-primary transition-all duration-500 font-body text-on-surface placeholder:text-stone-200"
-          />
+          <div class="relative">
+            <span class="material-symbols-outlined absolute left-0 top-1/2 -translate-y-1/2 text-stone-300 group-focus-within:text-primary transition-colors">email</span>
+            <input
+              id="email"
+              v-model="email"
+              type="email"
+              required
+              placeholder="atelier@example.com"
+              class="w-full bg-transparent border-0 border-b border-stone-200 py-3 pl-10 pr-0 focus:ring-0 focus:border-primary transition-all duration-500 font-body text-on-surface placeholder:text-stone-200"
+            />
+          </div>
         </div>
 
         <!-- Password Input -->
@@ -109,22 +112,25 @@ const handleLogin = async () => {
           <div class="flex justify-between items-center mb-2">
             <label
               for="password"
-              class="block text-[10px] uppercase tracking-[0.3em] text-stone-400 font-bold group-focus-within:text-primary transition-colors"
+              class="block text-[10px] uppercase tracking-[0.3em] text-stone-600 font-bold group-focus-within:text-primary transition-colors"
             >
               Password
             </label>
-            <NuxtLink to="/auth/forgot-password" class="text-[9px] uppercase tracking-[0.2em] text-stone-300 hover:text-primary transition-colors font-bold border-b border-stone-100 pb-0.5">
+            <NuxtLink to="/auth/forgot-password" class="text-[9px] uppercase tracking-[0.2em] text-stone-500 hover:text-primary transition-colors font-bold border-b border-stone-100 pb-0.5">
               Forgot?
             </NuxtLink>
           </div>
-          <input
-            id="password"
-            v-model="password"
-            type="password"
-            required
-            placeholder="••••••••"
-            class="w-full bg-transparent border-0 border-b border-stone-200 py-3 px-0 focus:ring-0 focus:border-primary transition-all duration-500 font-body text-on-surface placeholder:text-stone-200"
-          />
+          <div class="relative">
+            <span class="material-symbols-outlined absolute left-0 top-1/2 -translate-y-1/2 text-stone-300 group-focus-within:text-primary transition-colors">lock</span>
+            <input
+              id="password"
+              v-model="password"
+              type="password"
+              required
+              placeholder="••••••••"
+              class="w-full bg-transparent border-0 border-b border-stone-200 py-3 pl-10 pr-0 focus:ring-0 focus:border-primary transition-all duration-500 font-body text-on-surface placeholder:text-stone-200"
+            />
+          </div>
         </div>
       </div>
 

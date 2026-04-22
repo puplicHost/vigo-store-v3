@@ -6,19 +6,19 @@
       <header class="mb-24 space-y-10">
         <div class="flex flex-col md:flex-row md:items-end justify-between gap-12 border-b border-stone-100 pb-12">
           <div class="max-w-3xl space-y-8 animate-stagger">
-            <nav class="text-[9px] uppercase tracking-[0.6em] text-stone-300 font-bold italic">
+            <nav class="text-[9px] uppercase tracking-[0.6em] text-stone-500 font-bold italic">
               <NuxtLink to="/" class="hover:text-primary transition-colors">Atelier Home</NuxtLink>
               <span class="mx-3 opacity-30">/</span>
               <span class="text-stone-900">Collections</span>
             </nav>
             <h1 class="font-serif text-6xl md:text-8xl text-stone-900 italic font-bold tracking-tight">The Collections</h1>
-            <p class="text-sm text-stone-400 font-body max-w-md leading-relaxed italic">
+            <p class="text-sm text-stone-600 font-body max-w-md leading-relaxed italic">
               Explore our curated silhouette narrative. Precision-cut artisanal pieces designed for the modern individual who seeks aesthetic permanence.
             </p>
           </div>
           
           <div class="flex items-center gap-6 self-start md:self-end">
-            <span class="text-[9px] uppercase tracking-[0.4em] text-stone-300 font-bold italic">Arrange by</span>
+            <span class="text-[9px] uppercase tracking-[0.4em] text-stone-500 font-bold italic">Arrange by</span>
             <div class="relative group">
               <select 
                 v-model="sortBy"
@@ -29,7 +29,7 @@
                 <option value="price-low">Value: ascending</option>
                 <option value="price-high">Value: descending</option>
               </select>
-              <span class="material-symbols-outlined absolute right-0 top-1/2 -translate-y-1/2 text-sm text-stone-200 group-hover:text-primary transition-colors group-hover:translate-y-1">expand_more</span>
+              <span class="material-symbols-outlined absolute right-0 top-1/2 -translate-y-1/2 text-sm text-stone-300 group-hover:text-primary transition-colors group-hover:translate-y-1">expand_more</span>
             </div>
           </div>
         </div>
@@ -40,7 +40,7 @@
         <aside class="w-full lg:w-64 flex-shrink-0">
           <div class="sticky top-40 space-y-16 animate-stagger">
             <div class="flex items-center justify-between border-b border-stone-100 pb-8 mb-10">
-              <h3 class="text-[10px] font-bold uppercase tracking-[0.5em] text-stone-400 italic">Intel Filters</h3>
+              <h3 class="text-[10px] font-bold uppercase tracking-[0.5em] text-stone-600 italic">Intel Filters</h3>
               <button @click="clearAll" class="text-[9px] uppercase tracking-[0.2em] text-primary font-bold hover:text-stone-900 transition-colors">
                 Reset
               </button>
@@ -58,7 +58,7 @@
                     'h-12 text-[10px] uppercase font-bold tracking-widest transition-all rounded-xl flex items-center justify-center border duration-500',
                     selectedSize === size
                       ? 'border-primary bg-primary text-white shadow-xl shadow-primary/20'
-                      : 'border-stone-100 text-stone-400 hover:border-stone-300'
+                      : 'border-stone-100 text-stone-600 hover:border-stone-300'
                   ]"
                 >
                   {{ size }}
@@ -110,17 +110,30 @@
         <!-- Product Grid -->
         <div class="flex-1">
           <div v-if="pending" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-24">
-            <div v-for="i in 6" :key="i" class="animate-pulse space-y-6">
-              <div class="aspect-[3/4] bg-stone-50 rounded-[3rem]"></div>
-              <div class="h-4 bg-stone-50 w-2/3 mx-auto rounded-full"></div>
-              <div class="h-4 bg-stone-50 w-1/3 mx-auto rounded-full"></div>
+            <div v-for="i in 6" :key="i" class="space-y-6">
+              <div class="aspect-[3/4] bg-stone-50 rounded-[3rem] relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-stone-100/50 to-transparent animate-shimmer"></div>
+              </div>
+              <div class="h-4 bg-stone-50 w-2/3 mx-auto rounded-full relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-stone-100/50 to-transparent animate-shimmer"></div>
+              </div>
+              <div class="h-4 bg-stone-50 w-1/3 mx-auto rounded-full relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-stone-100/50 to-transparent animate-shimmer"></div>
+              </div>
             </div>
           </div>
           
-          <div v-else-if="!filteredProducts?.length" class="flex flex-col items-center justify-center py-48 text-center border-2 border-dashed border-stone-50 rounded-[4rem]">
-            <span class="material-symbols-outlined text-5xl text-stone-100 mb-8 italic">mystery</span>
-            <p class="text-stone-400 font-serif italic text-2xl tracking-tight max-w-sm">This specific silhouette selection has not yet reached our archive.</p>
-            <button @click="clearAll" class="mt-10 text-[10px] font-bold uppercase tracking-[0.4em] text-stone-900 border-b border-stone-200 pb-2 hover:border-primary transition-all">Clear Filters</button>
+          <div v-else-if="!filteredProducts?.length" class="flex flex-col items-center justify-center py-48 text-center border-2 border-dashed border-stone-200 rounded-[4rem] bg-gradient-to-b from-stone-50/50 to-white">
+            <div class="relative mb-8">
+              <div class="w-24 h-24 rounded-full bg-stone-100 flex items-center justify-center">
+                <span class="material-symbols-outlined text-5xl text-stone-300 font-light italic">search_off</span>
+              </div>
+              <div class="absolute -top-1 -right-1 w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                <span class="material-symbols-outlined text-primary text-lg">close</span>
+              </div>
+            </div>
+            <p class="text-stone-600 font-serif italic text-2xl tracking-tight max-w-sm mb-8">This specific silhouette selection has not yet reached our archive.</p>
+            <button @click="clearAll" class="px-10 py-4 bg-stone-900 text-white rounded-full font-label text-[10px] font-bold uppercase tracking-[0.4em] hover:bg-primary transition-all shadow-lg mobile-touch-target">Clear Filters</button>
           </div>
 
           <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-24 animate-stagger">

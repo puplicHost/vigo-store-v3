@@ -45,13 +45,13 @@
     --on-error: #ffffff;
     --surface-container-highest: #F0EDEA;
     --outline-variant: #E5E1DA;
-    --on-surface: #0a0a0a;
+    --on-surface: #000000;
     --tertiary: #5f5e5e;
     --surface-tint: #B19759;
     --secondary: #5f5e5e;
     --on-secondary-container: #636262;
     --surface-container: #F8F6F3;
-    --on-background: #0a0a0a;
+    --on-background: #000000;
     --inverse-primary: #e9c176;
     
     --success: #10b981;
@@ -74,7 +74,7 @@
     --surface-container-low: #FBF9F7;
     --on-tertiary-container: #3b3b3b;
     --on-secondary-fixed-variant: #474746;
-    --on-surface-variant: #4e4639;
+    --on-surface-variant: #333333;
     --primary: #B19759;
     --surface-container-lowest: #ffffff;
     --on-tertiary: #ffffff;
@@ -297,6 +297,18 @@
       transform: translateX(100%);
     }
   }
+n  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  .animate-shimmer {
+    animation: shimmer 1.5s infinite linear;
+  }
 }
 
 /* Material Symbols */
@@ -434,3 +446,37 @@ select:focus {
 .text-warning-solid { color: var(--warning) !important; }
 .text-error-solid { color: var(--error) !important; }
 .text-info-solid { color: var(--info) !important; }
+
+/* ====== Mobile Responsive Utilities ====== */
+@media (max-width: 768px) {
+  .mobile-touch-target {
+    min-height: 48px;
+    min-width: 48px;
+  }
+  
+  .mobile-text-lg {
+    font-size: 1rem !important;
+  }
+  
+  .mobile-text-base {
+    font-size: 0.9375rem !important;
+  }
+}
+
+/* ====== Reduced Motion for Accessibility ====== */
+@media (prefers-reduced-motion: reduce) {
+  .animate-stagger > * {
+    animation: none;
+    opacity: 1;
+  }
+  
+  .fade-up {
+    animation: none;
+    opacity: 1;
+  }
+  
+  .hover-lift,
+  .hover-scale {
+    transition: none;
+  }
+}

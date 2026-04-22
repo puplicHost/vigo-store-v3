@@ -4,7 +4,7 @@
       
       <!-- Page Narrative -->
       <header class="mb-20">
-        <nav class="mb-8 flex items-center gap-4 text-[10px] uppercase tracking-[0.3em] text-stone-400 font-bold">
+        <nav class="mb-8 flex items-center gap-4 text-[10px] uppercase tracking-[0.3em] text-stone-600 font-bold">
           <NuxtLink to="/products" class="hover:text-stone-900 transition-colors italic">Collections</NuxtLink>
           <span class="w-1 h-1 rounded-full bg-stone-200"></span>
           <span class="text-stone-900 italic font-medium">Your Selection Portfolio</span>
@@ -13,18 +13,22 @@
       </header>
 
       <!-- Vacant State -->
-      <div v-if="cartItems.length === 0" class="flex flex-col items-center justify-center py-40 text-center border-y border-stone-200">
+      <div v-if="cartItems.length === 0" class="flex flex-col items-center justify-center py-40 text-center border-y border-stone-200 bg-gradient-to-b from-stone-50/50 to-white">
         <div class="relative mb-12">
-            <span class="material-symbols-outlined text-9xl text-stone-100 font-light italic">inventory_2</span>
-            <span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-primary/20 rounded-full animate-ping"></span>
+          <div class="w-32 h-32 rounded-full bg-stone-100 flex items-center justify-center">
+            <span class="material-symbols-outlined text-7xl text-stone-300 font-light italic">shopping_bag</span>
+          </div>
+          <div class="absolute -bottom-2 -right-2 w-12 h-12 bg-primary rounded-full flex items-center justify-center shadow-lg shadow-primary/30">
+            <span class="material-symbols-outlined text-white text-2xl">add</span>
+          </div>
         </div>
-        <h2 class="text-4xl font-serif font-bold mb-6 italic tracking-tight">Your portfolio is currently vacant.</h2>
-        <p class="text-stone-400 font-body text-lg mb-12 max-w-md mx-auto italic">
+        <h2 class="text-4xl md:text-5xl font-serif font-bold mb-6 italic tracking-tight text-stone-900">Your portfolio is currently vacant.</h2>
+        <p class="text-stone-600 font-body text-lg mb-12 max-w-md mx-auto italic leading-relaxed">
           Discover our curated editorial selection of artisanal heritage and contemporary silhouettes.
         </p>
-        <NuxtLink to="/products" class="inline-flex items-center gap-6 px-14 py-6 bg-stone-900 text-white rounded-full font-label uppercase tracking-[0.4em] text-[11px] font-bold hover:bg-primary transition-all duration-700 shadow-2xl shadow-stone-900/10 hover:scale-105 active:scale-95">
+        <NuxtLink to="/products" class="inline-flex items-center gap-4 px-12 py-5 bg-stone-900 text-white rounded-full font-label uppercase tracking-[0.4em] text-[11px] font-bold hover:bg-primary transition-all duration-700 shadow-2xl shadow-stone-900/10 hover:scale-105 active:scale-95 mobile-touch-target">
           Begin Exploration
-          <span class="material-symbols-outlined text-sm">arrow_forward</span>
+          <span class="material-symbols-outlined text-lg">arrow_forward</span>
         </NuxtLink>
       </div>
 
@@ -33,10 +37,10 @@
         <div class="lg:col-span-8">
           <div class="flex justify-between items-end pb-10 border-b border-stone-200 mb-12">
             <div>
-              <h3 class="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-400 mb-2">SELECTION INVENTORY</h3>
+              <h3 class="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-600 mb-2">SELECTION INVENTORY</h3>
               <p class="text-2xl font-serif italic text-stone-900">{{ cartItemCount }} Items Curated</p>
             </div>
-            <button @click="clearCart" class="text-[9px] uppercase tracking-[0.3em] font-bold text-stone-400 hover:text-red-500 transition-colors flex items-center gap-3 border-b border-stone-100 pb-1">
+            <button @click="clearCart" class="text-[9px] uppercase tracking-[0.3em] font-bold text-stone-600 hover:text-red-500 transition-colors flex items-center gap-3 border-b border-stone-100 pb-1">
               Reset Collection
             </button>
           </div>
@@ -45,7 +49,7 @@
             <div v-for="item in cartItems" :key="item.id" class="flex flex-col md:flex-row gap-10 py-10 border-b border-stone-100 group last:border-0 hover:bg-white transition-all duration-700 px-6 rounded-3xl">
               <!-- Item Visual -->
               <div class="w-full md:w-44 aspect-[3/4] bg-white rounded-2xl overflow-hidden flex-shrink-0 relative border border-stone-100 shadow-sm p-4 group-hover:shadow-2xl transition-all duration-700">
-                <img v-if="item.image" :src="item.image" :alt="item.name" class="w-full h-full object-contain transition-transform duration-[2s] group-hover:scale-110"/>
+                <img v-if="item.image" :src="item.image" :alt="item.name" loading="lazy" decoding="async" class="w-full h-full object-contain transition-transform duration-[2s] group-hover:scale-110"/>
                 <div v-else class="w-full h-full flex items-center justify-center bg-stone-50"><span class="material-symbols-outlined text-stone-100 text-4xl italic">image</span></div>
               </div>
 

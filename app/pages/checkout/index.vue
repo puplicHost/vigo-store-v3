@@ -5,7 +5,7 @@
       <!-- Page Narrative -->
       <header class="mb-24 text-center">
         <h1 class="text-6xl md:text-8xl font-serif font-bold tracking-tight text-stone-900 italic leading-none mb-6">Checkout</h1>
-        <div class="flex items-center justify-center gap-4 text-[10px] uppercase tracking-[0.6em] text-stone-300 font-bold">
+        <div class="flex items-center justify-center gap-4 text-[10px] uppercase tracking-[0.6em] text-stone-500 font-bold">
            <span>Bag Archive</span>
            <span class="w-1.5 h-1.5 rounded-full bg-stone-100"></span>
            <span class="text-stone-900">Modality</span>
@@ -36,10 +36,10 @@
                 ]"
               >
                 <div class="w-16 h-16 rounded-full bg-white border border-stone-100 flex items-center justify-center mb-8 shadow-sm group-hover:scale-110 transition-transform">
-                  <span class="material-symbols-outlined text-3xl font-light italic" :class="paymentMethod === method.id ? 'text-primary' : 'text-stone-300'">{{ method.icon }}</span>
+                  <span class="material-symbols-outlined text-3xl font-light italic" :class="paymentMethod === method.id ? 'text-primary' : 'text-stone-400'">{{ method.icon }}</span>
                 </div>
                 <h3 class="text-2xl font-serif font-bold italic mb-2">{{ method.label }}</h3>
-                <p class="text-[10px] uppercase tracking-[0.2em] text-stone-400 font-bold italic">{{ method.desc }}</p>
+                <p class="text-[10px] uppercase tracking-[0.2em] text-stone-600 font-bold italic">{{ method.desc }}</p>
               </div>
             </div>
           </section>
@@ -47,7 +47,7 @@
           <!-- 02: Conditional Requirements -->
           <section class="space-y-12">
              <header class="space-y-4 text-left">
-               <span class="text-[10px] font-bold uppercase tracking-[0.5em] text-stone-300 italic">Selection 02</span>
+               <span class="text-[10px] font-bold uppercase tracking-[0.5em] text-stone-500 italic">Selection 02</span>
                <h2 class="text-4xl font-serif italic text-stone-900 tracking-tight font-bold">Logistics Intelligence</h2>
             </header>
 

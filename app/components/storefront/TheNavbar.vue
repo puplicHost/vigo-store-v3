@@ -48,7 +48,7 @@
 
       <!-- Right: User Actions -->
       <div class="flex-1 flex justify-end items-center gap-8">
-        <NuxtLink :to="isAuthenticated ? '/account' : '/auth/login'" class="text-stone-400 hover:text-primary transition-all duration-500">
+        <NuxtLink :to="isAuthenticated ? '/account' : '/auth/login'" class="text-stone-600 hover:text-primary transition-all duration-500 mobile-touch-target">
            <span class="material-symbols-outlined font-light text-2xl italic">person</span>
         </NuxtLink>
         
@@ -56,25 +56,31 @@
           v-if="isAuthenticated && ['SUPER_ADMIN', 'ADMIN', 'MANAGER'].includes(user?.role)" 
           to="/admin" 
           title="Dashboard" 
-          class="text-stone-400 hover:text-primary transition-all duration-500"
+          class="text-stone-600 hover:text-primary transition-all duration-500 mobile-touch-target"
         >
           <span class="material-symbols-outlined font-light text-2xl italic">dashboard_customize</span>
         </NuxtLink>
         
-        <NuxtLink to="/cart" class="text-stone-900 hover:text-primary transition-all duration-500 relative group">
+        <button
+          @click="isCartDrawerOpen = true"
+          class="text-stone-900 hover:text-primary transition-all duration-500 relative group mobile-touch-target"
+          aria-label="Open cart"
+        >
           <span class="material-symbols-outlined font-light text-2xl italic">shopping_bag</span>
-          <span 
-            v-if="cartItemCount > 0" 
+          <span
+            v-if="cartItemCount > 0"
             class="absolute -top-1 -right-1 bg-primary text-white text-[8px] font-bold w-3.5 h-3.5 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform"
           >
             {{ cartItemCount }}
           </span>
-        </NuxtLink>
+        </button>
         
         <!-- Mobile Menu Toggle (Burger Icon) -->
-        <button 
+        <button
           @click="isDropdownOpen = !isDropdownOpen"
-          class="md:hidden text-stone-400 hover:text-stone-900 transition-all duration-500 relative"
+          :aria-expanded="isDropdownOpen"
+          aria-label="Toggle menu"
+          class="md:hidden text-stone-600 hover:text-stone-900 transition-all duration-500 relative mobile-touch-target"
         >
           <span class="material-symbols-outlined font-light text-2xl">menu</span>
           
@@ -115,6 +121,7 @@
       </div>
     </div>
 
+    <CartDrawer v-model:open="isCartDrawerOpen" />
   </nav>
 </template>
 
@@ -123,6 +130,7 @@ const { isAuthenticated, user } = useAuth()
 const { settings } = useSettings()
 const { cartItemCount } = useCart()
 const isDropdownOpen = ref(false)
+const isCartDrawerOpen = ref(false)
 const hasLogoError = ref(false)
 
 // Close dropdown when clicking outside

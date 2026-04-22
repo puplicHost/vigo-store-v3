@@ -4,12 +4,20 @@
       <ClientOnly>
         <!-- Skeleton / Loading -->
         <template #fallback>
-          <div class="animate-pulse flex flex-col lg:flex-row gap-20">
-            <div class="lg:w-2/3 aspect-[3/4] bg-stone-50 rounded-2xl"></div>
+          <div class="flex flex-col lg:flex-row gap-20">
+            <div class="lg:w-2/3 aspect-[3/4] bg-stone-50 rounded-2xl relative overflow-hidden">
+              <div class="absolute inset-0 bg-gradient-to-r from-transparent via-stone-100/50 to-transparent animate-shimmer"></div>
+            </div>
             <div class="lg:w-1/3 space-y-12 py-10">
-              <div class="h-4 bg-stone-50 w-24"></div>
-              <div class="h-20 bg-stone-50 w-full"></div>
-              <div class="h-32 bg-stone-50 w-full"></div>
+              <div class="h-4 bg-stone-50 w-24 rounded-full relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-stone-100/50 to-transparent animate-shimmer"></div>
+              </div>
+              <div class="h-20 bg-stone-50 w-full rounded-xl relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-stone-100/50 to-transparent animate-shimmer"></div>
+              </div>
+              <div class="h-32 bg-stone-50 w-full rounded-xl relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-stone-100/50 to-transparent animate-shimmer"></div>
+              </div>
             </div>
           </div>
         </template>
@@ -18,7 +26,7 @@
            <span class="material-symbols-outlined text-4xl animate-spin text-stone-100 italic">progress_activity</span>
         </div>
         <div v-else-if="error" class="text-center py-40 bg-stone-50/50 rounded-[3rem] border border-stone-100">
-           <p class="text-stone-400 font-serif italic text-2xl tracking-tight">The piece you are looking for has been archived.</p>
+           <p class="text-stone-600 font-serif italic text-2xl tracking-tight">The piece you are looking for has been archived.</p>
            <NuxtLink to="/products" class="mt-10 inline-block text-[10px] uppercase font-bold tracking-[0.4em] text-stone-900 border-b border-stone-200 pb-2 hover:border-primary transition-all">Return to Collections</NuxtLink>
         </div>
 
@@ -27,20 +35,25 @@
             <!-- Image Theater (Left Column) -->
             <div class="lg:w-7/12 xl:w-8/12 flex flex-col gap-8">
               <!-- Main Image Viewer -->
-              <div class="relative aspect-[4/5] overflow-hidden rounded-[2rem] bg-stone-50/50 border border-stone-100 group">
+              <div class="relative aspect-[4/5] overflow-hidden rounded-[2rem] bg-stone-50/50 border border-stone-100 group cursor-zoom-in" @click="isImageZoomed = true">
                 <Transition name="fade" mode="out-in">
-                  <img 
+                  <img
                     :key="selectedImageIndex"
                     v-if="product.images?.length"
-                    :src="product.images[selectedImageIndex] || product.images[0]" 
+                    :src="product.images[selectedImageIndex] || product.images[0]"
                     :alt="`${product.name} - View ${selectedImageIndex + 1}`"
                     class="w-full h-full object-contain p-12 md:p-20 transition-all duration-[2s] group-hover:scale-105"
                   />
                 </Transition>
-                
+
                 <!-- Floating Badge -->
-                <div v-if="product.isFeatured" class="absolute top-10 left-10 z-10">
+                <div v-if="product.isFeatured" class="absolute top-10 left-10 z-10 pointer-events-none">
                   <span class="bg-primary text-white text-[9px] font-bold uppercase tracking-[0.4em] px-5 py-2.5 rounded-full shadow-2xl shadow-primary/20">Atelier Exclusive</span>
+                </div>
+
+                <!-- Zoom Hint -->
+                <div class="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm rounded-full px-4 py-2 text-xs font-bold uppercase tracking-wider text-stone-600 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                  Click to zoom
                 </div>
               </div>
 
@@ -67,10 +80,10 @@
               <div class="sticky top-40 space-y-16">
                 <!-- Header -->
                 <div class="space-y-8">
-                   <div class="flex items-center gap-4 text-[10px] uppercase tracking-[0.4em] text-stone-300 font-bold">
+                   <div class="flex items-center gap-4 text-[10px] uppercase tracking-[0.4em] text-stone-500 font-bold">
                      <NuxtLink to="/products" class="hover:text-primary transition-colors italic">Collections</NuxtLink>
                      <span class="w-1 h-1 rounded-full bg-stone-100"></span>
-                     <span class="text-stone-400 italic">{{ product.category?.name || 'Limited Edition' }}</span>
+                     <span class="text-stone-600 italic">{{ product.category?.name || 'Limited Edition' }}</span>
                    </div>
                    
                    <h1 class="text-5xl md:text-7xl font-serif font-bold tracking-tight text-stone-900 leading-[1] italic">
@@ -203,7 +216,7 @@
              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
                 <NuxtLink v-for="related in relatedProducts" :key="related.id" :to="`/products/${related.slug}`" class="group block space-y-8 animate-stagger">
                   <div class="relative aspect-[3/4] overflow-hidden rounded-[2rem] bg-stone-50/50 border border-stone-100 group-hover:shadow-3xl transition-all duration-1000">
-                    <img :src="related.images?.[0]" :alt="related.name" class="w-full h-full object-contain p-8 transition-all duration-[2s] group-hover:scale-110"/>
+                    <img :src="related.images?.[0]" :alt="related.name" loading="lazy" decoding="async" class="w-full h-full object-contain p-8 transition-all duration-[2s] group-hover:scale-110"/>
                   </div>
                   <div class="text-center space-y-2">
                     <h3 class="font-serif text-2xl font-bold italic text-stone-900 group-hover:text-primary transition-colors">{{ related.name }}</h3>
@@ -214,6 +227,34 @@
           </section>
         </div>
       </ClientOnly>
+
+      <!-- Image Zoom Modal -->
+      <Teleport to="body">
+        <Transition name="modal">
+          <div v-if="isImageZoomed" class="fixed inset-0 z-[1000] bg-black/95 flex items-center justify-center p-8" @click="isImageZoomed = false">
+            <button class="absolute top-6 right-6 text-white hover:text-primary transition-colors p-2 mobile-touch-target" aria-label="Close zoom">
+              <span class="material-symbols-outlined text-4xl">close</span>
+            </button>
+            <img
+              :src="product.images[selectedImageIndex] || product.images[0]"
+              :alt="product.name"
+              class="max-w-full max-h-full object-contain"
+              @click.stop
+            />
+            <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-4">
+              <button
+                v-for="(image, index) in product.images"
+                :key="index"
+                @click.stop="selectedImageIndex = index"
+                class="w-12 h-12 rounded-full border-2 overflow-hidden transition-all"
+                :class="selectedImageIndex === index ? 'border-primary' : 'border-white/50 hover:border-white'"
+              >
+                <img :src="image" :alt="`Thumbnail ${index + 1}`" class="w-full h-full object-cover" />
+              </button>
+            </div>
+          </div>
+        </Transition>
+      </Teleport>
     </main>
   </div>
 </template>
@@ -238,6 +279,7 @@ const selectedColor = ref('')
 const selectedSize = ref('')
 const quantity = ref(1)
 const selectedImageIndex = ref(0)
+const isImageZoomed = ref(false)
 
 // Price Calculation
 const calculatePrice = (product: any) => {
@@ -299,5 +341,25 @@ const handleAddToCart = async () => {
 [appearance="textfield"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+.modal-enter-active,
+.modal-leave-active {
+  transition: all 0.3s ease-out;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.modal-enter-from img,
+.modal-leave-to img {
+  transform: scale(0.9);
+}
+
+.modal-enter-to img,
+.modal-leave-from img {
+  transform: scale(1);
 }
 </style>

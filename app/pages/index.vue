@@ -72,7 +72,7 @@ onUnmounted(() => {
               
               <div class="flex flex-col items-center gap-10">
                 <p 
-                  class="font-body text-sm md:text-lg text-stone-300 max-w-xl leading-relaxed italic transition-all duration-1000 delay-700"
+                  class="font-body text-sm md:text-lg text-stone-400 max-w-xl leading-relaxed italic transition-all duration-1000 delay-700"
                   :class="currentSlide === index ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'"
                 >
                   {{ slide.description }}
