@@ -5,8 +5,11 @@ export interface CartItem {
   price: number;
   quantity: number;
   image: string;
-  size?: string;
-  color?: string;
+  size: string | null;
+  color: string | null;
+  requiresSelection: boolean;
+  availableSizes?: string[];
+  availableColors?: string[];
 }
 
 export const useCart = () => {
@@ -110,23 +113,28 @@ export const useCart = () => {
     }
 
     // Merge carts: user cart takes priority, guest items added if not duplicate
-    const mergedCart = [...userCart];
-    
-    guestCart.forEach(guestItem => {
-      const existingItem = mergedCart.find(
-        item => item.productId === guestItem.productId && 
+  const mergedCart = [...userCart];
+  
+  guestCart.forEach(guestItem => {
+    const existingItem = mergedCart.find(
+      item => item.productId === guestItem.productId && 
                 item.size === guestItem.size && 
                 item.color === guestItem.color
-      );
-      
-      if (existingItem) {
-        // Merge quantities
-        existingItem.quantity += guestItem.quantity;
-      } else {
-        // Add new item
-        mergedCart.push(guestItem);
-      }
-    });
+    );
+    
+    if (existingItem) {
+      // Merge quantities
+      existingItem.quantity += guestItem.quantity;
+    } else {
+      // Add new item with default values for new fields if missing
+      mergedCart.push({
+        ...guestItem,
+        requiresSelection: guestItem.requiresSelection || false,
+        availableSizes: guestItem.availableSizes || [],
+        availableColors: guestItem.availableColors || []
+      });
+    }
+  });
 
     // Save merged cart to user key
     localStorage.setItem(userCartKey, JSON.stringify(mergedCart));
@@ -156,6 +164,7 @@ export const useCart = () => {
     if (existingItem) {
       existingItem.quantity += quantity;
     } else {
+      const requiresSelection = !!(product.sizes?.length || product.colors?.length);
       cartItems.value.push({
         id: Math.random().toString(36).substring(2, 9), // simple unique ID for cart row
         productId: product.id,
@@ -163,8 +172,11 @@ export const useCart = () => {
         price: product.price,
         quantity: quantity,
         image: product.images?.[0] || '',
-        size,
-        color
+        size: size || null,
+        color: color || null,
+        requiresSelection,
+        availableSizes: product.sizes || [],
+        availableColors: product.colors || []
       });
     }
   };
@@ -177,6 +189,17 @@ export const useCart = () => {
     const item = cartItems.value.find(item => item.id === id);
     if (item && quantity > 0) {
       item.quantity = quantity;
+    }
+  };
+
+  const updateCartItemVariant = (id: string, type: 'size' | 'color', value: string) => {
+    const item = cartItems.value.find(item => item.id === id);
+    if (item) {
+      if (type === 'size') {
+        item.size = value;
+      } else if (type === 'color') {
+        item.color = value;
+      }
     }
   };
 
@@ -193,6 +216,7 @@ export const useCart = () => {
     addToCart,
     removeFromCart,
     updateQuantity,
+    updateCartItemVariant,
     clearCart
   };
 };

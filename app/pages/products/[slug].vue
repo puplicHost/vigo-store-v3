@@ -156,11 +156,12 @@
                     
                     <button 
                       @click="handleAddToCart" 
-                      :disabled="product.stock <= 0"
+                      :disabled="product.stock <= 0 || isAddingToCart"
                       class="flex-1 h-16 bg-stone-900 text-white rounded-full font-label uppercase tracking-[0.4em] text-[11px] font-bold shadow-2xl hover:bg-primary transition-all duration-700 disabled:opacity-30 flex items-center justify-center gap-3 active:scale-95"
                     >
-                      <span>{{ product.stock > 0 ? 'Reserve Piece' : 'Archived' }}</span>
-                      <span class="material-symbols-outlined text-lg italic">arrow_forward_ios</span>
+                      <span v-if="isAddingToCart" class="material-symbols-outlined text-lg animate-spin">refresh</span>
+                      <span v-else>{{ product.stock > 0 ? 'Reserve Piece' : 'Archived' }}</span>
+                      <span v-if="!isAddingToCart" class="material-symbols-outlined text-lg italic">arrow_forward_ios</span>
                     </button>
                   </div>
 
@@ -268,18 +269,26 @@ watch(product, (newP) => {
   }
 }, { immediate: true })
 
-const handleAddToCart = () => {
+const isAddingToCart = ref(false)
+
+const handleAddToCart = async () => {
   if (!product.value) return
+  if (isAddingToCart.value) return
   if (product.value.sizes?.length && !selectedSize.value) {
     toast.warning('Please select a proportion before reservation.', 'Intel Required')
     return
   }
   
-  const finalPrice = calculatePrice(product.value)
-  addToCart({ ...product.value, price: finalPrice }, quantity.value, selectedSize.value, selectedColor.value)
+  isAddingToCart.value = true
   
-  toast.success('Your selection has been added to the bag.', 'Atelier Updated')
-  navigateTo('/cart')
+  try {
+    const finalPrice = calculatePrice(product.value)
+    addToCart({ ...product.value, price: finalPrice }, quantity.value, selectedSize.value, selectedColor.value)
+    
+    toast.success('Your selection has been added to the bag.', 'Atelier Updated')
+  } finally {
+    isAddingToCart.value = false
+  }
 }
 </script>
 

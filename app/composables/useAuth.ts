@@ -22,7 +22,13 @@ export const useAuth = () => {
 
   const user = useState<User | null>('auth_user', () => null)
   const isLoading = useState<boolean>('auth_loading', () => false)
-  const isAuthenticated = computed(() => !!user.value) // Token is httpOnly, so we rely on user state
+  const isAuthLoading = useState<boolean>('auth_bootstrap_loading', () => false)
+  
+  // isAuthenticated depends on BOTH token existence and successful user fetch
+  // Server is single source of truth - we don't decode JWT on client
+  const isAuthenticated = computed(() => {
+    return !!token.value && !!user.value
+  })
   
   // Set auth data after login
   const setAuth = (authToken: string, userData: User) => {
@@ -42,21 +48,30 @@ export const useAuth = () => {
     navigateTo('/auth/login', { replace: true })
   }
   
-  // Fetch current user (useful on app init)
+  // Fetch current user from server (single source of truth)
   const fetchUser = async () => {
     if (!token.value) return
 
     isLoading.value = true
+    isAuthLoading.value = true
 
     try {
       const response = await $apiFetch('/api/auth/me') as any
       user.value = response.user
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to fetch user:', error)
-      // If 401, clear auth
-      clearAuth()
+      // If 401 or 404, clear auth and redirect
+      if (error.statusCode === 401 || error.statusCode === 404) {
+        clearAuth()
+        // Only redirect if not already on login page
+        if (import.meta.client && window.location.pathname !== '/auth/login') {
+          navigateTo('/auth/login', { replace: true })
+        }
+      }
+      // Network errors - silent fail, keep state as-is
     } finally {
       isLoading.value = false
+      isAuthLoading.value = false
     }
   }
 
@@ -65,6 +80,7 @@ export const useAuth = () => {
     token: readonly(token),
     isAuthenticated,
     isLoading: readonly(isLoading),
+    isAuthLoading: readonly(isAuthLoading),
     setAuth,
     clearAuth,
     logout,

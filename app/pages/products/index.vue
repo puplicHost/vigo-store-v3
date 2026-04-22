@@ -124,30 +124,42 @@
           </div>
 
           <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-24 animate-stagger">
-            <NuxtLink
+            <div
               v-for="(product, idx) in filteredProducts"
               :key="product.id"
-              :to="`/products/${product.slug}`"
               class="group block space-y-8"
             >
-              <div class="relative aspect-[3/4] bg-stone-50/30 overflow-hidden rounded-[3rem] border border-stone-100 transition-all duration-1000 group-hover:shadow-3xl group-hover:-translate-y-2">
-                <img 
-                  v-if="product.images?.[0]" 
-                  :src="product.images[0]" 
-                  :alt="product.name"
-                  class="w-full h-full object-contain p-8 transition-all duration-[2s] group-hover:scale-110"
-                />
-                
-                <!-- Refined Badges -->
-                <div class="absolute top-8 left-8 flex flex-col gap-3">
-                   <span v-if="product.discount" class="bg-primary text-white text-[8px] font-bold uppercase tracking-[0.2em] px-3 py-1.5 rounded-full shadow-lg">
-                      Reserve {{ product.discount }}% Relief
-                   </span>
-                   <span v-if="idx < 3" class="bg-stone-900/10 backdrop-blur-md text-stone-900 text-[8px] font-bold uppercase tracking-[0.2em] px-3 py-1.5 rounded-full border border-stone-900/5">
-                      New Narrative
-                   </span>
+              <NuxtLink :to="`/products/${product.slug}`" class="block">
+                <div class="relative aspect-[3/4] bg-stone-50/30 overflow-hidden rounded-[3rem] border border-stone-100 transition-all duration-1000 group-hover:shadow-3xl group-hover:-translate-y-2">
+                  <img 
+                    v-if="product.images?.[0]" 
+                    :src="product.images[0]" 
+                    :alt="product.name"
+                    class="w-full h-full object-contain p-8 transition-all duration-[2s] group-hover:scale-110"
+                  />
+                  
+                  <!-- Refined Badges -->
+                  <div class="absolute top-8 left-8 flex flex-col gap-3">
+                     <span v-if="product.discount" class="bg-primary text-white text-[8px] font-bold uppercase tracking-[0.2em] px-3 py-1.5 rounded-full shadow-lg">
+                        Reserve {{ product.discount }}% Relief
+                     </span>
+                     <span v-if="idx < 3" class="bg-stone-900/10 backdrop-blur-md text-stone-900 text-[8px] font-bold uppercase tracking-[0.2em] px-3 py-1.5 rounded-full border border-stone-900/5">
+                        New Narrative
+                     </span>
+                  </div>
+
+                  <!-- Quick Add Button (appears on hover) -->
+                  <button
+                    @click="(e) => quickAddToCart(product, e)"
+                    :disabled="product.stock <= 0 || addingToCart.has(product.id)"
+                    class="absolute bottom-8 right-8 w-14 h-14 bg-stone-900 text-white rounded-full flex items-center justify-center shadow-xl opacity-0 translate-y-4 transition-all duration-500 group-hover:opacity-100 group-hover:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary"
+                    :class="addingToCart.has(product.id) ? 'opacity-100 translate-y-0' : ''"
+                  >
+                    <span v-if="addingToCart.has(product.id)" class="material-symbols-outlined text-lg animate-spin">refresh</span>
+                    <span v-else class="material-symbols-outlined text-lg">shopping_bag</span>
+                  </button>
                 </div>
-              </div>
+              </NuxtLink>
 
               <div class="text-center space-y-3 px-4">
                 <p class="text-[9px] text-stone-300 uppercase tracking-[0.5em] font-bold italic">{{ product.category?.name || 'Limited Edition' }}</p>
@@ -168,7 +180,7 @@
                   ></div>
                 </div>
               </div>
-            </NuxtLink>
+            </div>
           </div>
           
           <!-- Pagination -->
@@ -192,6 +204,11 @@
 const { settings } = useSettings()
 const route = useRoute()
 const { getColorName } = useColors()
+const { addToCart } = useCart()
+const { toast } = useNotifications()
+
+// Quick add to cart loading state per product
+const addingToCart = ref<Set<string>>(new Set())
 
 // Filter states
 const searchQuery = ref('')
@@ -280,6 +297,32 @@ const clearAll = () => {
   selectedColors.value = []
   priceRange.value = [0, 20000]
   sortBy.value = 'newest'
+}
+
+const quickAddToCart = async (product: any, event: Event) => {
+  event.stopPropagation() // Prevent card navigation
+  
+  // Check if product is out of stock
+  if (product.stock <= 0) {
+    toast.warning('This piece is currently archived.', 'Stock Unavailable')
+    return
+  }
+  
+  // Prevent multiple clicks
+  if (addingToCart.value.has(product.id)) return
+  
+  addingToCart.value.add(product.id)
+  
+  try {
+    const finalPrice = calculatePrice(product)
+    addToCart({ ...product, price: finalPrice }, 1)
+    toast.success('Piece added to your bag.', 'Atelier Updated')
+  } catch (error) {
+    console.error('Failed to add to cart:', error)
+    toast.error('Failed to add piece to bag.', 'Error')
+  } finally {
+    addingToCart.value.delete(product.id)
+  }
 }
 </script>
 

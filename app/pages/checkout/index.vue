@@ -191,14 +191,22 @@ const commitOrder = async () => {
   console.log('commitOrder triggered')
   console.log('shipping:', shipping.value)
   console.log('cartItems:', cartItems.value)
+
+  if (!cartItems.value.length) { 
+    toast.warning('Your cart is empty'); 
+    return 
+  }
   
-  // Single cart validation
-  if (!cartItems.value.length) {
-    toast.warning('Your cart is empty')
+  // Validate variant selections
+  const incompleteItems = cartItems.value.filter(
+    item => item.requiresSelection && (!item.size || !item.color)
+  )
+  if (incompleteItems.length > 0) {
+    toast.warning('Please select size and color for all products before checkout', 'Configuration Required')
+    navigateTo('/cart')
     return
   }
   
-  // Single shipping validation
   const isShippingValid = 
     shipping.value.fullName &&
     shipping.value.phone &&
@@ -206,11 +214,10 @@ const commitOrder = async () => {
     shipping.value.city &&
     shipping.value.address
   
-  if (!isShippingValid) {
-    toast.warning('Please complete all shipping information')
-    return
+  if (!isShippingValid) { 
+    toast.warning('Please complete all shipping information'); 
+    return 
   }
-  
 
   isProcessing.value = true
   
@@ -220,7 +227,9 @@ const commitOrder = async () => {
       items: cartItems.value.map(i => ({ 
         productId: i.productId, 
         quantity: i.quantity, 
-        price: i.price 
+        price: i.price,
+        size: i.size,
+        color: i.color
       })),
       shippingAddress: {
         firstName: names[0] || '', 
@@ -237,10 +246,7 @@ const commitOrder = async () => {
 
     console.log('ORDER PAYLOAD:', payload)
 
-    const response = await $apiFetch<any>('/api/orders', {
-      method: 'POST',
-      body: payload
-    })
+    const response = await $apiFetch('/api/orders', { method: 'POST', body: payload })
     
     console.log('API RESPONSE:', response)
     console.log('PAYMENT URL:', response?.paymentUrl)
@@ -254,7 +260,7 @@ const commitOrder = async () => {
     // Redirect to Paymob hosted checkout
     toast.success(response.message || 'Redirecting to payment terminal...')
     window.location.href = response.paymentUrl
-  } catch (error: any) {
+  } catch (error) {
     console.error('ORDER ERROR:', error)
     // Show only the translated, user-friendly error message
     toast.error(error.message || 'حدث خطأ غير متوقع في معالجة طلبك.')

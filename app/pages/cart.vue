@@ -56,7 +56,54 @@
                     <h3 class="font-serif text-3xl font-bold tracking-tight text-stone-900 group-hover:text-primary transition-colors mb-4 italic">
                       {{ item.name }}
                     </h3>
-                    <div class="flex flex-wrap gap-4 text-[9px] font-bold uppercase tracking-[0.2em] text-stone-400">
+                    
+                    <!-- Variant Selection UI (if required) -->
+                    <div v-if="item.requiresSelection" class="space-y-4 mb-4 p-4 bg-stone-50 rounded-xl border border-stone-100">
+                      <p class="text-[9px] uppercase tracking-[0.3em] font-bold text-primary">Configuration Required</p>
+                      
+                      <!-- Size Selector -->
+                      <div v-if="item.availableSizes?.length" class="space-y-2">
+                        <label class="text-[10px] uppercase tracking-[0.2em] text-stone-500 font-bold">Proportion</label>
+                        <div class="flex flex-wrap gap-2">
+                          <button
+                            v-for="size in item.availableSizes"
+                            :key="size"
+                            @click="updateCartItemVariant(item.id, 'size', size)"
+                            :class="[
+                              'px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest rounded-lg border transition-all',
+                              item.size === size
+                                ? 'border-primary bg-primary text-white'
+                                : 'border-stone-200 text-stone-400 hover:border-stone-300'
+                            ]"
+                          >
+                            {{ size }}
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <!-- Color Selector -->
+                      <div v-if="item.availableColors?.length" class="space-y-2">
+                        <label class="text-[10px] uppercase tracking-[0.2em] text-stone-500 font-bold">Palette</label>
+                        <div class="flex flex-wrap gap-2">
+                          <button
+                            v-for="color in item.availableColors"
+                            :key="color"
+                            @click="updateCartItemVariant(item.id, 'color', color)"
+                            :class="[
+                              'w-8 h-8 rounded-full border-2 transition-all flex items-center justify-center',
+                              item.color === color
+                                ? 'border-primary ring-2 ring-primary/20 scale-110'
+                                : 'border-stone-200 hover:border-stone-300'
+                            ]"
+                          >
+                            <div class="w-6 h-6 rounded-full" :style="{ backgroundColor: color }"></div>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <!-- Selected Variants Display -->
+                    <div v-else class="flex flex-wrap gap-4 text-[9px] font-bold uppercase tracking-[0.2em] text-stone-400">
                       <span v-if="item.size" class="px-3 py-1.5 bg-stone-50 rounded-sm border border-stone-100">Proportion: <strong class="text-stone-900 italic font-serif">{{ item.size }}</strong></span>
                       <span v-if="item.color" class="px-3 py-1.5 bg-stone-50 rounded-sm border border-stone-100 flex items-center gap-2">
                         Tonal: <div class="w-2 h-2 rounded-full border border-stone-200" :style="{ backgroundColor: item.color }"></div>
@@ -155,7 +202,7 @@
 
 <script setup lang="ts">
 const { settings } = useSettings()
-const { cartItems, cartTotal, cartItemCount, removeFromCart, updateQuantity, clearCart } = useCart()
+const { cartItems, cartTotal, cartItemCount, removeFromCart, updateQuantity, updateCartItemVariant, clearCart } = useCart()
 
 definePageMeta({
   middleware: 'auth'
