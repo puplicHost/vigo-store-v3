@@ -138,29 +138,44 @@ async function main() {
   console.log('✅ Default settings verified.')
 
   // 5. Create Payment Gateways
-  await prisma.paymentGateway.upsert({
-    where: { name: 'COD' },
-    update: {},
-    create: {
-      name: 'COD',
-      isEnabled: true
-    }
-  })
+  // PAYMOB Gateway - only create if environment variables are present
+  const paymobApiKey = process.env.PAYMOB_API_KEY
+  const paymobIntegrationId = process.env.PAYMOB_INTEGRATION_ID
+  const paymobIframeId = process.env.PAYMOB_IFRAME_ID
+  const paymobHmacSecret = process.env.PAYMOB_HMAC_SECRET
 
-  await prisma.paymentGateway.upsert({
-    where: { name: 'PAYMOB' },
-    update: {},
-    create: {
-      name: 'PAYMOB',
-      isEnabled: true,
-      config: {
-        apiKey: 'YOUR_PAYMOB_API_KEY',
-        integrationId: 'YOUR_INTEGRATION_ID',
-        iframeId: 'YOUR_IFRAME_ID',
-        hmacSecret: 'YOUR_HMAC_SECRET'
+  if (paymobApiKey && paymobIntegrationId && paymobIframeId && paymobHmacSecret) {
+    await prisma.paymentGateway.upsert({
+      where: { name: 'PAYMOB' },
+      update: {
+        isEnabled: true,
+        config: {
+          apiKey: paymobApiKey,
+          integrationId: paymobIntegrationId,
+          iframeId: paymobIframeId,
+          hmacSecret: paymobHmacSecret
+        }
+      },
+      create: {
+        name: 'PAYMOB',
+        isEnabled: true,
+        config: {
+          apiKey: paymobApiKey,
+          integrationId: paymobIntegrationId,
+          iframeId: paymobIframeId,
+          hmacSecret: paymobHmacSecret
+        }
       }
-    }
-  })
+    })
+    console.log('✅ PAYMOB Payment Gateway created from environment variables.')
+  } else {
+    console.log('⚠️  PAYMOB environment variables not found. PAYMOB gateway not seeded.')
+    console.log('   Set these environment variables to enable PAYMOB:')
+    console.log('   - PAYMOB_API_KEY')
+    console.log('   - PAYMOB_INTEGRATION_ID')
+    console.log('   - PAYMOB_IFRAME_ID')
+    console.log('   - PAYMOB_HMAC_SECRET')
+  }
 
   console.log('✅ Payment Gateways created.')
   console.log('🏁 Seeding complete.')

@@ -15,38 +15,90 @@ export interface PaymentInitiationResult {
  */
 export class PaymentService {
   /**
-   * Initializes payment for an order based on the method
+   * Load Paymob configuration with fallback chain:
+   * 1. PaymentGateway table
+   * 2. Settings table
+   * 3. Environment variables
+   * 4. Throw explicit error if all fail
    */
-  async initializePayment(order: any, shippingAddress: any): Promise<PaymentInitiationResult> {
-    const { paymentMethod, totalAmount, id: orderId } = order
-
-    // 1. Fetch Gateway Config (ReadOnly)
+  private async loadPaymobConfig(): Promise<{ apiKey: string; integrationId: number; iframeId: string; hmacSecret: string }> {
+    // Fallback 1: PaymentGateway table
     const gateway = await prisma.paymentGateway.findUnique({
-      where: { name: paymentMethod.toUpperCase() }
+      where: { name: 'PAYMOB' }
     })
 
-    // Fallback logic (ReadOnly check)
-    const isDev = process.env.NODE_ENV === 'development' || !gateway?.isEnabled
-    
-    if (paymentMethod.toUpperCase() === 'PAYMOB') {
-      if (isDev && (!gateway?.config || !(gateway.config as any).apiKey)) {
-        console.log(`[PAYMENT] Paymob selected but no config found. falling back to MOCK mode.`)
+    if (gateway?.config) {
+      const config = gateway.config as any
+      if (config.apiKey && config.integrationId && config.iframeId && config.hmacSecret) {
+        console.log('[PAYMENT] Paymob config loaded from PaymentGateway table')
+        return {
+          apiKey: config.apiKey,
+          integrationId: Number(config.integrationId),
+          iframeId: config.iframeId,
+          hmacSecret: config.hmacSecret
+        }
+      }
+    }
+
+    // Fallback 2: Settings table
+    const settings = await prisma.settings.findUnique({
+      where: { id: 'default' }
+    })
+
+    if (settings?.paymobApiKey && settings?.paymobIntegrationId && settings?.paymobIframeId && settings?.paymobHmacSecret) {
+      console.log('[PAYMENT] Paymob config loaded from Settings table')
+      return {
+        apiKey: settings.paymobApiKey,
+        integrationId: Number(settings.paymobIntegrationId),
+        iframeId: settings.paymobIframeId,
+        hmacSecret: settings.paymobHmacSecret
+      }
+    }
+
+    // Fallback 3: Environment variables
+    const envApiKey = process.env.PAYMOB_API_KEY
+    const envIntegrationId = process.env.PAYMOB_INTEGRATION_ID
+    const envIframeId = process.env.PAYMOB_IFRAME_ID
+    const envHmacSecret = process.env.PAYMOB_HMAC_SECRET
+
+    if (envApiKey && envIntegrationId && envIframeId && envHmacSecret) {
+      console.log('[PAYMENT] Paymob config loaded from Environment variables')
+      return {
+        apiKey: envApiKey,
+        integrationId: Number(envIntegrationId),
+        iframeId: envIframeId,
+        hmacSecret: envHmacSecret
+      }
+    }
+
+    // Fallback 4: Explicit error
+    throw new Error('PAYMOB configuration is missing from PaymentGateway, Settings, and Environment Variables')
+  }
+
+  /**
+   * Initializes payment for an order (PAYMOB only)
+   */
+  async initializePayment(order: any, shippingAddress: any): Promise<PaymentInitiationResult> {
+    const { paymentMethod, id: orderId } = order
+
+    if (paymentMethod.toUpperCase() !== 'PAYMOB') {
+      return {
+        success: false,
+        message: 'Only PAYMOB payment method is supported.'
+      }
+    }
+
+    try {
+      const config = await this.loadPaymobConfig()
+      return this.initializePaymobPayment(order, config, shippingAddress)
+    } catch (error: any) {
+      console.error('[PAYMENT] Paymob config load failed:', error.message)
+      // Fallback to mock mode in development only
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[PAYMENT] Development mode: falling back to MOCK payment')
         return this.initializeMockPayment(orderId)
       }
-
-      return this.initializePaymobPayment(order, gateway!.config as any, shippingAddress)
-    }
-
-    if (paymentMethod.toUpperCase() === 'COD') {
-      return {
-        success: true,
-        message: 'Order confirmation via Cash on Delivery.'
-      }
-    }
-
-    return {
-      success: false,
-      message: 'Method not supported by this settlement layer.'
+      throw error
     }
   }
 

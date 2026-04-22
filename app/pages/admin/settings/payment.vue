@@ -255,7 +255,6 @@ const isSubmitting = ref(false)
 const { toast } = useNotifications()
 
 const settings = ref({
-  isCodEnabled: true,
   isStripeEnabled: false,
   stripePublicKey: '',
   stripeSecretKey: '',

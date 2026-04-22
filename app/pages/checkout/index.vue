@@ -23,11 +23,10 @@
                <h2 class="text-4xl font-serif italic text-stone-900 tracking-tight font-bold">Payment Modality</h2>
             </header>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="grid grid-cols-1 gap-8">
               <div 
                 v-for="method in [
-                  { id: 'cod', label: 'Cash on Arrival', icon: 'payments', desc: 'Settle upon reception' },
-                  { id: 'paymob', label: 'Digital Portal', icon: 'verified_user', desc: 'Secure electronic transfer' }
+                  { id: 'PAYMOB', label: 'Digital Portal', icon: 'verified_user', desc: 'Secure electronic transfer via Paymob' }
                 ]" 
                 :key="method.id"
                 @click="paymentMethod = method.id"
@@ -54,56 +53,17 @@
 
             <Transition mode="out-in" enter-active-class="transition-all duration-700 ease-out" enter-from-class="opacity-0 translate-y-12" enter-to-class="opacity-100 translate-y-0">
               
-              <!-- FOR COD: Only Logistics -->
-              <div v-if="paymentMethod === 'cod'" :key="'cod'" class="space-y-14">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-                  <div class="flex flex-col gap-4 group">
-                    <label class="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-300 group-focus-within:text-primary transition-colors">Recipient Identity</label>
-                    <input v-model="shipping.fullName" type="text" placeholder="Legal full name" class="text-xl font-serif italic bg-transparent border-b border-stone-100 py-4 focus:outline-none focus:border-primary transition-all placeholder:text-stone-100"/>
-                  </div>
-                  <div class="flex flex-col gap-4 group">
-                    <label class="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-300 group-focus-within:text-primary transition-colors">Digital Contact</label>
-                    <input v-model="shipping.phone" type="tel" placeholder="Mobile number" class="text-xl font-serif italic bg-transparent border-b border-stone-100 py-4 focus:outline-none focus:border-primary transition-all placeholder:text-stone-100"/>
-                  </div>
-                  <div class="flex flex-col gap-4 md:col-span-2 group">
-                    <label class="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-300 group-focus-within:text-primary transition-colors">Metropolis</label>
-                    <select v-model="shipping.city" class="text-xl font-serif italic bg-transparent border-b border-stone-100 py-4 focus:outline-none focus:border-primary transition-all">
-                       <option value="Cairo">Cairo (القاهرة)</option>
-                       <option value="Giza">Giza (الجيزة)</option>
-                       <option value="Alexandria">Alexandria (الإسكندرية)</option>
-                    </select>
-                  </div>
-                  <div class="flex flex-col gap-4 md:col-span-2 group">
-                    <label class="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-300 group-focus-within:text-primary transition-colors">Geographic Destination</label>
-                    <input v-model="shipping.address" type="text" placeholder="Street, Building, Apartment" class="text-xl font-serif italic bg-transparent border-b border-stone-100 py-4 focus:outline-none focus:border-primary transition-all placeholder:text-stone-100"/>
-                  </div>
-                </div>
-              </div>
-
-              <!-- FOR VISA: Card + Billing Email -->
-              <div v-else :key="'paymob'" class="space-y-16">
+              <!-- PAYMOB: Shipping + Billing Email -->
+              <div :key="'paymob'" class="space-y-16">
                 <!-- Fiscal Receipt Email -->
                 <div class="flex flex-col gap-4 group">
                   <label class="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-300 group-focus-within:text-primary transition-colors">Fiscal Receipt Destination</label>
                   <input v-model="shipping.email" type="email" placeholder="concierge@atelier.com" class="text-xl font-serif italic bg-transparent border-b border-stone-100 py-4 focus:outline-none focus:border-primary transition-all placeholder:text-stone-100"/>
                 </div>
 
-                <!-- Manual Card Fields -->
+                <!-- Shipping Information -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-12 bg-stone-50/30 p-10 md:p-14 rounded-[3rem] border border-stone-100">
-                  <div class="flex flex-col gap-4 md:col-span-2 group text-left">
-                    <label class="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-300 group-focus-within:text-primary transition-colors">Card Identity</label>
-                    <input v-model="card.number" type="text" placeholder="•••• •••• •••• ••••" @input="formatCardNumber" maxlength="19" class="text-xl font-serif italic bg-transparent border-b border-stone-100 py-4 focus:outline-none focus:border-primary transition-all font-mono placeholder:text-stone-200"/>
-                  </div>
-                  <div class="flex flex-col gap-4 group text-left">
-                    <label class="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-300 group-focus-within:text-primary transition-colors">Expiry Threshold</label>
-                    <input v-model="card.expiry" type="text" placeholder="MM / YY" @input="formatExpiry" maxlength="7" class="text-xl font-serif italic bg-transparent border-b border-stone-100 py-4 focus:outline-none focus:border-primary transition-all placeholder:text-stone-200"/>
-                  </div>
-                  <div class="flex flex-col gap-4 group text-left">
-                    <label class="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-300 group-focus-within:text-primary transition-colors">Cipher (CVV)</label>
-                    <input v-model="card.cvv" type="password" placeholder="•••" maxlength="3" class="text-xl font-serif italic bg-transparent border-b border-stone-100 py-4 focus:outline-none focus:border-primary transition-all placeholder:text-stone-200"/>
-                  </div>
-                  
-                   <div class="md:col-span-2 grid grid-cols-2 gap-12 mt-10 border-t border-stone-100 pt-10">
+                   <div class="md:col-span-2 grid grid-cols-2 gap-12">
                      <div class="flex flex-col gap-4 group text-left">
                         <label class="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-300 group-focus-within:text-primary transition-colors">Recipient</label>
                         <input v-model="shipping.fullName" type="text" placeholder="Name" class="text-lg font-serif italic bg-transparent border-b border-stone-100 py-4 focus:outline-none focus:border-primary transition-all"/>
@@ -111,6 +71,18 @@
                      <div class="flex flex-col gap-4 group text-left">
                         <label class="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-300 group-focus-within:text-primary transition-colors">Phone</label>
                         <input v-model="shipping.phone" type="tel" placeholder="Mobile" class="text-lg font-serif italic bg-transparent border-b border-stone-100 py-4 focus:outline-none focus:border-primary transition-all"/>
+                     </div>
+                     <div class="flex flex-col gap-4 group text-left">
+                        <label class="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-300 group-focus-within:text-primary transition-colors">City</label>
+                        <select v-model="shipping.city" class="text-lg font-serif italic bg-transparent border-b border-stone-100 py-4 focus:outline-none focus:border-primary transition-all">
+                           <option value="Cairo">Cairo (القاهرة)</option>
+                           <option value="Giza">Giza (الجيزة)</option>
+                           <option value="Alexandria">Alexandria (الإسكندرية)</option>
+                        </select>
+                     </div>
+                     <div class="flex flex-col gap-4 group text-left">
+                        <label class="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-300 group-focus-within:text-primary transition-colors">Address</label>
+                        <input v-model="shipping.address" type="text" placeholder="Street, Building, Apartment" class="text-lg font-serif italic bg-transparent border-b border-stone-100 py-4 focus:outline-none focus:border-primary transition-all"/>
                      </div>
                   </div>
                 </div>
@@ -130,8 +102,8 @@
                class="h-24 px-20 md:px-32 bg-stone-900 text-white rounded-full font-bold uppercase tracking-[0.6em] text-[12px] shadow-3xl hover:bg-primary transition-all duration-700 transform hover:scale-[1.05] active:scale-95 disabled:opacity-50 flex items-center gap-10"
              >
                <span v-if="isProcessing" class="material-symbols-outlined animate-spin text-2xl italic">progress_activity</span>
-               <span v-else class="material-symbols-outlined text-2xl italic">{{ paymentMethod === 'cod' ? 'handshake' : 'offline_pin' }}</span>
-               {{ isProcessing ? 'Processing Commitment' : (paymentMethod === 'cod' ? 'Confirm Arrival' : 'Secure Modality') }}
+               <span v-else class="material-symbols-outlined text-2xl italic">offline_pin</span>
+               {{ isProcessing ? 'Processing Commitment' : 'Secure Modality' }}
              </button>
           </div>
         </div>
@@ -155,21 +127,11 @@
                 <span v-else class="text-stone-950 tabular-nums font-body">{{ settings.currency }} {{ shippingCost.toFixed(0) }}</span>
               </div>
 
-              <!-- Dynamic COD Fee -->
-              <Transition enter-active-class="duration-300" enter-from-class="opacity-0 -translate-y-2" enter-to-class="opacity-100 translate-y-0">
-                <div v-if="paymentMethod === 'cod'" class="flex justify-between items-center text-[11px] font-bold uppercase tracking-[0.3em] text-stone-500">
-                  <span>COD Processing</span>
-                  <span class="text-stone-950 tabular-nums font-body">+ {{ settings.currency }} 50</span>
-                </div>
-              </Transition>
-
-              <!-- Dynamic Digital Discount -->
-              <Transition enter-active-class="duration-300" enter-from-class="opacity-0 -translate-y-2" enter-to-class="opacity-100 translate-y-0">
-                <div v-if="paymentMethod === 'paymob'" class="flex justify-between items-center text-[11px] font-bold uppercase tracking-[0.3em] text-primary">
-                  <span>Digital Reward</span>
-                  <span class="tabular-nums font-body">- {{ settings.currency }} {{ (subtotal * 0.05).toFixed(0) }}</span>
-                </div>
-              </Transition>
+              <!-- Digital Payment Discount -->
+              <div class="flex justify-between items-center text-[11px] font-bold uppercase tracking-[0.3em] text-primary">
+                <span>Digital Reward</span>
+                <span class="tabular-nums font-body">- {{ settings.currency }} {{ (subtotal * 0.05).toFixed(0) }}</span>
+              </div>
 
               <div class="flex justify-between items-center text-[10px] font-bold uppercase tracking-[0.3em] text-stone-300">
                 <span>Inclusive VAT</span>
@@ -204,7 +166,7 @@ const { toast } = useNotifications()
 const { cartItems, cartTotal, cartItemCount, clearCart } = useCart()
 
 // Reactive Machine
-const paymentMethod = ref('cod')
+const paymentMethod = ref('PAYMOB')
 const isProcessing = ref(false)
 
 const shipping = ref({
@@ -212,98 +174,88 @@ const shipping = ref({
   email: user.value?.email || '',
   phone: '',
   address: '',
-  city: 'Cairo',
-  landmark: ''
+  city: 'Cairo'
 })
 
-const card = ref({ number: '', expiry: '', cvv: '' })
-
-// Number Formatting Architecture
-const formatCardNumber = (e: any) => {
-  let v = e.target.value.replace(/\D/g, '').substring(0, 16)
-  let p = v.match(/.{1,4}/g)?.join(' ') || v
-  card.value.number = p
-}
-const formatExpiry = (e: any) => {
-  let v = e.target.value.replace(/\D/g, '').substring(0, 4)
-  if (v.length >= 2) card.value.expiry = v.substring(0, 2) + ' / ' + v.substring(2, 4)
-  else card.value.expiry = v
-}
 
 // Fiscal Intelligence Computation
 const subtotal = computed(() => cartTotal.value || 0)
 const shippingCost = computed(() => (subtotal.value >= (settings.value.freeShippingThreshold || 0)) ? 0 : (settings.value.shippingFee || 100))
 const tax = computed(() => Math.round(subtotal.value * 0.14))
 const total = computed(() => {
-  const mod = paymentMethod.value === 'cod' ? 50 : -Math.round(subtotal.value * 0.05)
+  const mod = -Math.round(subtotal.value * 0.05) // Digital payment discount
   return subtotal.value + shippingCost.value + tax.value + mod
 })
 
 const commitOrder = async () => {
-  if (!cartItems.value.length) return
+  console.log('commitOrder triggered')
+  console.log('shipping:', shipping.value)
+  console.log('cartItems:', cartItems.value)
   
-  // Conditional Validation Based on Payment Method
-  if (paymentMethod.value === 'cod') {
-    if (!shipping.value.fullName || !shipping.value.phone || !shipping.value.address) {
-      toast.warning('Logistics details required for Cash on Arrival.')
-      return
-    }
-  } else if (paymentMethod.value === 'paymob') {
-    if (!shipping.value.fullName || !shipping.value.phone) {
-      toast.warning('Recipient details required for Digital Processing.')
-      return
-    }
-    if (!shipping.value.email) {
-      toast.warning('Fiscal Email required for Digital Processing.')
-      return
-    }
-    if (!card.value.number || !card.value.expiry || !card.value.cvv) {
-      toast.warning('Card credentials required for modal processing.')
-      return
-    }
+  // Single cart validation
+  if (!cartItems.value.length) {
+    toast.warning('Your cart is empty')
+    return
   }
+  
+  // Single shipping validation
+  const isShippingValid = 
+    shipping.value.fullName &&
+    shipping.value.phone &&
+    shipping.value.email &&
+    shipping.value.city &&
+    shipping.value.address
+  
+  if (!isShippingValid) {
+    toast.warning('Please complete all shipping information')
+    return
+  }
+  
 
   isProcessing.value = true
+  
   try {
     const names = shipping.value.fullName.split(' ')
     const payload = {
       items: cartItems.value.map(i => ({ 
-        productId: i.product ? i.product.id : i.productId, 
+        productId: i.productId, 
         quantity: i.quantity, 
         price: i.price 
       })),
       shippingAddress: {
-        firstName: names[0] || '', lastName: names.slice(1).join(' ') || '',
+        firstName: names[0] || '', 
+        lastName: names.slice(1).join(' ') || '',
         phone: shipping.value.phone, 
-        address: paymentMethod.value === 'cod' ? shipping.value.address : 'Digital Purchase',
-        city: paymentMethod.value === 'cod' ? shipping.value.city : 'Digital City',
+        address: shipping.value.address,
+        city: shipping.value.city,
         country: 'Egypt',
-        email: paymentMethod.value === 'paymob' ? shipping.value.email : undefined
+        email: shipping.value.email
       },
       totalAmount: total.value,
-      paymentMethod: paymentMethod.value.toUpperCase()
+      paymentMethod: 'PAYMOB'
     }
 
-    console.log("ORDER PAYLOAD", payload)
+    console.log('ORDER PAYLOAD:', payload)
 
     const response = await $apiFetch<any>('/api/orders', {
       method: 'POST',
       body: payload
     })
     
-    // Decoupled Response Handling
-    if (response.paymentUrl) {
-      toast.success(response.message || 'Redirecting to payment terminal...')
-      // Small delay to allow toast to be seen
-      setTimeout(() => {
-        window.location.href = response.paymentUrl
-      }, 1000)
-    } else {
-      toast.success(response.message || 'Order confirmed.')
-      clearCart()
-      navigateTo('/account') // Navigate to order history/account
+    console.log('API RESPONSE:', response)
+    console.log('PAYMENT URL:', response?.paymentUrl)
+    
+    // Critical safety check: paymentUrl must exist for PAYMOB
+    if (!response?.paymentUrl) {
+      toast.error('Payment initialization failed. No payment URL returned.')
+      return
     }
+    
+    // Redirect to Paymob hosted checkout
+    toast.success(response.message || 'Redirecting to payment terminal...')
+    window.location.href = response.paymentUrl
   } catch (error: any) {
+    console.error('ORDER ERROR:', error)
     // Show only the translated, user-friendly error message
     toast.error(error.message || 'حدث خطأ غير متوقع في معالجة طلبك.')
   } finally {

@@ -93,7 +93,7 @@
       <template #item-method="{ item }">
         <div class="flex items-center gap-2">
           <span class="material-symbols-outlined text-sm text-on-surface-variant italic">
-            {{ item.paymentMethod === 'COD' ? 'local_shipping' : 'credit_card' }}
+            credit_card
           </span>
           <span class="text-[10px] font-bold uppercase tracking-widest text-on-surface">{{ item.paymentMethod }}</span>
         </div>

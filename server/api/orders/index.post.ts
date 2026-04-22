@@ -22,19 +22,7 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 400, statusMessage: 'Incomplete order payload' })
     }
 
-    // 2. Gateway Availability Check
-    const gateway = await prisma.paymentGateway.findUnique({
-      where: { name: paymentMethod.toUpperCase() }
-    })
-
-    if (!gateway || !gateway.isEnabled) {
-      throw createError({ 
-        statusCode: 400, 
-        statusMessage: 'Selected settlement method is currently unavailable' 
-      })
-    }
-
-    // 3. Product Integrity Check
+    // 2. Product Integrity Check
     const productIds = items.map((item: any) => item.productId)
     const validProducts = await prisma.product.findMany({
       where: { id: { in: productIds }, isDeleted: false, isActive: true }
@@ -67,23 +55,35 @@ export default defineEventHandler(async (event) => {
       }
     })
 
-    // 5. Initialize Settlement (Gateway Layer)
-    const paymentResult = await paymentService.initializePayment(order, shippingAddress)
-
-    if (!paymentResult.success) {
-      // Logic: Order remains PENDING but we notify user of gateway failure
+    // 5. Payment Handling (PAYMOB Only)
+    const paymentMethodUpper = paymentMethod.toUpperCase()
+    
+    if (paymentMethodUpper !== 'PAYMOB') {
       throw createError({
         statusCode: 400,
-        statusMessage: paymentResult.message || 'Settlement layer initialization failed'
+        statusMessage: `Unsupported payment method: ${paymentMethodUpper}. Only PAYMOB is supported.`
+      })
+    }
+    
+    // Single responsibility: call payment service
+    // PaymentService handles all config loading (PaymentGateway → Settings → ENV)
+    console.log('[ORDER] Calling paymentService.initializePayment')
+    const paymentResult = await paymentService.initializePayment(order, shippingAddress)
+    console.log('[ORDER] Payment result:', paymentResult)
+
+    if (!paymentResult.success) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: paymentResult.message || 'Payment initialization failed'
       })
     }
 
-    // 6. Response (Production Standard)
+    console.log('[ORDER] Returning paymentUrl:', paymentResult.paymentUrl)
     return {
       success: true,
       orderId: order.id,
       paymentUrl: paymentResult.paymentUrl,
-      message: paymentResult.message || 'Order intent recorded successfully'
+      message: paymentResult.message || 'Payment initialization successful'
     }
 
   } catch (error: any) {
