@@ -4,8 +4,12 @@ export interface Notification {
   message: string
   type: 'info' | 'success' | 'warning' | 'error'
   read: boolean
+  persist: boolean // true = persistent notification, false = toast (temporary)
   createdAt: Date
 }
+
+const MAX_NOTIFICATIONS = 20
+const TOAST_AUTO_DISMISS_MS = 3000
 
 export const useNotifications = () => {
   const notifications = useState<Notification[]>('notifications_list', () => [])
@@ -18,9 +22,26 @@ export const useNotifications = () => {
       message: notif.message || '',
       type: notif.type || 'info',
       read: false,
+      persist: notif.persist !== undefined ? notif.persist : false,
       createdAt: new Date(),
     }
+    
+    // Add to beginning
     notifications.value.unshift(newNotification)
+    
+    // Cap at max notifications
+    if (notifications.value.length > MAX_NOTIFICATIONS) {
+      notifications.value = notifications.value.slice(0, MAX_NOTIFICATIONS)
+    }
+    
+    // Auto-dismiss toasts
+    if (!newNotification.persist) {
+      setTimeout(() => {
+        removeNotification(newNotification.id)
+      }, TOAST_AUTO_DISMISS_MS)
+    }
+    
+    return newNotification.id
   }
 
   const markAsRead = (id: string) => {
@@ -37,12 +58,60 @@ export const useNotifications = () => {
     if (index !== -1) notifications.value.splice(index, 1)
   }
 
-  // Toast-specific helpers
+  // Toast-specific helpers (temporary, auto-dismissing)
   const toast = {
-    success: (message: string, title?: string) => addNotification({ type: 'success', message, title: title || 'Success' }),
-    error: (message: string, title?: string) => addNotification({ type: 'error', message, title: title || 'Error' }),
-    info: (message: string, title?: string) => addNotification({ type: 'info', message, title: title || 'Info' }),
-    warning: (message: string, title?: string) => addNotification({ type: 'warning', message, title: title || 'Warning' }),
+    success: (message: string, title?: string) => addNotification({ 
+      type: 'success', 
+      message, 
+      title: title || 'Success',
+      persist: false 
+    }),
+    error: (message: string, title?: string) => addNotification({ 
+      type: 'error', 
+      message, 
+      title: title || 'Error',
+      persist: false 
+    }),
+    info: (message: string, title?: string) => addNotification({ 
+      type: 'info', 
+      message, 
+      title: title || 'Info',
+      persist: false 
+    }),
+    warning: (message: string, title?: string) => addNotification({ 
+      type: 'warning', 
+      message, 
+      title: title || 'Warning',
+      persist: false 
+    }),
+  }
+
+  // Persistent notification helpers (saved to notification center)
+  const notify = {
+    success: (message: string, title?: string) => addNotification({ 
+      type: 'success', 
+      message, 
+      title: title || 'Success',
+      persist: true 
+    }),
+    error: (message: string, title?: string) => addNotification({ 
+      type: 'error', 
+      message, 
+      title: title || 'Error',
+      persist: true 
+    }),
+    info: (message: string, title?: string) => addNotification({ 
+      type: 'info', 
+      message, 
+      title: title || 'Info',
+      persist: true 
+    }),
+    warning: (message: string, title?: string) => addNotification({ 
+      type: 'warning', 
+      message, 
+      title: title || 'Warning',
+      persist: true 
+    }),
   }
 
   return {
@@ -52,6 +121,7 @@ export const useNotifications = () => {
     markAsRead,
     markAllAsRead,
     removeNotification,
-    toast
+    toast,
+    notify
   }
 }

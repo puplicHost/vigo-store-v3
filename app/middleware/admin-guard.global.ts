@@ -9,25 +9,28 @@ export default defineNuxtRouteMiddleware((to) => {
     return
   }
 
+  // Prevent redirect loop - if already going to login, don't redirect again
+  if (to.path === '/auth/login') {
+    return
+  }
+
   const auth = useAuth()
 
-  // Wait if auth is still loading (useful if we're fetching user on init)
-  if (auth.isLoading.value) {
+  console.log('[ADMIN GUARD] Checking admin route:', to.path, {
+    isAuthenticated: auth.isAuthenticated.value,
+    isAuthLoading: auth.isAuthLoading.value,
+    userRole: auth.user.value?.role
+  })
+
+  // Wait if auth is still loading (use isAuthLoading which is set by plugins)
+  if (auth.isAuthLoading.value) {
+    console.log('[ADMIN GUARD] Auth loading, waiting...')
     return
   }
 
   // Check if user is authenticated
   if (!auth.isAuthenticated.value) {
-    // #region agent log
-    if (import.meta.client) {
-      debugProjectLog({
-        hypothesisId: 'H4',
-        location: 'admin-guard.global.ts',
-        message: 'admin unauthenticated redirect',
-        data: { path: to.path }
-      })
-    }
-    // #endregion
+    console.log('[ADMIN GUARD] Unauthenticated, redirecting to login')
     return navigateTo('/auth/login')
   }
 
@@ -36,17 +39,10 @@ export default defineNuxtRouteMiddleware((to) => {
   const allowedRoles = ['ADMIN', 'SUPER_ADMIN', 'SALES', 'MANAGER']
 
   if (!userRole || !allowedRoles.includes(userRole)) {
-    // #region agent log
-    if (import.meta.client) {
-      debugProjectLog({
-        hypothesisId: 'H5',
-        location: 'admin-guard.global.ts',
-        message: 'admin role rejected',
-        data: { path: to.path, userRole: userRole || null }
-      })
-    }
-    // #endregion
+    console.log('[ADMIN GUARD] Role rejected:', userRole)
     auth.logout()
     return navigateTo('/auth/login')
   }
+
+  console.log('[ADMIN GUARD] Access granted')
 })

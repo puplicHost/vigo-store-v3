@@ -4,7 +4,7 @@
     <div 
       v-if="isMobileSidebarOpen" 
       @click="closeMobileSidebar"
-      class="fixed inset-0 bg-black/50 z-40 lg:hidden"
+      class="fixed inset-0 bg-black z-40 lg:hidden"
     ></div>
 
     <!-- Sidebar -->
@@ -12,8 +12,8 @@
       :class="[
         'fixed lg:sticky lg:top-0 lg:self-start lg:min-h-screen z-50 lg:z-auto flex flex-col',
         'w-[min(100%,288px)] lg:w-[272px]',
-        'bg-surface-container-lowest',
-        'backdrop-blur-xl border-r border-outline-variant/20',
+        'bg-white lg:bg-surface-container-lowest',
+        'backdrop-blur-none lg:backdrop-blur-xl border-r border-outline-variant/20',
         'shadow-[4px_0_32px_-8px_rgba(0,0,0,0.06)] dark:shadow-[4px_0_32px_-8px_rgba(0,0,0,0.45)]',
         'transition-transform duration-300 ease-out',
         isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'

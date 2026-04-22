@@ -15,8 +15,17 @@ interface LoginResponse {
   }
 }
 
-const { setAuth } = useAuth()
+const { setAuth, logout } = useAuth()
 const { settings } = useSettings()
+
+// If already authenticated, redirect away
+onMounted(() => {
+  const auth = useAuth()
+  if (auth.isAuthenticated.value) {
+    const isAdmin = auth.user.value?.role === 'ADMIN' || auth.user.value?.role === 'SUPER_ADMIN'
+    navigateTo(isAdmin ? '/admin' : '/', { replace: true })
+  }
+})
 
 const email = ref('')
 const password = ref('')

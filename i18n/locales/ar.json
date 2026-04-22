@@ -55,7 +55,16 @@
     "payment": "الدفع",
     "save": "حفظ التغييرات",
     "saving": "جارٍ الحفظ...",
-    "cancel": "إلغاء"
+    "cancel": "إلغاء",
+    "shippingFee": "رسوم الشحن",
+    "freeShippingThreshold": "حد الشحن المجاني",
+    "contactEmail": "البريد الإلكتروني للتواصل",
+    "contactPhone": "رقم الهاتف للتواصل",
+    "whatsappNumber": "رقم واتساب",
+    "address": "العنوان",
+    "tiktokUrl": "رابط تيك توك",
+    "instagramUrl": "رابط إنستغرام",
+    "facebookUrl": "رابط فيسبوك"
   },
   "dashboard": {
     "title": "لوحة التحكم",

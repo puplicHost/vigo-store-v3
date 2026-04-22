@@ -27,7 +27,7 @@
       </div>
 
       <div 
-        v-for="notif in notifications" 
+        v-for="notif in persistentNotifications" 
         :key="notif.id"
         class="group bg-white dark:bg-surface-container rounded-2xl p-6 border border-outline-variant/10 hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 transition-all relative overflow-hidden"
         :class="{ 'opacity-70 grayscale-[0.5]': notif.read }"
@@ -86,6 +86,10 @@ definePageMeta({
 })
 
 const { notifications, markAsRead, markAllAsRead, removeNotification } = useNotifications()
+
+const persistentNotifications = computed(() => 
+  notifications.value.filter(n => n.persist)
+)
 
 const getIconName = (type: string) => {
   switch (type) {

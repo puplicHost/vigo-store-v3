@@ -153,7 +153,7 @@
           <!-- Shipping Tab -->
           <div v-if="activeTab === 'shipping'" class="space-y-6">
             <div>
-              <label class="block text-sm font-body text-on-surface-variant mb-1">{{ $t('settings.shipping') }} Fee</label>
+              <label class="block text-sm font-body text-on-surface-variant mb-1">{{ $t('settings.shippingFee') }}</label>
               <div class="relative">
                 <input
                   v-model="settings.shippingFee"
@@ -168,7 +168,7 @@
               </div>
             </div>
             <div>
-              <label class="block text-sm font-body text-on-surface-variant mb-1">Free Shipping Threshold</label>
+              <label class="block text-sm font-body text-on-surface-variant mb-1">{{ $t('settings.freeShippingThreshold') }}</label>
               <div class="relative">
                 <input
                   v-model="settings.freeShippingThreshold"
@@ -187,7 +187,7 @@
           <!-- Contact Tab -->
           <div v-if="activeTab === 'contact'" class="space-y-6">
             <div>
-              <label class="block text-sm font-body text-on-surface-variant mb-1">Contact Email</label>
+              <label class="block text-sm font-body text-on-surface-variant mb-1">{{ $t('settings.contactEmail') }}</label>
               <input
                 v-model="settings.contactEmail"
                 type="email"
@@ -196,7 +196,7 @@
               />
             </div>
             <div>
-              <label class="block text-sm font-body text-on-surface-variant mb-1">Contact Phone</label>
+              <label class="block text-sm font-body text-on-surface-variant mb-1">{{ $t('settings.contactPhone') }}</label>
               <input
                 v-model="settings.contactPhone"
                 type="tel"
@@ -205,7 +205,7 @@
               />
             </div>
             <div>
-              <label class="block text-sm font-body text-on-surface-variant mb-1">WhatsApp Number</label>
+              <label class="block text-sm font-body text-on-surface-variant mb-1">{{ $t('settings.whatsappNumber') }}</label>
               <input
                 v-model="settings.whatsappNumber"
                 type="tel"
@@ -214,7 +214,7 @@
               />
             </div>
             <div>
-              <label class="block text-sm font-body text-on-surface-variant mb-1">Address</label>
+              <label class="block text-sm font-body text-on-surface-variant mb-1">{{ $t('settings.address') }}</label>
               <textarea
                 v-model="settings.contactAddress"
                 rows="2"
@@ -227,7 +227,7 @@
           <!-- Social Tab -->
           <div v-if="activeTab === 'social'" class="space-y-6">
             <div>
-              <label class="block text-sm font-body text-on-surface-variant mb-1">TikTok URL</label>
+              <label class="block text-sm font-body text-on-surface-variant mb-1">{{ $t('settings.tiktokUrl') }}</label>
               <input
                 v-model="settings.tiktokUrl"
                 type="url"
@@ -236,7 +236,7 @@
               />
             </div>
             <div>
-              <label class="block text-sm font-body text-on-surface-variant mb-1">Instagram URL</label>
+              <label class="block text-sm font-body text-on-surface-variant mb-1">{{ $t('settings.instagramUrl') }}</label>
               <input
                 v-model="settings.instagramUrl"
                 type="url"
@@ -245,7 +245,7 @@
               />
             </div>
             <div>
-              <label class="block text-sm font-body text-on-surface-variant mb-1">Facebook URL</label>
+              <label class="block text-sm font-body text-on-surface-variant mb-1">{{ $t('settings.facebookUrl') }}</label>
               <input
                 v-model="settings.facebookUrl"
                 type="url"

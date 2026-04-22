@@ -127,9 +127,14 @@
                     <button @click="updateQuantity(item.id, item.quantity + 1)" class="w-9 h-9 rounded-full flex items-center justify-center text-stone-300 hover:text-stone-900 transition-colors"><span class="material-symbols-outlined text-sm">add</span></button>
                   </div>
                   
-                  <button @click="removeFromCart(item.id)" class="text-[9px] uppercase font-bold tracking-[0.3em] text-stone-400 hover:text-red-500 transition-colors flex items-center gap-2 border-b border-transparent hover:border-red-100 pb-1">
-                    Remove Piece
-                  </button>
+                  <div class="flex items-center gap-4">
+                    <button type="button" @click="handleCheckoutItem(item.id)" class="text-[9px] uppercase font-bold tracking-[0.3em] text-stone-900 hover:text-primary transition-colors flex items-center gap-2 border-b border-stone-100 hover:border-primary pb-1">
+                      Checkout This Piece
+                    </button>
+                    <button type="button" @click="removeFromCart(item.id)" class="text-[9px] uppercase font-bold tracking-[0.3em] text-stone-400 hover:text-red-500 transition-colors flex items-center gap-2 border-b border-transparent hover:border-red-100 pb-1">
+                      Remove
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -162,9 +167,9 @@
               <span class="tracking-tighter">{{ settings?.currency || 'EGP' }} {{ grandTotal.toFixed(0) }}</span>
             </div>
 
-            <NuxtLink to="/checkout" class="block w-full py-7 text-center bg-white text-stone-900 rounded-full font-label uppercase tracking-[0.4em] text-[11px] font-bold hover:bg-primary hover:text-white transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-2xl shadow-black/20">
-              Commit to Order
-            </NuxtLink>
+            <button type="button" @click="handleCheckoutFullCart()" class="block w-full py-7 text-center bg-white text-stone-900 rounded-full font-label uppercase tracking-[0.4em] text-[11px] font-bold hover:bg-primary hover:text-white transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-2xl shadow-black/20">
+              Commit Full Order
+            </button>
             
             <div class="mt-10 pt-10 border-t border-white/5 flex flex-col items-center gap-6 text-center">
                <div class="flex gap-8 opacity-20">
@@ -202,7 +207,17 @@
 
 <script setup lang="ts">
 const { settings } = useSettings()
-const { cartItems, cartTotal, cartItemCount, removeFromCart, updateQuantity, updateCartItemVariant, clearCart } = useCart()
+const { cartItems, cartTotal, cartItemCount, removeFromCart, updateQuantity, updateCartItemVariant, clearCart, checkoutItem, checkoutFullCart } = useCart()
+
+const handleCheckoutItem = (itemId: string) => {
+  checkoutItem(itemId)
+  navigateTo('/checkout')
+}
+
+const handleCheckoutFullCart = () => {
+  checkoutFullCart()
+  navigateTo('/checkout')
+}
 
 definePageMeta({
   middleware: 'auth'

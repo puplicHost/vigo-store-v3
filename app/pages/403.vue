@@ -49,6 +49,6 @@ const auth = useAuth()
 
 const logout = async () => {
   await auth.logout()
-  navigateTo('/login', { replace: true })
+  navigateTo('/auth/login', { replace: true })
 }
 </script>

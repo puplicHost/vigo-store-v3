@@ -29,6 +29,7 @@ export const useCart = () => {
   const hasHydratedCart = useState<boolean>('cart_hydrated', () => false);
   const hasCartWatcher = useState<boolean>('cart_watcher_ready', () => false);
   const previousUserId = useState<string | null>('previous_user_id', () => null);
+  const checkoutItemId = useState<string | null>('checkout_item_id', () => null);
 
   // Load from localStorage only after mount to avoid SSR hydration mismatches.
   if (import.meta.client) {
@@ -208,15 +209,41 @@ export const useCart = () => {
     saveCart([]);
   };
 
+  // Per-item checkout functions
+  const checkoutItem = (itemId: string) => {
+    checkoutItemId.value = itemId;
+  };
+
+  const checkoutFullCart = () => {
+    checkoutItemId.value = null;
+  };
+
+  const removePurchasedItem = (itemId: string) => {
+    removeFromCart(itemId);
+    checkoutItemId.value = null;
+  };
+
+  const isCheckingOutItem = computed(() => !!checkoutItemId.value);
+  const checkoutItemData = computed(() => {
+    if (!checkoutItemId.value) return null;
+    return cartItems.value.find(item => item.id === checkoutItemId.value) || null;
+  });
+
   return {
     cartItems,
     isCartOpen,
     cartTotal,
     cartItemCount,
+    checkoutItemId,
+    isCheckingOutItem,
+    checkoutItemData,
     addToCart,
     removeFromCart,
     updateQuantity,
     updateCartItemVariant,
-    clearCart
+    clearCart,
+    checkoutItem,
+    checkoutFullCart,
+    removePurchasedItem
   };
 };

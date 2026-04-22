@@ -18,30 +18,33 @@
         </NuxtLink>
       </div>
       
-      <!-- Center: Desktop Navigation -->
-      <div class="hidden md:flex items-center gap-12 flex-grow justify-center">
-        <NuxtLink 
-          to="/" 
+      <!-- Center: Normal Navigation (Desktop) -->
+      <nav class="hidden md:flex flex-grow justify-center items-center gap-10">
+        <NuxtLink
+          to="/"
           active-class="text-primary"
-          class="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-400 hover:text-stone-900 transition-all duration-500"
+          class="text-[11px] uppercase tracking-[0.3em] font-bold text-stone-500 hover:text-stone-900 transition-colors"
         >
           {{ $t('nav.home') || 'Home' }}
         </NuxtLink>
-        <NuxtLink 
-          to="/products" 
+        <NuxtLink
+          to="/products"
           active-class="text-primary"
-          class="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-400 hover:text-stone-900 transition-all duration-500"
+          class="text-[11px] uppercase tracking-[0.3em] font-bold text-stone-500 hover:text-stone-900 transition-colors"
         >
           {{ $t('nav.shopAll') || 'Collections' }}
         </NuxtLink>
-        <NuxtLink 
-          to="/about" 
+        <NuxtLink
+          to="/about"
           active-class="text-primary"
-          class="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-400 hover:text-stone-900 transition-all duration-500"
+          class="text-[11px] uppercase tracking-[0.3em] font-bold text-stone-500 hover:text-stone-900 transition-colors"
         >
           {{ $t('nav.aboutUs') || 'Our Story' }}
         </NuxtLink>
-      </div>
+      </nav>
+
+      <!-- Spacer for mobile (center area) -->
+      <div class="flex md:hidden flex-grow"></div>
 
       <!-- Right: User Actions -->
       <div class="flex-1 flex justify-end items-center gap-8">
@@ -68,53 +71,50 @@
           </span>
         </NuxtLink>
         
-        <!-- Mobile Menu Toggle -->
+        <!-- Mobile Menu Toggle (Burger Icon) -->
         <button 
-          @click="isMobileMenuOpen = true"
-          class="md:hidden text-stone-400 hover:text-stone-900 transition-all duration-500"
+          @click="isDropdownOpen = !isDropdownOpen"
+          class="md:hidden text-stone-400 hover:text-stone-900 transition-all duration-500 relative"
         >
           <span class="material-symbols-outlined font-light text-2xl">menu</span>
+          
+          <!-- Dropdown Menu (Mobile Only) -->
+          <Transition name="fade">
+            <div
+              v-if="isDropdownOpen"
+              class="absolute top-full right-0 mt-4 bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-stone-100 py-4 min-w-[200px] z-50"
+              @click.stop
+            >
+              <NuxtLink
+                to="/"
+                @click="isDropdownOpen = false"
+                active-class="text-primary bg-stone-50"
+                class="block px-6 py-3 text-sm text-stone-900 hover:bg-stone-50 hover:text-primary transition-colors font-body"
+              >
+                {{ $t('nav.home') || 'Home' }}
+              </NuxtLink>
+              <NuxtLink
+                to="/products"
+                @click="isDropdownOpen = false"
+                active-class="text-primary bg-stone-50"
+                class="block px-6 py-3 text-sm text-stone-900 hover:bg-stone-50 hover:text-primary transition-colors font-body"
+              >
+                {{ $t('nav.shopAll') || 'Collections' }}
+              </NuxtLink>
+              <NuxtLink
+                to="/about"
+                @click="isDropdownOpen = false"
+                active-class="text-primary bg-stone-50"
+                class="block px-6 py-3 text-sm text-stone-900 hover:bg-stone-50 hover:text-primary transition-colors font-body"
+              >
+                {{ $t('nav.aboutUs') || 'Our Story' }}
+              </NuxtLink>
+            </div>
+          </Transition>
         </button>
       </div>
     </div>
 
-    <!-- Mobile Sidebar Refined -->
-    <Transition name="slide">
-      <div v-if="isMobileMenuOpen" class="fixed inset-0 z-[100] md:hidden">
-        <div class="absolute inset-0 bg-stone-900/10 backdrop-blur-sm" @click="isMobileMenuOpen = false"></div>
-        <aside class="absolute top-0 right-0 w-[85%] h-full bg-white shadow-3xl p-12 flex flex-col animate-stagger">
-          <div class="flex justify-between items-center mb-20">
-            <span class="text-xs uppercase tracking-[0.5em] font-bold text-stone-300">Navigation</span>
-            <button @click="isMobileMenuOpen = false" class="text-stone-300 hover:text-stone-900 transition-colors">
-              <span class="material-symbols-outlined font-light">close</span>
-            </button>
-          </div>
-
-          <nav class="flex flex-col gap-10">
-            <NuxtLink @click="isMobileMenuOpen = false" to="/" class="text-4xl font-serif italic text-stone-900 hover:text-primary transition-colors flex items-center justify-between group">
-              Home
-              <span class="material-symbols-outlined opacity-0 group-hover:opacity-100 transition-opacity">arrow_forward</span>
-            </NuxtLink>
-            <NuxtLink @click="isMobileMenuOpen = false" to="/products" class="text-4xl font-serif italic text-stone-900 hover:text-primary transition-colors flex items-center justify-between group">
-              Collections
-              <span class="material-symbols-outlined opacity-0 group-hover:opacity-100 transition-opacity">arrow_forward</span>
-            </NuxtLink>
-            <NuxtLink @click="isMobileMenuOpen = false" to="/about" class="text-4xl font-serif italic text-stone-900 hover:text-primary transition-colors flex items-center justify-between group">
-              Our Story
-              <span class="material-symbols-outlined opacity-0 group-hover:opacity-100 transition-opacity">arrow_forward</span>
-            </NuxtLink>
-          </nav>
-
-          <div class="mt-auto pt-10 border-t border-stone-50 flex justify-between items-center">
-            <span class="text-[9px] uppercase tracking-[0.3em] font-bold text-stone-300">© 2024 {{ settings?.siteName || 'VIGO' }}</span>
-            <div class="flex gap-4">
-               <span class="mdi mdi-instagram text-stone-300"></span>
-               <span class="mdi mdi-pinterest text-stone-300"></span>
-            </div>
-          </div>
-        </aside>
-      </div>
-    </Transition>
   </nav>
 </template>
 
@@ -122,8 +122,24 @@
 const { isAuthenticated, user } = useAuth()
 const { settings } = useSettings()
 const { cartItemCount } = useCart()
-const isMobileMenuOpen = ref(false)
+const isDropdownOpen = ref(false)
 const hasLogoError = ref(false)
+
+// Close dropdown when clicking outside
+onMounted(() => {
+  const handleClickOutside = (event: MouseEvent) => {
+    const target = event.target as HTMLElement
+    // Check if click is on the burger button or inside the dropdown
+    const burgerButton = document.querySelector('button.md\\:hidden')
+    if (burgerButton && !burgerButton.contains(target)) {
+      isDropdownOpen.value = false
+    }
+  }
+  document.addEventListener('click', handleClickOutside)
+  onUnmounted(() => {
+    document.removeEventListener('click', handleClickOutside)
+  })
+})
 </script>
 
 <style scoped>
@@ -133,5 +149,13 @@ const hasLogoError = ref(false)
 .slide-enter-from, .slide-leave-to {
   transform: translateX(100%);
   opacity: 0;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: all 0.2s ease-in-out;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
 }
 </style>

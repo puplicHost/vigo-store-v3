@@ -55,7 +55,16 @@
     "payment": "Payment",
     "save": "Save Changes",
     "saving": "Saving...",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "shippingFee": "Shipping Fee",
+    "freeShippingThreshold": "Free Shipping Threshold",
+    "contactEmail": "Contact Email",
+    "contactPhone": "Contact Phone",
+    "whatsappNumber": "WhatsApp Number",
+    "address": "Address",
+    "tiktokUrl": "TikTok URL",
+    "instagramUrl": "Instagram URL",
+    "facebookUrl": "Facebook URL"
   },
   "dashboard": {
     "title": "Dashboard",

@@ -32,94 +32,72 @@ class="appearance-none bg-surface-container-lowest border border-outline-variant
     </div>
 
     <!-- Table -->
-    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant/10 shadow-sm shadow-primary/5 overflow-hidden">
-      <table class="w-full">
-        <thead class="bg-surface-container-low border-b border-outline-variant/10">
-          <tr>
-            <th class="text-left px-6 py-4 font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Order ID</th>
-            <th class="text-left px-6 py-4 font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Customer</th>
-            <th class="text-left px-6 py-4 font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Items</th>
-            <th class="text-left px-6 py-4 font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Total</th>
-            <th class="text-left px-6 py-4 font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Status</th>
-            <th class="text-left px-6 py-4 font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Date</th>
-            <th class="text-right px-6 py-4 font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Actions</th>
-          </tr>
-        </thead>
-          <tbody class="divide-y divide-outline-variant/10">
-            <tr v-if="pending" class="hover:bg-surface-container-low/50 transition-colors">
-              <td colspan="7" class="px-6 py-12 text-center text-on-surface-variant">
-                <span class="material-symbols-outlined text-3xl animate-spin">progress_activity</span>
-              </td>
-            </tr>
-            <tr v-else-if="error" class="hover:bg-surface-container-low/50 transition-colors">
-              <td colspan="7" class="px-6 py-12 text-center">
-                <span class="text-error font-body">Failed to load orders</span>
-              </td>
-            </tr>
-            <tr v-else-if="!filteredOrders?.length" class="hover:bg-surface-container-low/50 transition-colors">
-              <td colspan="7" class="px-6 py-12 text-center">
-                <span class="text-on-surface-variant font-body">No orders found.</span>
-              </td>
-            </tr>
-            <template v-else>
-              <tr
-                v-for="(order, index) in filteredOrders"
-                :key="order.id || index"
-                class="hover:bg-surface-container-low/50 transition-colors"
-              >
-                <td class="px-6 py-4 font-mono text-sm text-on-surface">
-                  #{{ order.id?.slice(-8).toUpperCase() || 'N/A' }}
-                </td>
-                <td class="px-6 py-4">
-                  <div class="font-medium text-on-surface font-body">{{ order.user?.name || 'Guest' }}</div>
-                  <div class="text-xs text-on-surface-variant">{{ order.user?.email }}</div>
-                </td>
-                <td class="px-6 py-4 text-sm text-on-surface-variant font-body">
-                  {{ order.items?.length || 0 }} items
-                </td>
-                <td class="px-6 py-4 font-medium text-on-surface font-body">
-                  ${{ order.totalAmount?.toFixed(2) || '0.00' }}
-                </td>
-                <td class="px-6 py-4">
-                  <span :class="[
-                    'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium',
-                    order.status === 'CONFIRMED' ? 'bg-success/10 text-success' :
-                    order.status === 'CANCELLED' ? 'bg-error/10 text-error' :
-                    'bg-slate-100 text-slate-400'
-                  ]">
-                    {{ order.status || 'UNKNOWN' }}
-                  </span>
-                </td>
-                <td class="px-6 py-4 text-sm text-on-surface-variant font-body">
-                  {{ order.createdAt ? new Date(order.createdAt).toLocaleDateString() : '-' }}
-                </td>
-                <td class="px-6 py-4 text-right whitespace-nowrap">
-                  <div class="inline-flex flex-wrap items-center justify-end gap-2">
-                    <button
-                      type="button"
-                      class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-outline-variant/30 text-on-surface text-xs font-medium font-body hover:bg-surface-container-low hover:border-primary/30 transition-colors"
-                      @click="openOrderDetail(order.id)"
-                    >
-                      <span class="material-symbols-outlined text-base">visibility</span>
-                      Details
-                    </button>
-                    <button
-                      v-if="canDeleteOrder"
-                      type="button"
-                      class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-error/25 text-error text-xs font-medium font-body hover:bg-error/10 transition-colors"
-                      title="Delete order"
-                      @click="askDeleteOrder(order.id, order.id?.slice(-8).toUpperCase() || '')"
-                    >
-                      <span class="material-symbols-outlined text-base">delete</span>
-                      Delete
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </template>
-          </tbody>
-      </table>
-    </div>
+    <AdminTable
+      :columns="columns"
+      :data="filteredOrders"
+      :loading="pending"
+      :show-pagination="true"
+      :pageSize="10"
+      empty-message="No orders found."
+      empty-icon="shopping_bag"
+    >
+      <template #cell-id="{ row }">
+        <span class="font-mono text-sm text-on-surface">#{{ row.id?.slice(-8).toUpperCase() || 'N/A' }}</span>
+      </template>
+
+      <template #cell-customer="{ row }">
+        <div>
+          <div class="font-medium text-on-surface font-body">{{ row.user?.name || 'Guest' }}</div>
+          <div class="text-xs text-on-surface-variant">{{ row.user?.email }}</div>
+        </div>
+      </template>
+
+      <template #cell-items="{ row }">
+        <span class="text-sm text-on-surface-variant font-body">{{ row.items?.length || 0 }} items</span>
+      </template>
+
+      <template #cell-totalAmount="{ row }">
+        <span class="font-medium text-on-surface font-body">${{ row.totalAmount?.toFixed(2) || '0.00' }}</span>
+      </template>
+
+      <template #cell-status="{ row }">
+        <span :class="[
+          'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium',
+          row.status === 'CONFIRMED' ? 'bg-success/10 text-success' :
+          row.status === 'CANCELLED' ? 'bg-error/10 text-error' :
+          'bg-slate-100 text-slate-400'
+        ]">
+          {{ row.status || 'UNKNOWN' }}
+        </span>
+      </template>
+
+      <template #cell-createdAt="{ row }">
+        <span class="text-sm text-on-surface-variant font-body">{{ row.createdAt ? new Date(row.createdAt).toLocaleDateString() : '-' }}</span>
+      </template>
+
+      <template #actions="{ row }">
+        <div class="inline-flex flex-wrap items-center justify-end gap-2">
+          <button
+            type="button"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-outline-variant/30 text-on-surface text-xs font-medium font-body hover:bg-surface-container-low hover:border-primary/30 transition-colors"
+            @click="openOrderDetail(row.id)"
+          >
+            <span class="material-symbols-outlined text-base">visibility</span>
+            Details
+          </button>
+          <button
+            v-if="canDeleteOrder"
+            type="button"
+            class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-error/25 text-error text-xs font-medium font-body hover:bg-error/10 transition-colors"
+            title="Delete order"
+            @click="askDeleteOrder(row.id, row.id?.slice(-8).toUpperCase() || '')"
+          >
+            <span class="material-symbols-outlined text-base">delete</span>
+            Delete
+          </button>
+        </div>
+      </template>
+    </AdminTable>
 
     <!-- Order detail modal -->
     <div
@@ -361,6 +339,15 @@ const { hasPermission } = usePermissions()
 const { toast } = useNotifications()
 
 const canDeleteOrder = computed(() => hasPermission('UPDATE_ORDER_STATUS'))
+
+const columns = [
+  { key: 'id', label: 'Order ID' },
+  { key: 'customer', label: 'Customer' },
+  { key: 'items', label: 'Items' },
+  { key: 'totalAmount', label: 'Total' },
+  { key: 'status', label: 'Status' },
+  { key: 'createdAt', label: 'Date' }
+] as any[]
 
 const deleteConfirm = ref<{ open: boolean; id: string | null; label: string }>({
   open: false,

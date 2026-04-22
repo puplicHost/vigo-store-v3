@@ -44,8 +44,8 @@ export const useAuth = () => {
   
   // Logout function
   const logout = () => {
+    console.log('[AUTH] Logging out user')
     clearAuth()
-    navigateTo('/auth/login', { replace: true })
   }
   
   // Fetch current user from server (single source of truth)

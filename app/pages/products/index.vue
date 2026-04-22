@@ -125,7 +125,7 @@
 
           <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-24 animate-stagger">
             <div
-              v-for="(product, idx) in filteredProducts"
+              v-for="(product, idx) in paginatedProducts"
               :key="product.id"
               class="group block space-y-8"
             >
@@ -150,7 +150,8 @@
 
                   <!-- Quick Add Button (appears on hover) -->
                   <button
-                    @click="(e) => quickAddToCart(product, e)"
+                    type="button"
+                    @click.stop.prevent="quickAddToCart(product, $event)"
                     :disabled="product.stock <= 0 || addingToCart.has(product.id)"
                     class="absolute bottom-8 right-8 w-14 h-14 bg-stone-900 text-white rounded-full flex items-center justify-center shadow-xl opacity-0 translate-y-4 transition-all duration-500 group-hover:opacity-100 group-hover:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary"
                     :class="addingToCart.has(product.id) ? 'opacity-100 translate-y-0' : ''"
@@ -182,17 +183,38 @@
               </div>
             </div>
           </div>
-          
-          <!-- Pagination -->
-          <div v-if="filteredProducts?.length" class="mt-32 pt-16 flex flex-col items-center border-t border-stone-100">
-            <button class="h-20 px-20 bg-stone-900 text-white text-[10px] font-bold uppercase tracking-[0.5em] rounded-full hover:bg-primary transition-all duration-700 shadow-2xl shadow-stone-900/10 active:scale-95 italic">
-              Explore More Narrative
+
+          <!-- Pagination Controls -->
+          <div v-if="totalPages > 1" class="flex items-center justify-center gap-4 mt-16">
+            <button
+              @click="currentPage--"
+              :disabled="currentPage === 1"
+              class="w-12 h-12 rounded-full border border-stone-200 flex items-center justify-center text-stone-400 hover:text-stone-900 hover:border-stone-300 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            >
+              <span class="material-symbols-outlined">chevron_left</span>
             </button>
-            <div class="flex items-center gap-8 mt-16 font-body text-[10px] tracking-[0.6em] text-stone-300 font-bold uppercase italic">
-              <span class="text-stone-900 border-b border-primary pb-2">01</span>
-              <span class="hover:text-primary cursor-pointer transition-colors pb-2 border-b border-stone-100">02</span>
-              <span class="hover:text-primary cursor-pointer transition-colors pb-2 border-b border-stone-100">03</span>
+            <div class="flex items-center gap-2">
+              <button
+                v-for="page in totalPages"
+                :key="page"
+                @click="currentPage = page"
+                :class="[
+                  'w-10 h-10 rounded-full font-body text-sm transition-all',
+                  currentPage === page
+                    ? 'bg-stone-900 text-white'
+                    : 'bg-white border border-stone-200 text-stone-600 hover:border-stone-300'
+                ]"
+              >
+                {{ page }}
+              </button>
             </div>
+            <button
+              @click="currentPage++"
+              :disabled="currentPage === totalPages"
+              class="w-12 h-12 rounded-full border border-stone-200 flex items-center justify-center text-stone-400 hover:text-stone-900 hover:border-stone-300 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            >
+              <span class="material-symbols-outlined">chevron_right</span>
+            </button>
           </div>
         </div>
       </div>
@@ -227,6 +249,32 @@ const { data: productsData, pending } = await useApiFetch<any>('/api/products', 
     limit: 100,
     categoryId: route.query.category
   }))
+})
+
+// Client-side pagination state
+const currentPage = ref(1)
+const itemsPerPage = 6
+
+const paginatedProducts = computed(() => {
+  const items = filteredProducts.value || []
+  const start = (currentPage.value - 1) * itemsPerPage
+  const end = start + itemsPerPage
+  return items.slice(start, end)
+})
+
+const totalPages = computed(() => {
+  const items = filteredProducts.value || []
+  return Math.ceil(items.length / itemsPerPage)
+})
+
+// Reset to page 1 when filters change
+watch([searchQuery, selectedSize, selectedColors, selectedMaterials, priceRange, sortBy], () => {
+  currentPage.value = 1
+})
+
+// Scroll to top when page changes
+watch(currentPage, () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' })
 })
 
 // Extract available categories and colors
@@ -299,9 +347,7 @@ const clearAll = () => {
   sortBy.value = 'newest'
 }
 
-const quickAddToCart = async (product: any, event: Event) => {
-  event.stopPropagation() // Prevent card navigation
-  
+const quickAddToCart = async (product: any, event?: Event) => {
   // Check if product is out of stock
   if (product.stock <= 0) {
     toast.warning('This piece is currently archived.', 'Stock Unavailable')

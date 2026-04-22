@@ -155,7 +155,8 @@
                     </div>
                     
                     <button 
-                      @click="handleAddToCart" 
+                      type="button"
+                      @click.stop.prevent="handleAddToCart" 
                       :disabled="product.stock <= 0 || isAddingToCart"
                       class="flex-1 h-16 bg-stone-900 text-white rounded-full font-label uppercase tracking-[0.4em] text-[11px] font-bold shadow-2xl hover:bg-primary transition-all duration-700 disabled:opacity-30 flex items-center justify-center gap-3 active:scale-95"
                     >

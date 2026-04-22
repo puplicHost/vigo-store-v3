@@ -213,4 +213,4 @@ model Settings {
 
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
-}
+}

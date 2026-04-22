@@ -35,99 +35,75 @@ class="appearance-none bg-surface-container-lowest border border-outline-variant
     </div>
 
     <!-- Table -->
-    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant/10 shadow-sm shadow-primary/5 overflow-hidden">
-      <table class="w-full">
-        <thead class="bg-surface-container-low border-b border-outline-variant/10">
-          <tr>
-            <th class="text-left px-6 py-4 font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">User</th>
-            <th class="text-left px-6 py-4 font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Role</th>
-            <th class="text-left px-6 py-4 font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Orders</th>
-            <th class="text-left px-6 py-4 font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Created</th>
-            <th class="text-right px-6 py-4 font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Actions</th>
-          </tr>
-        </thead>
-          <tbody class="divide-y divide-outline-variant/10">
-            <tr v-if="pending" class="hover:bg-surface-container-low/50 transition-colors">
-              <td colspan="5" class="px-6 py-12 text-center text-on-surface-variant">
-                <span class="material-symbols-outlined text-3xl animate-spin">progress_activity</span>
-              </td>
-            </tr>
-            <tr v-else-if="error" class="hover:bg-surface-container-low/50 transition-colors">
-              <td colspan="5" class="px-6 py-12 text-center">
-                <span class="text-error font-body">Failed to load users</span>
-              </td>
-            </tr>
-            <tr v-else-if="!filteredUsers?.length" class="hover:bg-surface-container-low/50 transition-colors">
-              <td colspan="5" class="px-6 py-12 text-center">
-                <span class="text-on-surface-variant font-body">No users found.</span>
-              </td>
-            </tr>
-            <template v-else>
-              <tr
-                v-for="(user, index) in filteredUsers"
-                :key="user.id || index"
-                class="hover:bg-surface-container-low/50 transition-colors"
-              >
-                <td class="px-6 py-4">
-                  <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center">
-                      <span class="material-symbols-outlined text-on-surface-variant">person</span>
-                    </div>
-                    <div>
-                      <div class="font-medium text-on-surface font-body">{{ user.name || 'No name' }}</div>
-                      <div class="text-xs text-on-surface-variant">{{ user.email }}</div>
-                    </div>
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <span :class="[
-                    'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium',
-                    user.role === 'SUPER_ADMIN' ? 'bg-purple-100 text-purple-700 border border-purple-200' :
-                    user.role === 'ADMIN' ? 'bg-blue-100 text-blue-700 border border-blue-200' :
-                    user.role === 'MANAGER' ? 'bg-amber-100 text-amber-700 border border-amber-200' :
-                    user.role === 'SALES' ? 'bg-green-100 text-green-700 border border-green-200' :
-                    'bg-gray-100 text-gray-700 border border-gray-200'
-                  ]">
-                    <span class="w-1.5 h-1.5 rounded-full" :class="[
-                      user.role === 'SUPER_ADMIN' ? 'bg-purple-500' :
-                      user.role === 'ADMIN' ? 'bg-blue-500' :
-                      user.role === 'MANAGER' ? 'bg-amber-500' :
-                      user.role === 'SALES' ? 'bg-green-500' :
-                      'bg-gray-500'
-                    ]"></span>
-                    {{ user.role }}
-                  </span>
-                </td>
-                <td class="px-6 py-4 text-sm text-on-surface-variant font-body">
-                  {{ user._count?.orders || 0 }}
-                </td>
-                <td class="px-6 py-4 text-sm text-on-surface-variant font-body">
-                  {{ user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '-' }}
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex items-center justify-end gap-2">
-                    <button
-                      @click="editUser(user)"
-                      class="p-2 text-on-surface-variant hover:text-primary hover:bg-primary/5 rounded-lg transition-colors"
-                      title="Edit User"
-                    >
-                      <span class="material-symbols-outlined text-sm">edit</span>
-                    </button>
-                    <button
-                      v-if="auth.user.value?.role === 'SUPER_ADMIN'"
-                      @click="confirmDelete(user)"
-                      class="p-2 text-on-surface-variant hover:text-error hover:bg-error/5 rounded-lg transition-colors"
-                      title="Delete User"
-                    >
-                      <span class="material-symbols-outlined text-sm">delete</span>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </template>
-          </tbody>
-      </table>
-    </div>
+    <AdminTable
+      :columns="columns"
+      :data="filteredUsers"
+      :loading="pending"
+      :show-pagination="true"
+      :pageSize="10"
+      empty-message="No users found."
+      empty-icon="person"
+    >
+      <template #cell-name="{ row }">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center">
+            <span class="material-symbols-outlined text-on-surface-variant">person</span>
+          </div>
+          <div>
+            <div class="font-medium text-on-surface font-body">{{ row.name || 'No name' }}</div>
+            <div class="text-xs text-on-surface-variant">{{ row.email }}</div>
+          </div>
+        </div>
+      </template>
+
+      <template #cell-role="{ row }">
+        <span :class="[
+          'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium',
+          row.role === 'SUPER_ADMIN' ? 'bg-purple-100 text-purple-700 border border-purple-200' :
+          row.role === 'ADMIN' ? 'bg-blue-100 text-blue-700 border border-blue-200' :
+          row.role === 'MANAGER' ? 'bg-amber-100 text-amber-700 border border-amber-200' :
+          row.role === 'SALES' ? 'bg-green-100 text-green-700 border border-green-200' :
+          'bg-gray-100 text-gray-700 border border-gray-200'
+        ]">
+          <span class="w-1.5 h-1.5 rounded-full" :class="[
+            row.role === 'SUPER_ADMIN' ? 'bg-purple-500' :
+            row.role === 'ADMIN' ? 'bg-blue-500' :
+            row.role === 'MANAGER' ? 'bg-amber-500' :
+            row.role === 'SALES' ? 'bg-green-500' :
+            'bg-gray-500'
+          ]"></span>
+          {{ row.role }}
+        </span>
+      </template>
+
+      <template #cell-_count="{ row }">
+        <span class="text-sm text-on-surface-variant font-body">{{ row._count?.orders || 0 }}</span>
+      </template>
+
+      <template #cell-createdAt="{ row }">
+        <span class="text-sm text-on-surface-variant font-body">{{ row.createdAt ? new Date(row.createdAt).toLocaleDateString() : '-' }}</span>
+      </template>
+
+      <template #actions="{ row }">
+        <div class="flex items-center justify-end gap-2">
+          <button
+            @click="editUser(row)"
+            class="p-2 text-on-surface-variant hover:text-primary hover:bg-primary/5 rounded-lg transition-colors"
+            title="Edit User"
+          >
+            <span class="material-symbols-outlined text-sm">edit</span>
+          </button>
+          <button
+            v-if="auth.user.value?.role === 'SUPER_ADMIN'"
+            @click="confirmDelete(row)"
+            class="p-2 text-on-surface-variant hover:text-error hover:bg-error/5 rounded-lg transition-colors"
+            title="Delete User"
+          >
+            <span class="material-symbols-outlined text-sm">delete</span>
+          </button>
+        </div>
+      </template>
+    </AdminTable>
 
     <!-- Create User Modal -->
     <div v-if="showCreateModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -303,8 +279,15 @@ const roleFilter = ref('ALL')
 const showCreateModal = ref(false)
 const showEditModal = ref(false)
 const showDeleteModal = ref(false)
-const userToDelete = ref(null)
+const userToDelete = ref<any>(null)
 const { toast } = useNotifications()
+
+const columns = [
+  { key: 'name', label: 'User' },
+  { key: 'role', label: 'Role' },
+  { key: '_count', label: 'Orders' },
+  { key: 'createdAt', label: 'Created' }
+] as any[]
 
 const newUser = ref({
   name: '',
@@ -392,6 +375,7 @@ const confirmDelete = (user: any) => {
 }
 
 const deleteUser = async () => {
+  if (!userToDelete.value) return
   try {
     await $apiFetch(`/api/admin/users/${userToDelete.value.id}`, {
       method: 'DELETE'

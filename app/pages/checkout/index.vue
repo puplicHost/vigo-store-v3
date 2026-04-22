@@ -113,7 +113,7 @@
           <div class="sticky top-40 bg-stone-50/50 p-12 rounded-[4rem] border border-stone-100 shadow-sm space-y-16 mt-10">
             <h2 class="text-4xl font-serif font-bold italic border-b border-stone-100 pb-10 flex items-end justify-between">
               Order Narrative
-              <span class="text-[10px] font-bold text-stone-300 not-italic uppercase tracking-[0.3em] italic">{{ cartItemCount }} Curated Items</span>
+              <span class="text-[10px] font-bold text-stone-300 not-italic uppercase tracking-[0.3em] italic">{{ checkoutItems.length }} Curated Items</span>
             </h2>
 
             <div class="space-y-8">
@@ -163,7 +163,7 @@
 const { user } = useAuth()
 const { settings } = useSettings()
 const { toast } = useNotifications()
-const { cartItems, cartTotal, cartItemCount, clearCart } = useCart()
+const { cartItems, cartTotal, cartItemCount, clearCart, isCheckingOutItem, checkoutItemData, removePurchasedItem } = useCart()
 
 // Reactive Machine
 const paymentMethod = ref('PAYMOB')
@@ -179,7 +179,19 @@ const shipping = ref({
 
 
 // Fiscal Intelligence Computation
-const subtotal = computed(() => cartTotal.value || 0)
+const checkoutItems = computed(() => {
+  return isCheckingOutItem.value && checkoutItemData.value 
+    ? [checkoutItemData.value] 
+    : cartItems.value
+})
+
+const subtotal = computed(() => {
+  if (isCheckingOutItem.value && checkoutItemData.value) {
+    return checkoutItemData.value.price * checkoutItemData.value.quantity
+  }
+  return cartTotal.value || 0
+})
+
 const shippingCost = computed(() => (subtotal.value >= (settings.value.freeShippingThreshold || 0)) ? 0 : (settings.value.shippingFee || 100))
 const tax = computed(() => Math.round(subtotal.value * 0.14))
 const total = computed(() => {
@@ -190,15 +202,15 @@ const total = computed(() => {
 const commitOrder = async () => {
   console.log('commitOrder triggered')
   console.log('shipping:', shipping.value)
-  console.log('cartItems:', cartItems.value)
+  console.log('checkoutItems:', checkoutItems.value)
 
-  if (!cartItems.value.length) { 
+  if (!checkoutItems.value.length) { 
     toast.warning('Your cart is empty'); 
     return 
   }
   
   // Validate variant selections
-  const incompleteItems = cartItems.value.filter(
+  const incompleteItems = checkoutItems.value.filter(
     item => item.requiresSelection && (!item.size || !item.color)
   )
   if (incompleteItems.length > 0) {
@@ -224,7 +236,7 @@ const commitOrder = async () => {
   try {
     const names = shipping.value.fullName.split(' ')
     const payload = {
-      items: cartItems.value.map(i => ({ 
+      items: checkoutItems.value.map(i => ({ 
         productId: i.productId, 
         quantity: i.quantity, 
         price: i.price,
@@ -257,10 +269,18 @@ const commitOrder = async () => {
       return
     }
     
+    // If single-item checkout, remove only that item from cart
+    if (isCheckingOutItem.value && checkoutItemData.value) {
+      removePurchasedItem(checkoutItemData.value.id)
+    } else {
+      // Full cart checkout, clear entire cart
+      clearCart()
+    }
+    
     // Redirect to Paymob hosted checkout
     toast.success(response.message || 'Redirecting to payment terminal...')
     window.location.href = response.paymentUrl
-  } catch (error) {
+  } catch (error: any) {
     console.error('ORDER ERROR:', error)
     // Show only the translated, user-friendly error message
     toast.error(error.message || 'حدث خطأ غير متوقع في معالجة طلبك.')
