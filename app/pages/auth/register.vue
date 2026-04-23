@@ -13,6 +13,9 @@ interface RegisterResponse {
   }
 }
 
+const { setAuth } = useAuth()
+const { settings } = useSettings()
+
 const name = ref('')
 const email = ref('')
 const password = ref('')
@@ -22,20 +25,15 @@ const error = ref('')
 
 const handleRegister = async () => {
   error.value = ''
-  
-  // Validation
+
+  // Validation - only check password match
   if (password.value !== confirmPassword.value) {
     error.value = 'Passwords do not match'
     return
   }
-  
-  if (password.value.length < 6) {
-    error.value = 'Password must be at least 6 characters'
-    return
-  }
-  
+
   loading.value = true
-  
+
   try {
     const data = await $apiFetch<RegisterResponse>('/api/auth/register', {
       method: 'POST',
@@ -46,10 +44,14 @@ const handleRegister = async () => {
         role: 'USER'
       }
     })
-    
-    if (data?.success) {
-      // Redirect to login
-      navigateTo('/auth/login', { replace: true })
+
+    if (data?.success && data.token) {
+      // Save auth state automatically
+      setAuth(data.token, data.user)
+
+      // Redirect based on role
+      const isAdmin = data.user?.role === 'ADMIN' || data.user?.role === 'SUPER_ADMIN'
+      navigateTo(isAdmin ? '/admin' : '/', { replace: true })
     }
   } catch (e: any) {
     error.value = e.data?.statusMessage || 'An unexpected error occurred'

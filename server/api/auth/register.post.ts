@@ -1,4 +1,6 @@
 import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
+import { setCookie } from 'h3'
 import { checkRateLimit, getRateLimitResetTime } from '../../utils/rateLimiter'
 import { getRequestHeader } from 'h3'
 import { RegisterSchema } from '../../utils/validators'
@@ -59,9 +61,35 @@ export default defineEventHandler(async (event) => {
       }
     })
 
+    // Sign JWT Token
+    const jwtSecret = process.env.JWT_SECRET
+    if (!jwtSecret) {
+      throw new Error('JWT_SECRET environment variable is not defined')
+    }
+
+    const token = jwt.sign(
+      {
+        userId: user.id,
+        email: user.email,
+        role: user.role
+      },
+      jwtSecret,
+      { expiresIn: '7d' }
+    )
+
+    // Set secure cookie
+    setCookie(event, 'auth_token', token, {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7
+    })
+
     return {
       success: true,
       message: 'User registered successfully',
+      token,
       user
     }
 
